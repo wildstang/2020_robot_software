@@ -49,13 +49,7 @@ public class Robot extends TimedRobot {
         core.createOutputs(WSOutputs.values());
         core.createSubsystems(WSSubsystems.values());
 
-        //AutoManager.getInstance().addProgram(new ExampleAutoProgram());
-        //AutoManager.getInstance().addProgram(new AllTheWayThrough());
-        //AutoManager.getInstance().addProgram(new TestPathReader());
-        //AutoManager.getInstance().addProgram(new CargoShipLeft());
-        //AutoManager.getInstance().addProgram(new Left2056L1());
-        //AutoManager.getInstance().addProgram(new ExampleAutoProgram());
-        //AutoManager.getInstance().addProgram(new RocketLeft());
+        
     }
 
     @Override
