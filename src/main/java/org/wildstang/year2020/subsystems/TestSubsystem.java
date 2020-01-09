@@ -3,6 +3,13 @@ package org.wildstang.year2020.subsystems;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
+import java.util.Map;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -27,6 +34,11 @@ public class TestSubsystem implements Subsystem {
 
     // states
     private double speed;
+    private double maxDriveInput;
+
+    // Shuffleboard materials
+    private ShuffleboardTab driveTab;
+    private NetworkTableEntry maxDriveInputEntry;
 
     // initializes the subsystem
     public void init() {
@@ -37,12 +49,19 @@ public class TestSubsystem implements Subsystem {
         // register solenoids with arbitrary output names, since this is a test
         motor = new TalonSRX(CANConstants.LEFT_DRIVE_TALON);
 
+        // Add Drive tab and max drive input slider onto Shuffleboard
+        driveTab = Shuffleboard.getTab("Drive");
+        maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        maxDriveInput = 1.0;
+
         resetState();
     }
 
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        motor.set(ControlMode.PercentOutput , speed);
+        maxDriveInput = maxDriveInputEntry.getDouble(1.0);
+
+        motor.set(ControlMode.PercentOutput , speed * maxDriveInput);
     }
 
     // respond to input updates
