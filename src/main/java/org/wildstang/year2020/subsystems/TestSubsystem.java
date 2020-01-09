@@ -34,11 +34,11 @@ public class TestSubsystem implements Subsystem {
 
     // states
     private double speed;
+    private double maxDriveInput;
 
     // Shuffleboard materials
-    private ShuffleboardTab driveTab = Shuffleboard.getTab("Drive");
-    private NetworkTableEntry maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
-    private double maxDriveInput = 1.0;
+    private ShuffleboardTab driveTab;
+    private NetworkTableEntry maxDriveInputEntry;
 
     // initializes the subsystem
     public void init() {
@@ -48,6 +48,11 @@ public class TestSubsystem implements Subsystem {
 
         // register solenoids with arbitrary output names, since this is a test
         motor = new TalonSRX(CANConstants.LEFT_DRIVE_TALON);
+
+        // Add Drive tab and max drive input slider onto Shuffleboard
+        driveTab = Shuffleboard.getTab("Drive");
+        maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        maxDriveInput = 1.0;
 
         resetState();
     }
