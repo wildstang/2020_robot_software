@@ -13,6 +13,7 @@ import org.wildstang.hardware.crio.RoboRIOInputFactory;
 import org.wildstang.hardware.crio.RoboRIOOutputFactory;
 import org.wildstang.year2020.auto.programs.ExampleAutoProgram;
 import org.wildstang.year2020.subsystems.drive.Drive;
+import org.wildstang.year2020.subsystems.drive.FalconDrive;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -56,6 +57,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         System.out.println("Engaging disabled mode.");
         Drive driveBase = ((Drive) Core.getSubsystemManager().getSubsystem(WSSubsystems.DRIVEBASE.getName()));
+        //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         driveBase.setBrakeMode(false);
         driveBase.purgePaths();
     }
@@ -67,6 +69,8 @@ public class Robot extends TimedRobot {
         Drive driveBase = ((Drive) Core.getSubsystemManager()
                 .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
         driveBase.purgePaths();
+        //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
+        //falconDrive.purgePaths();
 
         SmartDashboard.putBoolean("Checkpoint 707 yay", true);
 
@@ -84,6 +88,10 @@ public class Robot extends TimedRobot {
         driveBase.purgePaths();
         driveBase.setOpenLoopDrive();
         driveBase.setBrakeMode(false);
+        //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
+        //falconDrive.purgePaths();
+        //falconDrive.setOpenLoopDrive();
+        //falconDrive.setBrakeMode(false);
     }
 
     @Override
@@ -127,6 +135,8 @@ public class Robot extends TimedRobot {
         Drive driveBase = ((Drive) Core.getSubsystemManager()
                 .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
         driveBase.purgePaths();
+        //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
+        //falconDrive.purgePaths();
     }
     
     private void resetRobotState() {
