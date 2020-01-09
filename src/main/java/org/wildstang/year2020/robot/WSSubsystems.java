@@ -1,7 +1,6 @@
 package org.wildstang.year2020.robot;
 
 import org.wildstang.year2020.subsystems.drive.Drive;
-import org.wildstang.year2020.subsystems.drive.FalconDrive;
 import org.wildstang.framework.core.Subsystems;
 
 /**
@@ -10,7 +9,6 @@ import org.wildstang.framework.core.Subsystems;
  **/
 public enum WSSubsystems implements Subsystems {
     DRIVEBASE("Drive Base", Drive.class),
-    //FALCONDRIVE("Falcon Drive",FalconDrive.class)
     ;
 
     private String name;

@@ -54,7 +54,7 @@ public class Drive implements Subsystem {
     /** Left and right Talon master controllers */
     private TalonSRX[] masters = new TalonSRX[2];
     /** Left and right pairs of Victor follower controllers */
-    private VictorSPX[][] followers = new VictorSPX[2][2];
+    private TalonSRX[] followers = new TalonSRX[2];
 
     public static boolean autoEStopActivated = false;
 
@@ -303,7 +303,7 @@ public class Drive implements Subsystem {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
             masters[side].setNeutralMode(mode);
-            for (VictorSPX follower : followers[side]) {
+            for (TalonSRX follower : followers) {
                 follower.setNeutralMode(mode);
             }
         }
@@ -487,10 +487,18 @@ public class Drive implements Subsystem {
 
             initMaster(side, masters[side]);
 
-            for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
-                followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
-                initFollower(side, followers[side][i]);
-            }
+            followers[side]  = new TalonSRX(FOLLOWER_IDS[side][1]);
+            initFollower(side,followers[side]);
+
+
+
+
+
+
+            //for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
+            //    followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
+            //    initFollower(side, followers[side][i]);
+            //}
         }
     }
 
@@ -545,7 +553,7 @@ public class Drive implements Subsystem {
         System.out.print(master_config.toString("drive talon " + SIDE_NAMES[side]));
     }
 
-    private void initFollower(int side, VictorSPX follower) {
+    private void initFollower(int side, TalonSRX follower) {
         TalonSRX master = masters[side];
         if (side == LEFT) {
             follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
