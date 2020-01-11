@@ -4,7 +4,7 @@ public class DriveConstants {
     /** Distance from the centerline of left wheels to centerline of right wheels */
     public static final double WHEELBASE_WIDTH_INCHES = 30;
     /** Diameter of drive wheels */
-    public static final double WHEEL_DIAMETER_INCHES = 6;
+    public static final double WHEEL_DIAMETER_INCHES = 4;
     /** Number of encoder ticks in one revolution of the wheel */
     public static final double ENCODER_CPR = 4096;
     /** # of ticks in one surface inch of wheel movement */
