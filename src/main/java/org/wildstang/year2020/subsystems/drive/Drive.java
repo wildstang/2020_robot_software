@@ -47,14 +47,14 @@ public class Drive implements Subsystem {
     private static final int RIGHT = 1;
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
-    private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
-    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
+    private static final int[][] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALONS, CANConstants.RIGHT_DRIVE_TALONS };
+    private static final int[] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTOR, CANConstants.RIGHT_DRIVE_VICTOR };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
-    /** Left and right Talon master controllers */
-    private TalonSRX[] masters = new TalonSRX[2];
-    /** Left and right pairs of Victor follower controllers */
-    private VictorSPX[][] followers = new VictorSPX[2][2];
+    /** Left and right pairs of Talon master controllers */
+    private TalonSRX[][] masters = new TalonSRX[2][2];
+    /** Left and right Victor follower controllers */
+    private VictorSPX[] followers = new VictorSPX[2];
 
     public static boolean autoEStopActivated = false;
 
@@ -225,7 +225,7 @@ public class Drive implements Subsystem {
         // TODO: Is this redundant with logging machinery? (Not redundant?)
         if (updateCounter % 10 == 0) {
             for (int side : SIDES) {
-                TalonSRX master = masters[side];
+                //TalonSRX master = masters[side];
                 /*
                  * These are commented out in order to debug an issue double output =
                  * master.getMotorOutputPercent(); SmartDashboard.putNumber(SIDE_NAMES[side] +
@@ -276,9 +276,9 @@ public class Drive implements Subsystem {
             break;
         }
         //SensorCollection leftEncoder = masters[LEFT].getSensorCollection();
-        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSelectedSensorPosition());  //leftEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Left Encoder", masters[LEFT][LEFT].getSelectedSensorPosition());  //leftEncoder.getQuadraturePosition()
         //SensorCollection rightEncoder = masters[RIGHT].getSensorCollection();
-        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSelectedSensorPosition());  //rightEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT][LEFT].getSelectedSensorPosition());  //rightEncoder.getQuadraturePosition()
 
         updateCounter += 1;
     }
@@ -290,7 +290,10 @@ public class Drive implements Subsystem {
 
     /** Reset drive encoders back to zero */
     public void resetEncoders() {
-        for (TalonSRX master : masters) {
+        for (TalonSRX master : masters[LEFT]) {
+            master.getSensorCollection().setQuadraturePosition(0, 10);
+        }
+        for (TalonSRX master : masters[RIGHT]) {
             master.getSensorCollection().setQuadraturePosition(0, 10);
         }
     }
@@ -302,9 +305,9 @@ public class Drive implements Subsystem {
     public void setBrakeMode(boolean brake) {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
-            masters[side].setNeutralMode(mode);
-            for (VictorSPX follower : followers[side]) {
-                follower.setNeutralMode(mode);
+            followers[side].setNeutralMode(mode);
+            for (int innerSide : SIDES) {
+                masters[side][innerSide].setNeutralMode(mode);
             }
         }
     }
@@ -316,7 +319,11 @@ public class Drive implements Subsystem {
         // Set talons to hold their current position
         if (driveMode != DriveType.FULL_BRAKE) {
             // Set up Talons to hold their current position as close as possible
-            for (TalonSRX master : masters) {
+            for (TalonSRX master : masters[LEFT]) {
+                master.selectProfileSlot(DrivePID.BASE_LOCK.slot, 0);
+                master.set(ControlMode.Position, master.getSelectedSensorPosition());
+            }
+            for (TalonSRX master : masters[RIGHT]) {
                 master.selectProfileSlot(DrivePID.BASE_LOCK.slot, 0);
                 master.set(ControlMode.Position, master.getSelectedSensorPosition());
             }
@@ -334,7 +341,7 @@ public class Drive implements Subsystem {
             }
         }
 
-        pathFollower = new PathFollower(p_path, isForwards, masters[LEFT], masters[RIGHT]);
+        pathFollower = new PathFollower(p_path, isForwards, masters[LEFT][LEFT], masters[RIGHT][LEFT]);
     }
 
     // FIXME this is an abstraction violation to freely share the path follower
@@ -385,7 +392,10 @@ public class Drive implements Subsystem {
         setBrakeMode(false);
 
         // Zero motor output
-        for (TalonSRX master : masters) {
+        for (TalonSRX master : masters[LEFT]) {
+            master.set(ControlMode.PercentOutput, 0);
+        }
+        for (TalonSRX master : masters[RIGHT]) {
             master.set(ControlMode.PercentOutput, 0);
         }
     }
@@ -407,7 +417,7 @@ public class Drive implements Subsystem {
      */
     public void setAutonStraightDrive(double rotationtarget) {
         // XXX TODO: grab a mentor and go over
-        // https://github.com/wildstang/2019_robot_software/blob/master/design_docs/year2020/drive.md
+        // https://github.com/wildstang/2019_robot_software/blob/master/design_docs/year2019/drive.md
         // before using or adding to this method.
         //if (variable){
             stopPathFollowing();
@@ -416,7 +426,10 @@ public class Drive implements Subsystem {
 
             setBrakeMode(false);
         //}
-        for (TalonSRX master : masters) {
+        for (TalonSRX master : masters[LEFT]) {
+            master.set(ControlMode.Position, rotationtarget);
+        }
+        for (TalonSRX master : masters[RIGHT]) {
             master.set(ControlMode.Position, rotationtarget);
         }
     }
@@ -426,16 +439,19 @@ public class Drive implements Subsystem {
      */
     public double getRightSensorValue() {
         // XXX TODO: grab a mentor and go over
-        // https://github.com/wildstang/2019_robot_software/blob/master/design_docs/year2020/drive.md
+        // https://github.com/wildstang/2019_robot_software/blob/master/design_docs/year2019/drive.md
         // before using or adding to this method.
-        return masters[RIGHT].getSensorCollection().getQuadraturePosition();
+        return masters[RIGHT][LEFT].getSensorCollection().getQuadraturePosition();
     }
 
     
     /** Clears motion profile trajectories in talon buffers (to be done before auto and teleop) */
     public void purgePaths() {
-        masters[LEFT].clearMotionProfileTrajectories();
-        masters[RIGHT].clearMotionProfileTrajectories();
+        masters[LEFT][LEFT].clearMotionProfileTrajectories();
+        masters[LEFT][RIGHT].clearMotionProfileTrajectories();
+        masters[RIGHT][LEFT].clearMotionProfileTrajectories();
+        masters[RIGHT][RIGHT].clearMotionProfileTrajectories();
+
     }
 
     /////////////////////////////////////////////////////////
@@ -448,11 +464,15 @@ public class Drive implements Subsystem {
         driveMode = DriveType.PATH;
 
         // Configure motor controller modes for path following
-        masters[LEFT].set(ControlMode.MotionProfile, 0);
-        masters[LEFT].selectProfileSlot(DrivePID.PATH.slot, 0);
+        masters[LEFT][LEFT].set(ControlMode.MotionProfile, 0);
+        masters[LEFT][LEFT].selectProfileSlot(DrivePID.PATH.slot, 0);
+        masters[LEFT][RIGHT].set(ControlMode.MotionProfile, 0);
+        masters[LEFT][RIGHT].selectProfileSlot(DrivePID.PATH.slot, 0);
 
-        masters[RIGHT].set(ControlMode.MotionProfile, 0);
-        masters[RIGHT].selectProfileSlot(DrivePID.PATH.slot, 0);
+        masters[RIGHT][LEFT].set(ControlMode.MotionProfile, 0);
+        masters[RIGHT][LEFT].selectProfileSlot(DrivePID.PATH.slot, 0);
+        masters[RIGHT][RIGHT].set(ControlMode.MotionProfile, 0);
+        masters[RIGHT][RIGHT].selectProfileSlot(DrivePID.PATH.slot, 0);
 
         // Use brake mode to stop quickly at end of path, since Talons will put
         // output to neutral
@@ -483,14 +503,13 @@ public class Drive implements Subsystem {
     /** Initialize all drive base motor controllers. */
     private void initMotorControllers() /* throws CoreUtils.CTREException */ {
         for (int side : SIDES) {
-            masters[side] = new TalonSRX(MASTER_IDS[side]);
-
-            initMaster(side, masters[side]);
-
-            for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
-                followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
-                initFollower(side, followers[side][i]);
+            for (int innerSide : SIDES) {
+                masters[side][innerSide] = new TalonSRX(MASTER_IDS[side][innerSide]);
+                initMaster(side, masters[side][innerSide]);
             }
+
+            followers[side] = new VictorSPX(FOLLOWER_IDS[side]);
+            initFollower(side, followers[side]);
         }
     }
 
@@ -546,7 +565,7 @@ public class Drive implements Subsystem {
     }
 
     private void initFollower(int side, VictorSPX follower) {
-        TalonSRX master = masters[side];
+        TalonSRX master = masters[side][0];
         if (side == LEFT) {
             follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
         } else {
@@ -565,12 +584,17 @@ public class Drive implements Subsystem {
     }
 
     private void setMotorSpeeds(DriveSignal speeds) {
-        masters[LEFT].set(ControlMode.PercentOutput, speeds.leftMotor);
-        masters[RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor);
+        masters[LEFT][LEFT].set(ControlMode.PercentOutput, speeds.leftMotor);
+        masters[LEFT][RIGHT].set(ControlMode.PercentOutput, speeds.leftMotor);
+        masters[RIGHT][LEFT].set(ControlMode.PercentOutput, speeds.rightMotor);
+        masters[RIGHT][RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor);
+
     }
     public void setMotionMagicTargetAbsolute(double p_leftTarget, double p_rightTarget) {
-        masters[LEFT].set(ControlMode.MotionMagic, p_leftTarget);
-        masters[RIGHT].set(ControlMode.MotionMagic, p_rightTarget);
+        masters[LEFT][LEFT].set(ControlMode.MotionMagic, p_leftTarget);
+        masters[LEFT][RIGHT].set(ControlMode.MotionMagic, p_leftTarget);
+        masters[RIGHT][LEFT].set(ControlMode.MotionMagic, p_rightTarget);
+        masters[RIGHT][RIGHT].set(ControlMode.MotionMagic, p_rightTarget);
     }
     public void setMotionMagicMode(boolean p_quickTurn, double f_gain) {
         // Stop following any current path
@@ -580,7 +604,41 @@ public class Drive implements Subsystem {
         if (driveMode != DriveType.MAGIC) {
             // Set up Talons for the Motion Magic mode
 
-            for (TalonSRX master : masters) {
+            for (TalonSRX master : masters[LEFT]) {
+                master.selectProfileSlot(DrivePID.MM_DRIVE.slot, 0);
+                master.set(ControlMode.MotionMagic, 0);
+
+                // m_leftMaster.setPID(DriveConstants.MM_QUICK_P_GAIN,
+                // DriveConstants.MM_QUICK_I_GAIN, DriveConstants.MM_QUICK_D_GAIN, f_gain, 0, 0,
+                // DriveConstants.BASE_LOCK_PROFILE_SLOT);
+                if (p_quickTurn) {
+                    master.configMotionAcceleration(350); // RPM
+                    master.configMotionCruiseVelocity(350); // RPM
+                    master.config_kP(DrivePID.BASE_LOCK.slot,
+                            DrivePID.MM_QUICK.k.p);
+                    master.config_kI(DrivePID.BASE_LOCK.slot,
+                            DrivePID.MM_QUICK.k.i);
+                    master.config_kD(DrivePID.BASE_LOCK.slot,
+                            DrivePID.MM_QUICK.k.d);
+                    master.config_kF(DrivePID.BASE_LOCK.slot,
+                            DrivePID.MM_QUICK.k.f);
+                } else {
+                    master.configMotionAcceleration(90); // RPM
+                    master.configMotionCruiseVelocity(80); // RPM
+                    master.config_kP(DrivePID.MM_DRIVE.slot,
+                            DrivePID.MM_DRIVE.k.p);
+                    master.config_kI(DrivePID.MM_DRIVE.slot,
+                            DrivePID.MM_DRIVE.k.i);
+                    master.config_kD(DrivePID.MM_DRIVE.slot,
+                            DrivePID.MM_DRIVE.k.d);
+                    master.config_kF(DrivePID.MM_DRIVE.slot,
+                            DrivePID.MM_DRIVE.k.f);
+                    master.selectProfileSlot(DrivePID.MM_DRIVE.slot,0);
+                }
+
+            }
+
+            for (TalonSRX master : masters[RIGHT]) {
                 master.selectProfileSlot(DrivePID.MM_DRIVE.slot, 0);
                 master.set(ControlMode.MotionMagic, 0);
 
@@ -625,11 +683,16 @@ public class Drive implements Subsystem {
     public void setForward(boolean thing){
         driveMode = DriveType.MAGIC;
         if (thing) {
-            masters[LEFT].set(ControlMode.PercentOutput,0.51*0.8);
-            masters[RIGHT].set(ControlMode.PercentOutput,0.555*0.8);
+            masters[LEFT][LEFT].set(ControlMode.PercentOutput,0.51*0.8);
+            masters[LEFT][RIGHT].set(ControlMode.PercentOutput,0.51*0.8);
+            masters[RIGHT][LEFT].set(ControlMode.PercentOutput,0.555*0.8);
+            masters[RIGHT][RIGHT].set(ControlMode.PercentOutput,0.555*0.8);
+
         } else {
-            masters[LEFT].set(ControlMode.PercentOutput,0.0);
-            masters[RIGHT].set(ControlMode.PercentOutput,0.0);
+            masters[LEFT][LEFT].set(ControlMode.PercentOutput,0.0);
+            masters[LEFT][RIGHT].set(ControlMode.PercentOutput,0.0);
+            masters[RIGHT][LEFT].set(ControlMode.PercentOutput,0.0);
+            masters[RIGHT][RIGHT].set(ControlMode.PercentOutput,0.0);
         }
     }
 }
