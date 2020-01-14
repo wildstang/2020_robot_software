@@ -48,7 +48,7 @@ public class Drive implements Subsystem {
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
     private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
-    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
+    private static final int[] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_TALON_FOLLOWER, CANConstants.RIGHT_DRIVE_TALON_FOLLOWER };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
     /** Left and right Talon master controllers */
@@ -487,7 +487,7 @@ public class Drive implements Subsystem {
 
             initMaster(side, masters[side]);
 
-            followers[side]  = new TalonSRX(FOLLOWER_IDS[side][1]);
+            followers[side]  = new TalonSRX(FOLLOWER_IDS[side]);
             initFollower(side,followers[side]);
 
 
