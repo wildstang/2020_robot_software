@@ -1,0 +1,70 @@
+package org.wildstang.year2020.subsystems.controlPanel;
+
+import org.wildstang.framework.io.Input;
+import org.wildstang.framework.subsystems.Subsystem;
+
+public class cpintake implements Subsystem {
+
+    //controlPanelDeploy
+    private int movedeploy;
+    private DigitalInput CpDeploy;
+    private VictorSPX Deploy;
+
+    //controlpanelspinner
+    private boolean spininput;
+    private DigitalInput CpSpeed;
+    private VictorSPX CPSpinner;
+
+
+
+    //intake 
+    // private boolean spininput detimines intake
+    private VictorSPX Intake;
+     
+    
+
+    @Override
+    public void inputUpdate(Input source) {
+       
+
+    }
+
+    @Override
+    public void init() {
+        
+        // InputListeners
+        CpDeploy = (DigitalInput) Core.getInputManager().getInput(WSInputs.CpSpeed.getName());
+        CpDeploy.addInputListener(this);
+        CpSpeed = (DigitalInput) Core.getInputManager().getInput(WsInputs.CpSpeed.getName());
+        CpSpeed.addInputListener(this);
+        
+
+        //Motors
+        Deploy = new VictorSPX(CANConstants.DEPLOY);        
+        CPSpinner = new VictorSPX(CANConstants.SPINNER);
+        Intake = new VictorSPX(CANConstants.SPINNER);
+        resetState();
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void resetState() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
+
+
+
+
+}
