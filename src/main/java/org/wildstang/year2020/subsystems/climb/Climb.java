@@ -1,19 +1,24 @@
 package org.wildstang.year2020.subsystems.climb;
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.hardware.crio.outputs.WsFalcon;
+import org.wildstang.year2020.robot.CANConstants;
+import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-import org.wildstang.year2020.robot.Robot;
+
 
 public class Climb implements Subsystem {
 
     // Add variable definitions here
-    // TODO Rename climbButton variable to the actual button on controller for easier reading
-    private DigitalInput climbButton;
+    // TODO Assuming that climb will be controlled by the Select button (8)
+    private DigitalInput selectButton;
     // If we want manual control of both climb motors, add another climb button
     // private DigitialInput climbButton2;
     // TODO Needs proper reference to Falcon motors (if not named WsFalcon)
@@ -27,8 +32,8 @@ public class Climb implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == climbButton) {
-            climbInputStatus = climbButton.getValue();
+        if (source == selectButton) {
+            climbInputStatus = selectButton.getValue();
             motorspeed = -1.0; // Might need to be properly adjusted for Falcon motors
         }
     }
@@ -72,14 +77,15 @@ public class Climb implements Subsystem {
     }
 
     private void initOutputs() {
-        //TODO Add controller mappings
-        climbButton = null;
+        //TODO Assuming the use of TalonSRX motors
+        climbMotor1 = new TalonSRX(CANConstants.CLIMB_TALON_1);
+        climbMotor2 = new TalonSRX(CANConstants.CLIMB_TALON_2);
     }
 
     private void initInputs() {
-        //TODO Add Falcon motors
-        climbMotor1 = null;
-        climbMotor2 = null;
+        //TODO Assuming the use of the "Select" button (8)
+        selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT);
     }
+
 
 }
