@@ -17,24 +17,26 @@ import org.wildstang.year2020.robot.WSOutputs;
 public class Climb implements Subsystem {
 
     // Add variable definitions here
-    // TODO Assuming that climb will be controlled by the Select button (8)
+    // TODO Climb is currently controlled by the Select button (deploy climb/extend arms)
+    //      and the Start button (lift up/detract arms)
     private DigitalInput selectButton;
-    // If we want manual control of both climb motors, add another climb button
-    // private DigitialInput climbButton2;
-    // TODO Needs proper reference to Falcon motors (if not named WsFalcon)
-    private WsFalcon climbMotor1;
-    private WsFalcon climbMotor2;
+    private DigitialInput startButton;
+    private TalonSRX climbMotor1;
+    private TalonSRX climbMotor2;
     private double motorspeed;
 
     // Status booleans for climb, these should be added in resetState method
-    private boolean climbInputStatus; // To check if climb button is pressed
+    private boolean climbInputStatus;
     private boolean climbActiveStatus; // For Shuffleboard
 
     @Override
     public void inputUpdate(Input source) {
         if (source == selectButton) {
             climbInputStatus = selectButton.getValue();
-            motorspeed = -1.0; // Might need to be properly adjusted for Falcon motors
+            motorspeed = -1.0; // Extends arms
+        } else if (source == startButton) {
+            climbInputStatus = startButton.getValue();
+            motorspeed = 1.0; // Retracts arms
         }
     }
 
@@ -85,6 +87,7 @@ public class Climb implements Subsystem {
     private void initInputs() {
         //TODO Assuming the use of the "Select" button (8)
         selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT);
+        startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START);
     }
 
 
