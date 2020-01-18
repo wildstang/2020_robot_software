@@ -18,7 +18,7 @@ public class TrenchCentered extends AutoProgram {
     @Override
     public String toString() {
         //give it a name
-        return "ExampleAutoProgram";
+        return "Trench_Centered";
     }
 
 }
