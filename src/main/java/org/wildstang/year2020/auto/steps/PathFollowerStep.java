@@ -25,6 +25,7 @@ public class PathFollowerStep extends AutoStep {
 
     private boolean m_started = false;
 
+    //String path name, boolean is left (true is as is, false is reversed left/right), boolean isforwards (false is backwards)
     public PathFollowerStep(String p_path, boolean isLeft, boolean isForwards) {
         SmartDashboard.putBoolean("Checkpoint 1001 yay", true);
         SmartDashboard.putString("Testing path loading",Filesystem.getDeployDirectory().toString() + "/output/2020/"+p_path);

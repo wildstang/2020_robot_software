@@ -25,6 +25,9 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.lang.management.GarbageCollectorMXBean;
 
+import org.wildstang.year2020.auto.programs.Ball10;
+import org.wildstang.year2020.auto.programs.TrenchCentered;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -50,6 +53,8 @@ public class Robot extends TimedRobot {
         core.createOutputs(WSOutputs.values());
         core.createSubsystems(WSSubsystems.values());
 
+        AutoManager.getInstance().addProgram(new Ball10());
+        AutoManager.getInstance().addProgram(new TrenchCentered());
         
     }
 

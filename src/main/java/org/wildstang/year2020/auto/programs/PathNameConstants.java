@@ -6,7 +6,9 @@ public class PathNameConstants {
     //src/main/deploy/output/2020
 
     public static final String TRENCH_CENTERED = "TrenchCentered";
-
+    public static final String BALL10A = "ball10a";
+    public static final String BALL10B = "ball10b";
+    public static final String BALL10C = "ball10c";
 
     
 }
