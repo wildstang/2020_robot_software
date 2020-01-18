@@ -29,7 +29,7 @@ public class PathFollowerStep extends AutoStep {
         SmartDashboard.putBoolean("Checkpoint 1001 yay", true);
         SmartDashboard.putString("Testing path loading",Filesystem.getDeployDirectory().toString() + "/output/2020/"+p_path);
 
-        m_filePath = Filesystem.getDeployDirectory().toString() + "/output/" + p_path;
+        m_filePath = Filesystem.getDeployDirectory().toString() + "/output/2020/" + p_path;
         this.isForwards = !isForwards;
         this.isLeft = isLeft;
     }
