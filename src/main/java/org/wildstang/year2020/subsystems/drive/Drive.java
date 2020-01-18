@@ -48,13 +48,13 @@ public class Drive implements Subsystem {
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
     private static final int[][] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALONS, CANConstants.RIGHT_DRIVE_TALONS };
-    private static final int[] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTOR, CANConstants.RIGHT_DRIVE_VICTOR };
+    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTOR, CANConstants.RIGHT_DRIVE_VICTOR };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
     /** Left and right pairs of Talon master controllers */
     private TalonSRX[][] masters = new TalonSRX[2][2];
     /** Left and right Victor follower controllers */
-    private VictorSPX[] followers = new VictorSPX[2];
+    private VictorSPX[][] followers = new VictorSPX[2][2];
 
     public static boolean autoEStopActivated = false;
 
@@ -305,9 +305,9 @@ public class Drive implements Subsystem {
     public void setBrakeMode(boolean brake) {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
-            followers[side].setNeutralMode(mode);
             for (int innerSide : SIDES) {
                 masters[side][innerSide].setNeutralMode(mode);
+                followers[side][innerSide].setNeutralMode(mode);
             }
         }
     }
@@ -506,10 +506,11 @@ public class Drive implements Subsystem {
             for (int innerSide : SIDES) {
                 masters[side][innerSide] = new TalonSRX(MASTER_IDS[side][innerSide]);
                 initMaster(side, masters[side][innerSide]);
+                followers[side][innerSide] = new VictorSPX(FOLLOWER_IDS[side][innerSide]);
+                initFollower(side, followers[side][innerSide]);
             }
 
-            followers[side] = new VictorSPX(FOLLOWER_IDS[side]);
-            initFollower(side, followers[side]);
+            
         }
     }
 
