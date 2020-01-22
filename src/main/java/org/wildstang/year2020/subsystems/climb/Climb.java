@@ -8,6 +8,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.framework.timer.WsTimer;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
