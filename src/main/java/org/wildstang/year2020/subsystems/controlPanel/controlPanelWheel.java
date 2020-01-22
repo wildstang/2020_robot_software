@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.controlPanel;
+package org.wildstang.year2020.subsystems.controlpanelwheel;
 
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -13,8 +13,9 @@ public class controlPanelWheel implements Subsystem {
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
-
+        initInputs();
+        initOutputs();
+        resetState();
     }
 
     @Override
@@ -40,6 +41,13 @@ public class controlPanelWheel implements Subsystem {
         // TODO Auto-generated method stub
         return null;
     }
+
+    private void initInputs() {
+
+    }
     
+    private void initOutputs() {
+
+    }
 
 }

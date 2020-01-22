@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.controlPanel;
+package org.wildstang.year2020.subsystems.intake;
 
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
