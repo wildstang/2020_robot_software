@@ -60,14 +60,14 @@ public class Climb implements Subsystem {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
         if (climbInputStatus) {
             climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.setValue(motorspeed);
-            climbMotor2.setValue(motorspeed);
+            climbMotor1.set(ControlMode.PercentOutput, motorspeed);
+            climbMotor2.set(ControlMode.PercentOutput, motorspeed);
         }
         // If anything else, set motorspeed to 0
         else {
             climbActiveStatus = false; // For Shuffleboard
-            climbMotor1.setValue(0);
-            climbMotor2.setValue(0);
+            climbMotor1.set(ControlMode.PercentOutput, 0);
+            climbMotor2.set(ControlMode.PercentOutput, 0);
         }
     }
 
