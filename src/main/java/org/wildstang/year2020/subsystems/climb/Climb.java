@@ -14,22 +14,22 @@ import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 
-
 public class Climb implements Subsystem {
 
-    // Add variable definitions here
-    // Inputs for extending climb
+    // Inputs
     private DigitalInput selectButton;
     private DigitalInput startButton;
-    // Inputs for retracting climb
     private DigitalInput leftBumper;
     private DigitalInput rightBumper;
 
+    // Outputs
     private VictorSPX climbMotor1;
     private VictorSPX climbMotor2;
+
+    // Variables
     private double motorspeed;
 
-    // Status booleans for climb, these should be added in resetState method
+    // Statuses
     private boolean climbInputStatus;
     private boolean climbActiveStatus; // For Shuffleboard
 
@@ -89,10 +89,13 @@ public class Climb implements Subsystem {
 
     private void initInputs() {
         selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT);
+        selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START);
+        startButton.addInputListener(this);
         leftBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_LEFT_BUMPER);
+        leftBumper.addInputListener(this);
         rightBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_RIGHT_BUMPER);
+        rightBumper.addInputListener(this);
     }
-
 
 }
