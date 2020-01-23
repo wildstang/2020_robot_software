@@ -19,4 +19,6 @@ public final class CANConstants {
     public static final int HOPPER_VICTOR2 = 11;
     public static final int LIFT_TALON = 10;
     public static final int LIFT_VICTOR = 9;
+
+    public static final int TURRET_MOTOR = 0; // Fix the numbers please
 }

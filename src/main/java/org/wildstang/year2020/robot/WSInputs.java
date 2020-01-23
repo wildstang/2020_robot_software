@@ -143,6 +143,10 @@ public enum WSInputs implements Inputs {
     STRAFE_LIMIT_SWITCH_OVERRIDE("Strafe Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // Lift
                                                                                                                                   // Subsystem
 
+
+    TURRET_AIM_MODE_TRIGGER("Turret Aim Mode Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false),
+    
+    TURRET_FIRE_TRIGGER("Turret Fire Trigger", WSINputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // Fix the numbers please
     // ********************************
     // Digital IOs
     // ********************************

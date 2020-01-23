@@ -2,8 +2,12 @@ package org.wildstang.year2020.robot;
 
 import org.wildstang.year2020.subsystems.drive.Drive;
 import org.wildstang.year2020.subsystems.drive.FalconDrive;
+import org.wildstang.year2020.subsystems.launching.Shooter;
+import org.wildstang.year2020.subsystems.launching.Limelight;
+import org.wildstang.year2020.subsystems.launching.Turret;
 import org.wildstang.year2020.subsystems.TestSubsystem;
 import org.wildstang.framework.core.Subsystems;
+
 
 /**
  * Enumerate all subsystems on the robot. This enum is used in Robot.java to
@@ -12,7 +16,10 @@ import org.wildstang.framework.core.Subsystems;
 public enum WSSubsystems implements Subsystems {
     DRIVEBASE("Drive Base", Drive.class),
     //FALCONDRIVE("Falcon Drive",FalconDrive.class),
-    TEST("Test", TestSubsystem.class);
+    TEST("Test", TestSubsystem.class),
+    LIMELIGHT("Limelight", Limelight.class),
+    TURRET("Turret", Turret.class),
+    SHOOTER("Shooter", Shooter.class);
 
     private String name;
 
