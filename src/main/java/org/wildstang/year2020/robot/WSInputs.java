@@ -102,17 +102,17 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator DPAD Buttons
     // ---------------------------------
-    LIFT_PRESET_1("Lift Preset 1", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_DOWN), false), // Lift 
+    CPDEPLOY_DPAD_DOWN("CPDEPLOY_DPAD_DOWN", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_DOWN), false), // controlPanel
                                                                                //Subsystem
-    LIFT_PRESET_2("Lift Preset 2", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_LEFT), false), // Lift
+    CPWHEEL_DPAD_LEFT("CPWHEEL_DPAD_LEFT", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_LEFT), false), // controlPanel
                                                                                  // Subsystem
-    LIFT_PRESET_3("Lift Preset 3", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_RIGHT), false), // Lift 
+    CPWHEEL_DPAD_RIGHT("CPWHEEL_DPAD_RIGHT", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_RIGHT), false), // controlPanel 
                                                                                   //Subsystem
-    LIFT_PRESET_4("Lift Preset 4", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_UP), false), // Lift
+    CPDEPLOY_DPAD_UP("CPDEPLOY_DPAD_UP", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_UP), false), // controlPanel
                                                                                  // Subsystem
 
     // ---------------------------------

@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
+import org.wildstang.framework.io.InputManager;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.timer.WsTimer;
@@ -16,7 +17,7 @@ import org.wildstang.year2020.robot.WSOutputs;
 
 public class controlPanelDeploy implements Subsystem {
 
-    //TODO add upper and lower limit switches for the deploy motor
+    // TODO add upper and lower limit switches for the deploy motor
 
     // Inputs
     private DigitalInput upDPAD;
@@ -33,10 +34,10 @@ public class controlPanelDeploy implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-        if(source == upDPAD) {
+        if (source == upDPAD) {
             deployInputStatus = upDPAD.getValue();
             motorspeed = -1.0; // Deploy wheel
-        } else if(source == downDPAD) {
+        } else if (source == downDPAD) {
             deployInputStatus = downDPAD.getValue();
             motorspeed = 1.0; // Retract wheel
         }
@@ -55,8 +56,9 @@ public class controlPanelDeploy implements Subsystem {
 
     @Override
     public void update() {
-         // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
-        if(deployInputStatus) {
+        // If button is pressed, set the motorspeed to the defined value in the
+        // inputUpdate method
+        if (deployInputStatus) {
             deployMotor.set(ControlMode.PercentOutput, motorspeed);
         }
         // If anything else, set motorspeed to 0
@@ -80,13 +82,13 @@ public class controlPanelDeploy implements Subsystem {
     }
 
     private void initInputs() {
-        upDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_DPAD_UP);
+        upDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_DPAD_UP);
         upDPAD.addInputListener(this);
-        downDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_DPAD_DOWN);
+        downDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_DPAD_DOWN);
         downDPAD.addInputListener(this);
-        upperLimitSwitch = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_UPPER_LIMIT_SWITCH);
+        upperLimitSwitch = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_UPPER_LIMIT_SWITCH);
         upperLimitSwitch.addInputListener(this);
-        lowerLimitSwitch = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_LOWER_LIMIT_SWITCH);
+        lowerLimitSwitch = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_LOWER_LIMIT_SWITCH);
         lowerLimitSwitch.addInputListener(this);
     }
 

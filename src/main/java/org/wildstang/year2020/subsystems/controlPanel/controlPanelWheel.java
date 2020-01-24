@@ -1,7 +1,13 @@
 package org.wildstang.year2020.subsystems.controlPanel;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import org.wildstang.framework.io.Input;
+import org.wildstang.framework.io.InputManager;
+import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.year2020.robot.WSInputs;
 
 public class controlPanelWheel implements Subsystem {
     // Inputs
@@ -10,16 +16,24 @@ public class controlPanelWheel implements Subsystem {
     private DigitalInput leftJoystickButton;
 
     // Outputs
-    private TalonSRX controlPanelMotor;
+    private TalonSRX wheelMotor;
 
     // Variables
     private double motorspeed;
 
     // Statuses
     private boolean wheelInputStatus;
+
     @Override
     public void inputUpdate(Input source) {
         // TODO Auto-generated method stub
+        if (source == leftDPAD) {
+            wheelInputStatus = leftDPAD.getValue();
+            motorspeed = 1.0; // run wheel at full power
+        } else if (source == rightDPAD) {
+            wheelInputStatus = rightDPAD.getValue();
+            motorspeed = -1.0; // run wheel at full power in reverse
+        }
 
     }
 
@@ -29,6 +43,18 @@ public class controlPanelWheel implements Subsystem {
         initOutputs();
         resetState();
     }
+    private void initInputs() {
+        //add WSINputs objects to WSINPUTS
+        leftDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPWHEEL_DPAD_LEFT);
+        leftDPAD.addInputListener(this);
+        rightDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPWHEEL_DPAD_RIGHT);
+        rightDPAD.addInputListener(this);
+    }
+    
+    private void initOutputs() {
+        wheelMotor = new TalonSRX(CANConstants.CPWHEEL_TALON);
+    }
+
 
     @Override
     public void selfTest() {
@@ -39,12 +65,21 @@ public class controlPanelWheel implements Subsystem {
     @Override
     public void update() {
         // TODO Auto-generated method stub
-
+           // If button is pressed, set the motorspeed to the defined value in the
+        // inputUpdate method
+        if (wheelInputStatus) {
+            wheelMotor.set(ControlMode.PercentOutput, motorspeed);
+        }
+        // If anything else, set motorspeed to 0
+        else {
+            wheelMotor.set(ControlMode.PercentOutput, 0);
+        }
     }
 
     @Override
     public void resetState() {
         // TODO Auto-generated method stub
+        wheelInputStatus = false;
 
     }
 
@@ -54,12 +89,5 @@ public class controlPanelWheel implements Subsystem {
         return "Control Panel Wheel";
     }
 
-    private void initInputs() {
-
-    }
-    
-    private void initOutputs() {
-
-    }
-
+ 
 }
