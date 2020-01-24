@@ -14,4 +14,4 @@ jobs:
       with:
         java-version: 11
     - name: Build with Gradle
-      run: ./gradlew build -Dorg.gradle.java.home="/usr/lib/jvm/java-11-openjdk"
+      run: ./gradlew build
