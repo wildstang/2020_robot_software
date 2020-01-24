@@ -56,19 +56,19 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         System.out.println("Engaging disabled mode.");
-        Drive driveBase = ((Drive) Core.getSubsystemManager().getSubsystem(WSSubsystems.DRIVEBASE.getName()));
+        //Drive driveBase = ((Drive) Core.getSubsystemManager().getSubsystem(WSSubsystems.DRIVEBASE.getName()));
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
-        driveBase.setBrakeMode(false);
-        driveBase.purgePaths();
+        //driveBase.setBrakeMode(false);
+        //driveBase.purgePaths();
     }
 
     @Override
     public void autonomousInit() {
         Core.getSubsystemManager().resetState();
 
-        Drive driveBase = ((Drive) Core.getSubsystemManager()
-                .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
-        driveBase.purgePaths();
+        // Drive driveBase = ((Drive) Core.getSubsystemManager()
+        //         .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
+        // driveBase.purgePaths();
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         //falconDrive.purgePaths();
 
@@ -83,11 +83,11 @@ public class Robot extends TimedRobot {
         System.out.println("Engaging teleoperation mode.");
         Core.getSubsystemManager().resetState();
 
-        Drive driveBase = ((Drive) Core.getSubsystemManager()
-                .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
-        driveBase.purgePaths();
-        driveBase.setOpenLoopDrive();
-        driveBase.setBrakeMode(false);
+        // Drive driveBase = ((Drive) Core.getSubsystemManager()
+        //         .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
+        // driveBase.purgePaths();
+        // driveBase.setOpenLoopDrive();
+        // driveBase.setBrakeMode(false);
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         //falconDrive.purgePaths();
         //falconDrive.setOpenLoopDrive();
@@ -132,9 +132,9 @@ public class Robot extends TimedRobot {
         //drive.setFullBrakeMode();
         resetRobotState();
 
-        Drive driveBase = ((Drive) Core.getSubsystemManager()
-                .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
-        driveBase.purgePaths();
+        // Drive driveBase = ((Drive) Core.getSubsystemManager()
+        //         .getSubsystem(WSSubsystems.DRIVEBASE.getName()));
+        // driveBase.purgePaths();
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         //falconDrive.purgePaths();
     }

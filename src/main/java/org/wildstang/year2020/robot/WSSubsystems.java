@@ -10,7 +10,7 @@ import org.wildstang.framework.core.Subsystems;
  * initialize all subsystems.
  **/
 public enum WSSubsystems implements Subsystems {
-    DRIVEBASE("Drive Base", Drive.class),
+    //DRIVEBASE("Drive Base", Drive.class),
     //FALCONDRIVE("Falcon Drive",FalconDrive.class),
     TEST("Test", TestSubsystem.class);
 
