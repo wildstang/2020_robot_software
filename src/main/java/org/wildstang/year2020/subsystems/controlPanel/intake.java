@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.intake;
+package org.wildstang.year2020.subsystems.controlPanel;
 
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -38,7 +38,7 @@ public class intake implements Subsystem {
     @Override
     public String getName() {
         // TODO Auto-generated method stub
-        return null;
+        return "Intake";
     }
 
 

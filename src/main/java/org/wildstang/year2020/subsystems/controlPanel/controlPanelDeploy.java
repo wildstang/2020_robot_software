@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.controlpaneldeploy;
+package org.wildstang.year2020.subsystems.controlPanel;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
