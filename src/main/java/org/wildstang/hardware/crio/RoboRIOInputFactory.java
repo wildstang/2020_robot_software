@@ -14,7 +14,7 @@ import org.wildstang.hardware.crio.inputs.WSInputType;
 import org.wildstang.hardware.crio.inputs.WsAbsoluteEncoder;
 import org.wildstang.hardware.crio.inputs.WsAnalogGyro;
 import org.wildstang.hardware.crio.inputs.WsAnalogInput;
-import org.wildstang.hardware.crio.inputs.WsCompassInput;
+// import org.wildstang.hardware.crio.inputs.WsCompassInput;
 import org.wildstang.hardware.crio.inputs.WsDPadButton;
 import org.wildstang.hardware.crio.inputs.WsDigitalInput;
 import org.wildstang.hardware.crio.inputs.WsHallEffectInput;
@@ -122,11 +122,11 @@ public class RoboRIOInputFactory implements InputFactory {
                     ((WsI2CInputConfig) p_input.getConfig()).getPort(),
                     ((WsI2CInputConfig) p_input.getConfig()).getAddress());
         break;
-        case COMPASS:
-            in = new WsCompassInput(p_input.getName(),
-                    ((WsI2CInputConfig) p_input.getConfig()).getPort(),
-                    ((WsI2CInputConfig) p_input.getConfig()).getAddress());
-        break;
+        // case COMPASS:
+        //     in = new WsCompassInput(p_input.getName(),
+        //             ((WsI2CInputConfig) p_input.getConfig()).getPort(),
+        //             ((WsI2CInputConfig) p_input.getConfig()).getAddress());
+        // break;
         case ANALOG_GYRO:
             in = new WsAnalogGyro(p_input.getName(),
                     ((WsAnalogGyroConfig) p_input.getConfig()).getChannel(),
