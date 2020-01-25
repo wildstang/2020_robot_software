@@ -23,7 +23,7 @@ import org.wildstang.framework.CoreUtils;
 public class turret implements Subsystem {
     // digital inputs
 	//DigitalInput activatelime;
-	
+	//Please comment on what the variables are.
     DigitalInput aimright;
 	DigitalInput aimleft;
 	private boolean limeOn = false;
