@@ -18,5 +18,6 @@ public final class CANConstants {
     public static final int HOPPER_VICTOR1 = 15;
     public static final int HOPPER_VICTOR2 = 11;
     public static final int LIFT_TALON = 10;
-    public static final int LIFT_VICTOR = 9;
+    public static final int CLIMB_VICTOR_1 = 8;
+    public static final int CLIMB_VICTOR_2 = 9;
 }

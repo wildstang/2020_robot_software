@@ -1,10 +1,12 @@
 package org.wildstang.year2020.subsystems.climb;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
+import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -35,10 +37,10 @@ public class Climb implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == selectButton && startButton) {
+        if (source == selectButton && source == startButton) {
             climbInputStatus = selectButton.getValue();
             motorspeed = -1.0; // Extends climb
-        } else if (source == leftBumper && rightBumper) {
+        } else if (source == leftBumper && source == rightBumper) {
             climbInputStatus = leftBumper.getValue();
             motorspeed = 1.0; // Retracts climb
         }
@@ -83,18 +85,20 @@ public class Climb implements Subsystem {
     }
 
     private void initOutputs() {
+        //CANConstants.CLIMB_VICTOR_1.getName()????
         climbMotor1 = new VictorSPX(CANConstants.CLIMB_VICTOR_1);
         climbMotor2 = new VictorSPX(CANConstants.CLIMB_VICTOR_2);
     }
 
     private void initInputs() {
-        selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT);
+        IInputManager inputManager = Core.getInputManager();
+        selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT.getName());
         selectButton.addInputListener(this);
-        startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START);
+        startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START.getName());
         startButton.addInputListener(this);
-        leftBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_LEFT_BUMPER);
+        leftBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_LEFT_BUMPER.getName());
         leftBumper.addInputListener(this);
-        rightBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_RIGHT_BUMPER);
+        rightBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_RIGHT_BUMPER.getName());
         rightBumper.addInputListener(this);
     }
 
