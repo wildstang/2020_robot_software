@@ -82,7 +82,8 @@ public class controlPanelWheel implements Subsystem {
         }
         else if (wheelInputJoystickStatus)
         {
-            wheelMotor.set
+            //TODO
+           // wheelMotor.set
             // set to encoder
         }
         // If anything else, set motorspeed to 0

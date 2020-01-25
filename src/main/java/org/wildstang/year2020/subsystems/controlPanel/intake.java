@@ -10,12 +10,11 @@ import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.WSInputs;
 
 public class intake implements Subsystem {
-    class controlPanelWheel implements Subsystem {
         // Inputs
         private DigitalInput buttonA;
     
         // Outputs
-        private TalonSRX wheelMotor;
+        private TalonSRX intakeMotor;
     
         // Variables
         private double motorspeed;
