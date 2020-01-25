@@ -32,7 +32,8 @@ public class controlPanelWheel implements Subsystem {
         // TODO Auto-generated method stub
         if (source == leftDPAD) {
             wheelInputDPADStatus = leftDPAD.getValue();
-            motorspeed = 1.0; // run wheel at full power
+            motorspeed = 1.0;
+         } // run wheel at full power
         else if (source == rightDPAD) {           
             wheelInputDPADStatus = rightDPAD.getValue();
             motorspeed = -1.0; // run wheel at full power in reverse
