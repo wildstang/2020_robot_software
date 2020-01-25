@@ -16,10 +16,11 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.framework.io.IInputManager;
 public class controlPanelDeploy implements Subsystem {
-
-    // TODO add upper and lower limit switches for the deploy motor
-
     // Inputs
+    // TODO add upper and lower limit switches for the deploy motor
+    private DigitalInput upperLimitSwitch;
+    private DigitalInput lowerLimitSwitch;
+    
     private DigitalInput upDPAD;
     private DigitalInput downDPAD;
 
@@ -27,7 +28,7 @@ public class controlPanelDeploy implements Subsystem {
     private VictorSPX deployMotor;
 
     // Variables
-    private double motorspeed;
+    private double motorSpeed;
 
     // Statuses
     private boolean deployInputStatus;
@@ -36,10 +37,10 @@ public class controlPanelDeploy implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == upDPAD) {
             deployInputStatus = upDPAD.getValue();
-            motorspeed = -1.0; // Deploy wheel
+            motorSpeed = -1.0; // Deploy wheel
         } else if (source == downDPAD) {
             deployInputStatus = downDPAD.getValue();
-            motorspeed = 1.0; // Retract wheel
+            motorSpeed = 1.0; // Retract wheel
         }
     }
 
@@ -56,12 +57,12 @@ public class controlPanelDeploy implements Subsystem {
 
     @Override
     public void update() {
-        // If button is pressed, set the motorspeed to the defined value in the
+        // If button is pressed, set the motorSpeed to the defined value in the
         // inputUpdate method
         if (deployInputStatus) {
-            deployMotor.set(ControlMode.PercentOutput, motorspeed);
+            deployMotor.set(ControlMode.PercentOutput, motorSpeed);
         }
-        // If anything else, set motorspeed to 0
+        // If anything else, set motorSpeed to 0
         else {
             deployMotor.set(ControlMode.PercentOutput, 0);
         }

@@ -21,7 +21,7 @@ public class controlPanelWheel implements Subsystem {
     private TalonSRX wheelMotor;
 
     // Variables
-    private double motorspeed;
+    private double motorSpeed;
 
     // Statuses
     private boolean wheelInputDPADStatus;
@@ -32,11 +32,11 @@ public class controlPanelWheel implements Subsystem {
         // TODO Auto-generated method stub
         if (source == leftDPAD) {
             wheelInputDPADStatus = leftDPAD.getValue();
-            motorspeed = 1.0;
+         motorSpeed = 1.0;
          } // run wheel at full power
         else if (source == rightDPAD) {           
             wheelInputDPADStatus = rightDPAD.getValue();
-            motorspeed = -1.0; // run wheel at full power in reverse
+         motorSpeed = -1.0; // run wheel at full power in reverse
         }
      if (source == leftJoystickButton)
      {
@@ -59,11 +59,11 @@ public class controlPanelWheel implements Subsystem {
         leftDPAD.addInputListener(this);
         rightDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPWHEEL_DPAD_RIGHT);
         rightDPAD.addInputListener(this);
-        leftJoystickButton = (DigitalInput) inputManager.getInput(WSInputs.CONTROL_PANEL_WHEEL);
+        leftJoystickButton = (DigitalInput) inputManager.getInput(WSInputs.CPWHEEL);
     }
     
     private void initOutputs() {
-        wheelMotor = new TalonSRX(CANConstants.CPWHEEL_TALON);
+        wheelMotor = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
     }
 
 
@@ -76,10 +76,10 @@ public class controlPanelWheel implements Subsystem {
     @Override
     public void update() {
         // TODO Auto-generated method stub
-           // If button is pressed, set the motorspeed to the defined value in the
+           // If button is pressed, set the motorSpeed to the defined value in the
         // inputUpdate method
         if (wheelInputDPADStatus) {
-            wheelMotor.set(ControlMode.PercentOutput, motorspeed);
+            wheelMotor.set(ControlMode.PercentOutput, motorSpeed);
         }
         else if (wheelInputJoystickStatus)
         {
@@ -87,7 +87,7 @@ public class controlPanelWheel implements Subsystem {
            // wheelMotor.set
             // set to encoder
         }
-        // If anything else, set motorspeed to 0
+        // If anything else, set motorSpeed to 0
         else {
             wheelMotor.set(ControlMode.PercentOutput, 0);
         }

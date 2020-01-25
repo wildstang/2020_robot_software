@@ -79,7 +79,7 @@ public enum WSInputs implements Inputs {
                                                                                              // Subsystem
     BASE_LOCK("Base lock", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 3), false), // Driver
                                                                                            // Subsystem
-    INTAKE("BUMPER", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false),
+    INTAKE("INTAKE", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false),
 
     AUTO_E_STOP("Auto E-Stop", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 0), false), // Drive/Auto
                                                                                                // Subsystem
@@ -137,10 +137,12 @@ public enum WSInputs implements Inputs {
                                                                                                          // Subsystem
     WEDGE_SAFETY_2("Second Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 9), false), // Wedge
                                                                                                           // Subsystem
-    CONTROL_PANEL_WHEEL("Lift Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 10), false), // Lift
-                                                                                                                              // Subsystem
-    STRAFE_LIMIT_SWITCH_OVERRIDE("Strafe Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // Lift
-                                                                                                                                  // Subsystem
+    CPWHEEL("CPWHEEL", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 10), false), // controlPanel
+                                                                                                                // Subsystem
+    CPDEPLOY_UPPER_LIMIT_SWITCH("CPDEPLOY_UPPER_LIMIT_SWITCH", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // controlPanel
+                                                                                                                                // Subsystem 
+    CPDEPLOY_LOWER_LIMIT_SWITCH("CPDEPLOY_LOWER_LIMIT_SWITCH", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 7), false), // controlPanel
+                                                                                                                                                     // Subsystem
 
     // ********************************
     // Digital IOs

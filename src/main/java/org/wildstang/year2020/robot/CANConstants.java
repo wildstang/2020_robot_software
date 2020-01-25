@@ -12,7 +12,7 @@ public final class CANConstants {
     public static final int[] RIGHT_DRIVE_VICTORS = {4,5};
 
     // TODO put in correct IDs
-    public static final int CPWHEEL_TALON = 12;
+    public static final int INTAKECPWHEEL_TALON = 12;
     public static final int CPDEPLOY_VICTOR = 13;
 }
 
