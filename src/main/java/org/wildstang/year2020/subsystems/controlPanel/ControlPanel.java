@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.controlpanel;
+package org.wildstang.year2020.subsystems.controlPanel;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
