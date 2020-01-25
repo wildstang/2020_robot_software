@@ -1,4 +1,4 @@
-package org.wildstang.year2020.subsystems.controlPanel;
+package org.wildstang.year2020.subsystems.controlpanel;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -13,7 +13,6 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-
 
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -30,6 +29,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /* 
 Subsystem Controls: (for XBOX Controller)    
 DPAD Left - run the control panel wheel at full power
@@ -185,8 +185,8 @@ public class ControlPanel implements Subsystem{
         CpINTspin.addInputListener(this);
 
         //Motors
-        Deploy = new TalonSRX(CANConstants.CPDEPLOY_VICTOR);        
-        CPSpinner = new TalonSRX(CANConstants.CPWHEEL_TALON);
+        Deploy = new TalonSRX(CANConstants.CPDEPLOY_TALON);        
+        CPSpinner = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
         
         resetState();
     }
