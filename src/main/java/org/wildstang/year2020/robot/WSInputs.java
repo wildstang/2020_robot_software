@@ -118,30 +118,12 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Buttons
     // ---------------------------------
-    INTAKE("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), // Ballpath
-                                                                                    // Subsystem
-    REVERSE_BUTTON("Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // Ballpath
-                                                                                          // Subsystem
-    HOPPER_SOLENOID("Hopper solenoids", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), // Ballpath
-                                                                                                        // Subsystem
-    FULL_BALLPATH("Full Ballpath", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false), // Ballpath
-                                                                                                   // Subsystem
-    HATCH_COLLECT("Hatch Collect", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 4), false), // Strafe
-                                                                                                    // Subsystem
-    HATCH_DEPLOY("Hatch Deploy", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
-                                                                                                // Subsystem
-    CARRIAGE_ROLLERS("Carriage Rollers", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
-                                                                                                        // Subsystem
-    AUTOMATIC_STRAFE_SWITCH("Button to override strafe", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
-                                                                                           // Subsystem
-    WEDGE_SAFETY_1("First Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false), // Wedge
-                                                                                                         // Subsystem
-    WEDGE_SAFETY_2("Second Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 9), false), // Wedge
-                                                                                                          // Subsystem
-    LIFT_LIMIT_SWITCH_OVERRIDE("Lift Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 10), false), // Lift
-                                                                                                                              // Subsystem
-    STRAFE_LIMIT_SWITCH_OVERRIDE("Strafe Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // Lift
-                                                                                                                                  // Subsystem
+    RIGHT_TRIGGER("Ballpath Go", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 7), false),
+
+    Y_BUTTON("Ballpath Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false),
+
+    A_BUTTON("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false),
+
 
     // ********************************
     // Digital IOs
@@ -157,6 +139,7 @@ public enum WSInputs implements Inputs {
     LIFT_UPPER_LIMIT("Lift Upper Limit", WSInputType.SWITCH, new WsDigitalInputConfig(4, true), false),
 
     CARRIAGE_SENSOR_A("Carriage Sensor A",WSInputType.SWITCH, new WsDigitalInputConfig(5,true),false),
+
     CARRIAGE_SENSOR_B("Carriage Sensor B",WSInputType.SWITCH, new WsDigitalInputConfig(6,true),false),
 
     // -------------------------------

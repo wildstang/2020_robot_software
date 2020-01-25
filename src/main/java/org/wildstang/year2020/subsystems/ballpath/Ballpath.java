@@ -1,42 +1,61 @@
 package org.wildstang.year2020.subsystems.ballpath;
-
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.year2020.robot.WSInputs;
+import org.wildstang.year2020.robot.CANConstants;
+import org.wildstang.year2020.robot.WSOutputs;
+import org.wildstang.framework.io.inputs.AnalogInput;
+import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.CoreUtils;
+import org.wildstang.framework.core.Core;
+
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 
 public class Ballpath implements Subsystem {
 
     // Motors
-    private VictorSPX feedMotor;
-    private VictorSPX kickerMotor;
-    private VictorSPX intakeMotor;
-     
+    private TalonSRX feedMotor;
+    private TalonSRX kickerMotor;
+    private TalonSRX intakeMotor;
 
     // Constants (to be set) 
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
+    private double fullSpeed = 1.0;
+    private double reverseSpeed = -0.4;
 
     // Status for each motor
-    private boolean rightTriggerStatus;
-    private boolean YButtonStatus;
-    private boolean AButtonStatus;
+    private AnalogInput rightTrigger;
+    private DigitalInput YButton;
+    private DigitalInput AButton;
 
     @Override
     public void inputUpdate(Input source) {
-        // TODO Auto-generated method stub
-        
-        
-        if (rightTrigger.getvalue() > 0.75) {
-            rightTriggerStatus = rightTrigger.getValue();
+    
+        if (rightTrigger.getValue() > 0.75) {
+            //runs the hopper motor full power and the kicker motor full power
+            feedMotorSpeed = fullSpeed;
+            kickerMotorSpeed = fullSpeed;
 
-        }
-        if (source == YButton) {
-            YButtonStatus = YButton.getValue();
-        }
-        if (source == AButton) {
-            AButtonStatus = AButton.getValue();
-        }
+        } else if (source == YButton) {
+            //runs hopper motor and kicker motor backwards at ~40% power
+            feedMotorSpeed = reverseSpeed;
+            kickerMotorSpeed = reverseSpeed;
 
+        } else if (source == AButton) {
+            //run intake motor at 100% power
+            intakeMotorSpeed = fullSpeed;
+
+        } else {
+            feedMotorSpeed = 0.0;
+            kickerMotorSpeed = 0.0;
+            intakeMotorSpeed = 0.0;
+        }
     }
 
     @Override
@@ -56,30 +75,9 @@ public class Ballpath implements Subsystem {
     public void update() {
         // TODO Auto-generated method stub
 
-        //runs the hopper motor full power and the kicker motor full power
-        if (rightTriggerStatus) {
             feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
             kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
-      
-        }
-
-        //run hopper motor and kicker motor backwards at ~40% power
-        else if (YButtonStatus) {
-            feedMotor.set(ControlMode.PercentOutput, -0.4);
-            kickerMotor.set(ControlMode.PercentOutput, -0.4);
-
-        }
-
-        //run intake motor at 100% power
-        else if (AButtonStatus) {
-            intakeMotor.set(ControlMode.PercentOutput, intakeMotorspeed);
-            
-        } else {
-            feedMotor.set(ControlMode.PercentOutput, 0);
-            kickerMotor.set(ControlMode.PercentOutput, 0);
-            intakeMotor.set(ControlMode.PercentOutput, 0);
-            
-        }
+            intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
 
     }
 
@@ -92,17 +90,18 @@ public class Ballpath implements Subsystem {
     @Override
     public String getName() {
         // TODO Auto-generated method stub
-        return null;
+        return "Ballpath";
     }
 
     private void initOutputs() {
-        feedMotor = new VictorSPX(CANConstants.BALLPATH_FEED);
-        kickerMotor= new VictorSPX(CANConstants.BALLPATH_KICKER);
-        intakeMotor= new VictorSPX(CANConstants.BALLPATH_INTAKE);
+        feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
+        kickerMotor= new TalonSRX(CANConstants.BALLPATH_KICKER);
+        intakeMotor= new TalonSRX(CANConstants.BALLPATH_INTAKE);
     }
 
+
     private void initInputs() {
-        rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.RIGHT_TRIGGER);
+        rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.RIGHT_TRIGGER.getName());
         rightTrigger.addInputListener(this);
         YButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.Y_BUTTON.getName());
         YButton.addInputListener(this);
