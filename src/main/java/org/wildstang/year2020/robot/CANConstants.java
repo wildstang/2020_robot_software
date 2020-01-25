@@ -15,6 +15,7 @@ public final class CANConstants {
     // TODO put in correct IDs
     public static final int INTAKECPWHEEL_TALON = 12;
     public static final int CPDEPLOY_TALON = 13;
+    public static final int TURRET_PIVOT = 13;
 }
 
 

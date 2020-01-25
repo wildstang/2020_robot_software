@@ -125,9 +125,9 @@ public enum WSInputs implements Inputs {
                                                                                                         // Subsystem
     FULL_BALLPATH("Full Ballpath", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false), // Ballpath
                                                                                                    // Subsystem
-    HATCH_COLLECT("Hatch Collect", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 4), false), // Strafe
+    TURRETLEFT("TURRETLEFT", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 4), false), // Strafe
                                                                                                     // Subsystem
-    HATCH_DEPLOY("Hatch Deploy", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
+    TURRETRIGHT("TURRETRIGHT", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
                                                                                                 // Subsystem
     CARRIAGE_ROLLERS("Carriage Rollers", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
                                                                                                         // Subsystem
