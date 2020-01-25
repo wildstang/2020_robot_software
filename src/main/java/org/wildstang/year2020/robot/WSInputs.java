@@ -87,61 +87,47 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Joysticks
     // ---------------------------------
-    LIFT_MANUAL("Lift Manual Up/Down", WSInputType.JS_JOYSTICK,
-            new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_JOYSTICK_Y), true), // Lift
-                                                                                      // Subsystem
-    //OPEN JOYSTICK("name", WSInputType.JS_JOYSTICK,
-    //        new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_JOYSTICK_X), true), // OPEN
-                                                                                      // Subsystem
-    //OPEN_JOYSTICK("Lift Manual Up/Down", WSInputType.JS_JOYSTICK,
-            //new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_Y), true), // Lift
-                                                                                       // Subsystem
-    STRAFE_MANUAL("Hatch Strafe", WSInputType.JS_JOYSTICK,
-            new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_X), true), // Lift
-                                                                                       // Subsystem
+
+    LIMELIGHT_AIM("Limelight Aiming Toggle", WSInputType.JS_JOYSTICK,  //Launcher Subsystem (LT)
+        new WsJSJoystickInputConfig(1, 3), true), 
+
+    HOPPER("Hopper", WSInputType.JS_JOYSTICK,  //Ballpath (RT)
+        new WsJSJoystickInputConfig(1, 2), true), 
+
+    HOOD_MANUAL("Manual Hood Aiming", WSInputType.JS_JOYSTICK, 
+        new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_Y), true),  //Launcher Subsystem
+
+    TURRET_MANUAL("Manual Turret Aiming", WSInputType.JS_JOYSTICK,
+        new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_X), true), //Launcher Subsystem
+    
     // ---------------------------------
     // Manipulator DPAD Buttons
     // ---------------------------------
-    LIFT_PRESET_1("Lift Preset 1", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_DOWN), false), // Lift 
-                                                                               //Subsystem
-    LIFT_PRESET_2("Lift Preset 2", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_LEFT), false), // Lift
-                                                                                 // Subsystem
-    LIFT_PRESET_3("Lift Preset 3", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_RIGHT), false), // Lift 
-                                                                                  //Subsystem
-    LIFT_PRESET_4("Lift Preset 4", WSInputType.JS_DPAD_BUTTON,
-            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_UP), false), // Lift
-                                                                                 // Subsystem
+    CP_RETURN("Control Panel Return", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_DOWN), false), // CP
+                                                                              
+    CP_FORWARD("Control Panel Forward", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_LEFT), false), // CP
+                                                                                 
+    CP_BACKWARD("Control Panel Backward", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_RIGHT), false), // CP
+                                                                                  
+    CP_DEPLOY("Control Panel Deploy", WSInputType.JS_DPAD_BUTTON,
+            new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_UP), false), // CP
+                                                                                 
 
     // ---------------------------------
     // Manipulator Buttons
     // ---------------------------------
-    INTAKE("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), // Ballpath
-                                                                                    // Subsystem
-    REVERSE_BUTTON("Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // Ballpath
-                                                                                          // Subsystem
-    HOPPER_SOLENOID("Hopper solenoids", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), // Ballpath
-                                                                                                        // Subsystem
-    FULL_BALLPATH("Full Ballpath", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false), // Ballpath
-                                                                                                   // Subsystem
-    HATCH_COLLECT("Hatch Collect", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 4), false), // Strafe
-                                                                                                    // Subsystem
-    HATCH_DEPLOY("Hatch Deploy", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
-                                                                                                // Subsystem
-    CARRIAGE_ROLLERS("Carriage Rollers", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
-                                                                                                        // Subsystem
-    AUTOMATIC_STRAFE_SWITCH("Button to override strafe", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
-                                                                                           // Subsystem
-    WEDGE_SAFETY_1("First Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false), // Wedge
-                                                                                                         // Subsystem
-    WEDGE_SAFETY_2("Second Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 9), false), // Wedge
-                                                                                                          // Subsystem
-    LIFT_LIMIT_SWITCH_OVERRIDE("Lift Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 10), false), // Lift
-                                                                                                                              // Subsystem
-    STRAFE_LIMIT_SWITCH_OVERRIDE("Strafe Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // Lift
-                                                                                                                                  // Subsystem
+    TURRET_BACK("Turret back Preset", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), // Launcher (X)
+                                                                                    
+    INTAKE("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // CP (A)
+                                                                                         
+    TURRET_FRONT("Turret front preset", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), // Launcher (B)
+                                                                                                        
+    BALLPATH_REVERSE("Ballpath Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false), // Ballpath (Y)
+                                                                                                   
+    CP_ROTATIONS("Control Panel Rotations   ", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 8), false), //CP (LC)
 
     // ********************************
     // Digital IOs
