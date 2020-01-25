@@ -13,23 +13,15 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
-
-
 import javax.lang.model.util.ElementScanner6;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
-
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 /* 
 Subsystem Controls: (for XBOX Controller)    
 DPAD Left - run the control panel wheel at full power
@@ -55,38 +47,29 @@ public class ControlPanel implements Subsystem{
     //controlPanelDeploy
     private int movedeploy;
     private TalonSRX Deploy;
-    private TalonSRX CpSpinner;
-
 
     //inputs
-    private DigitalInput CpDpadUP; 
-    private DigitalInput CpDpadDWN;
-    private DigitalInput CpDpadL;
-    private DigitalInput CpDpadR;
-    private DigitalInput CpA;
-    private DigitalInput Cpjoy;
-    private DigitalInput CpFWDspin;
-    private DigitalInput CpBWDspin;
-    private DigitalInput CpINTspin;
-    private DigitalInput CpENCspin;
+    private DigitalInput DpadUP; 
+    private DigitalInput DpadDWN;
+    private DigitalInput FWDspin;
+    private DigitalInput BWDspin;
+    private DigitalInput INTspin;
+    private DigitalInput ENCspin;
 
     //controlpanelspinner
     private boolean spininput = false;
-    private DigitalInput CpSpin;
-    private TalonSRX CPSpinner;
+    private DigitalInput Spin;
+    private TalonSRX Spinner;
     private double Encoder;
     private boolean spinOn = false;
     private double spinMax;
 
-
     //intake 
-
     // private boolean spininput detimines intake
    // private VictorSPX Intake;
 
-
     //other booleans/ints
-    private int CpDeployOn = 0;
+    private int DeployOn;
     // 1 = Up, 0 = Off-Down, 2 = Down, 3 = Off-Up
     private boolean IsDown;
     private WsTimer timer = new WsTimer();
@@ -97,12 +80,12 @@ public class ControlPanel implements Subsystem{
     private double CMDspin;
     private boolean off;
     private boolean on;
-    private boolean CpUPbool;
-    private boolean CpDWNbool;
-    private boolean CpFWDbool;
-    private boolean CpBWDbool;
-    private boolean CpENCbool;
-    private boolean CpINTbool;
+    private boolean UPbool;
+    private boolean DWNbool;
+    private boolean FWDbool;
+    private boolean BWDbool;
+    private boolean ENCbool;
+    private boolean INTbool;
 
     @Override
     public String getName(){
@@ -110,40 +93,34 @@ public class ControlPanel implements Subsystem{
     }
     @Override
     public void inputUpdate(Input source) {
-        CpUPbool = CpDpadUP.getValue();
-        CpDWNbool = CpDpadDWN.getValue();
-        CpFWDbool = CpFWDspin.getValue();
-        CpBWDbool = CpBWDspin.getValue();
-        CpENCbool = CpENCspin.getValue();
-        CpINTbool = CpINTspin.getValue();
-        if ((source == CpDpadUP) && CpUPbool){ 
-            switch(CpDeployOn){
+        UPbool = DpadUP.getValue();
+        DWNbool = DpadDWN.getValue();
+        FWDbool = FWDspin.getValue();
+        BWDbool = BWDspin.getValue();
+        ENCbool = ENCspin.getValue();
+        INTbool = INTspin.getValue();
+        if ((source == DpadUP) && UPbool){ 
+            switch(DeployOn){
             case 0:
-                CpDeployOn = 1;
-                break;
             case 1:
-                CpDeployOn = 1;
+                DeployOn = 1;
                 break;
             }
         }
-        if ((source == CpDpadDWN) && CpDWNbool){
-            switch(CpDeployOn){
+        if ((source == DpadDWN) && DWNbool){
+            switch(DeployOn){
             case 3:
-                CpDeployOn = 2;
-                break;
             case 2:
-                CpDeployOn = 2;
+                DeployOn = 2;
                 break;
             }
          }
-        
         //spinner
-        
-        if (CpFWDbool){
+        if (FWDbool){
             CMDspin = 1; //if FWD, spin forward
         }
         else{
-        if(CpBWDbool){
+        if(BWDbool){
                 CMDspin = -1;    //otherwise, if BWD, spin backwards
          }
          else{
@@ -152,62 +129,59 @@ public class ControlPanel implements Subsystem{
             }
         }
         //intake controls
-        if (CpINTbool){
+        if (INTbool){
             start = true;
         }
         else{
             off = true;
         }
         //encoder based spinning
-        if ((source == CpENCspin) && CpENCbool){
+        if ((source == ENCspin) && ENCbool){
             Spins = Spins + (1500);
             spinOn = true;
             CMDspin = 6;
-            CPSpinner.getSensorCollection().setQuadraturePosition(0, 0);
-            
-        }
+            Spinner.getSensorCollection().setQuadraturePosition(0, 0);
+    }
  }
     @Override
     public void init() {
 
         // InputListeners
-        CpDpadDWN = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_DOWN.getName());
-        CpDpadDWN.addInputListener(this);
-        CpDpadUP = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_UP.getName());
-        CpDpadUP.addInputListener(this);
-        CpFWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_LEFT.getName());
-        CpFWDspin.addInputListener(this);
-        CpBWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_RIGHT.getName());
-        CpBWDspin.addInputListener(this);
-        CpENCspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CONTROL_PANEL_WHEEL.getName());
-        CpENCspin.addInputListener(this);
-        CpINTspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.INTAKE.getName());
-        CpINTspin.addInputListener(this);
-
+        DpadDWN = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_DOWN.getName());
+        DpadDWN.addInputListener(this);
+        DpadUP = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_UP.getName());
+        DpadUP.addInputListener(this);
+        FWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_LEFT.getName());
+        FWDspin.addInputListener(this);
+        BWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_RIGHT.getName());
+        BWDspin.addInputListener(this);
+        ENCspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CONTROL_PANEL_WHEEL.getName());
+        ENCspin.addInputListener(this);
+        INTspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.INTAKE.getName());
+        INTspin.addInputListener(this);
         //Motors
         Deploy = new TalonSRX(CANConstants.CPDEPLOY_TALON);        
-        CPSpinner = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
-        
+        Spinner = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
         resetState();
     }
         
     @Override
     public void update() {
         IsDown = Deploy.getSensorCollection().isFwdLimitSwitchClosed();
-        Encoder = CPSpinner.getSensorCollection().getQuadraturePosition();
+        Encoder = Spinner.getSensorCollection().getQuadraturePosition();
         if (IsDown == true){
-            if (CpDeployOn == 2){
-                CpDeployOn = 0;
+            if (DeployOn == 2){
+                DeployOn = 0;
                 Deploy.set(ControlMode.PercentOutput, 0);
             }
         }
         if (!IsDown){
-            if (CpDeployOn == 2){
+            if (DeployOn == 2){
                 Deploy.set(ControlMode.PercentOutput, -1);
             }
         }
         if (IsDown == true){
-            if (CpDeployOn == 1){
+            if (DeployOn == 1){
                 if(!TimerHasStarted){
                     timer.reset();
                     Deploy.set(ControlMode.PercentOutput, 1);
@@ -215,43 +189,38 @@ public class ControlPanel implements Subsystem{
                 }
                 if(timer.hasPeriodPassed(UPWAIT)){
                     Deploy.set(ControlMode.PercentOutput,0);
-                    CpDeployOn = 3;
+                    DeployOn = 3;
                     TimerHasStarted = false;
                 }
             } 
         }
         //control panel spinner
         if (Encoder >= Spins && spinOn == true){ 
-            CPSpinner.set(ControlMode.PercentOutput, 0.0);
+            Spinner.set(ControlMode.PercentOutput, 0.0);
             spinOn = false;
-            
         }
          if (spinOn == true){
-            CPSpinner.set(ControlMode.PercentOutput, 1.0);
-            
+            Spinner.set(ControlMode.PercentOutput, 1.0);
         }
         if (CMDspin != 6.0){
-            CPSpinner.set(ControlMode.PercentOutput, CMDspin);
+            Spinner.set(ControlMode.PercentOutput, CMDspin);
         }
         //intake commands
         if (off){
-        CpSpinner.set(ControlMode.PercentOutput,0);
+        Spinner.set(ControlMode.PercentOutput,0);
         off = false;
         }
         if (start){
-            CpSpinner.set(ControlMode.PercentOutput,1);
+            Spinner.set(ControlMode.PercentOutput,1);
             start = false;
         }
-       
     }
     @Override
     public void resetState(){
-
     }
     @Override
     public void selfTest() {
         // DO NOT IMPLEMENT
         // TODO WHY NOT?
     }
-
 }
