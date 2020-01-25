@@ -4,9 +4,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.InputManager;
+import org.wildstang.framework.core.Core;
+import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 
 public class controlPanelWheel implements Subsystem {
@@ -22,18 +24,24 @@ public class controlPanelWheel implements Subsystem {
     private double motorspeed;
 
     // Statuses
-    private boolean wheelInputStatus;
+    private boolean wheelInputDPADStatus;
+    private boolean wheelInputJoystickStatus;
 
     @Override
     public void inputUpdate(Input source) {
         // TODO Auto-generated method stub
         if (source == leftDPAD) {
-            wheelInputStatus = leftDPAD.getValue();
+            wheelInputDPADStatus = leftDPAD.getValue();
             motorspeed = 1.0; // run wheel at full power
-        } else if (source == rightDPAD) {
-            wheelInputStatus = rightDPAD.getValue();
+        else if (source == rightDPAD) {           
+            wheelInputDPADStatus = rightDPAD.getValue();
             motorspeed = -1.0; // run wheel at full power in reverse
         }
+     if (source == leftJoystickButton)
+     {
+     wheelInputJoystickStatus = leftJoystickButton.getValue();
+
+     }
 
     }
 
@@ -45,10 +53,12 @@ public class controlPanelWheel implements Subsystem {
     }
     private void initInputs() {
         //add WSINputs objects to WSINPUTS
-        leftDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPWHEEL_DPAD_LEFT);
+        IInputManager inputManager = Core.getInputManager();
+        leftDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPWHEEL_DPAD_LEFT);
         leftDPAD.addInputListener(this);
-        rightDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPWHEEL_DPAD_RIGHT);
+        rightDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPWHEEL_DPAD_RIGHT);
         rightDPAD.addInputListener(this);
+        leftJoystickButton = (DigitalInput) inputManager.getInput(WSInputs.CONTROL_PANEL_WHEEL);
     }
     
     private void initOutputs() {
@@ -67,8 +77,13 @@ public class controlPanelWheel implements Subsystem {
         // TODO Auto-generated method stub
            // If button is pressed, set the motorspeed to the defined value in the
         // inputUpdate method
-        if (wheelInputStatus) {
+        if (wheelInputDPADStatus) {
             wheelMotor.set(ControlMode.PercentOutput, motorspeed);
+        }
+        else if (wheelInputJoystickStatus)
+        {
+            wheelMotor.set
+            // set to encoder
         }
         // If anything else, set motorspeed to 0
         else {
@@ -79,8 +94,8 @@ public class controlPanelWheel implements Subsystem {
     @Override
     public void resetState() {
         // TODO Auto-generated method stub
-        wheelInputStatus = false;
-
+        wheelInputDPADStatus = false;
+        wheelInputJoystickStatus = false;
     }
 
     @Override

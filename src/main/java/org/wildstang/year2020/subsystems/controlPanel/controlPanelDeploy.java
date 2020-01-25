@@ -1,12 +1,12 @@
 package org.wildstang.year2020.subsystems.controlPanel;
 
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.InputManager;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.timer.WsTimer;
@@ -14,7 +14,7 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-
+import org.wildstang.framework.io.IInputManager;
 public class controlPanelDeploy implements Subsystem {
 
     // TODO add upper and lower limit switches for the deploy motor
@@ -82,13 +82,14 @@ public class controlPanelDeploy implements Subsystem {
     }
 
     private void initInputs() {
-        upDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_DPAD_UP);
+        IInputManager inputManager = Core.getInputManager();
+        upDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_DPAD_UP);
         upDPAD.addInputListener(this);
-        downDPAD = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_DPAD_DOWN);
+        downDPAD = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_DPAD_DOWN);
         downDPAD.addInputListener(this);
-        upperLimitSwitch = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_UPPER_LIMIT_SWITCH);
+        upperLimitSwitch = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_UPPER_LIMIT_SWITCH);
         upperLimitSwitch.addInputListener(this);
-        lowerLimitSwitch = (DigitalInput) InputManager.getInput(WSInputs.CPDEPLOY_LOWER_LIMIT_SWITCH);
+        lowerLimitSwitch = (DigitalInput) inputManager.getInput(WSInputs.CPDEPLOY_LOWER_LIMIT_SWITCH);
         lowerLimitSwitch.addInputListener(this);
     }
 
