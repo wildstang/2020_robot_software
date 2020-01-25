@@ -1,14 +1,13 @@
 package org.wildstang.year2020.subsystems.turret;
+
 import java.lang.Math;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
@@ -37,17 +36,13 @@ public class turret implements Subsystem {
 	private double ConstantA = 1.2;
 	@Override
 	public void init() {
-        // initialize inputs and outputs
-		
-	
+        // initialize inputs and outputs	
 		//activatelime = (DigitalInput) Core.getInputManager().getInput(WSInputs.BUTTON.getName());
         //activatelime.addInputListener(this);
         aimright = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRETRIGHT.getName());
         aimright.addInputListener(this);
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRETLEFT.getName());
-        aimleft.addInputListener(this);
-		
-		
+        aimleft.addInputListener(this);				
 		turretPivot = new TalonSRX(CANConstants.TURRET_PIVOT);
 	}
 
@@ -66,8 +61,7 @@ public class turret implements Subsystem {
 		}
         else{
             limeOn = true;
-        }
-		
+        }		
 		if ((source == aimright)||(source == aimleft)){
 			if (aimright.getValue() && (aimlefton == false)){
 				mx = 1;
