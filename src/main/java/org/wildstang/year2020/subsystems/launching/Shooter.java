@@ -4,18 +4,14 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.inputs.AnalogInput;
+import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
 
 /**
@@ -27,7 +23,8 @@ import org.wildstang.framework.subsystems.Subsystem;
 public class Shooter implements Subsystem {
 
     // Inputs
-    
+    private DigitalInput aimModeTrigger;
+    private DigitalInput fireTrigger;
 
     // Outputs
     private TalonSRX shooterMasterMotor;
@@ -38,67 +35,87 @@ public class Shooter implements Subsystem {
     private Limelight limelightSubsystem;
 
     // Constants
-    public static final double safeShooterMotorOutput = 0.5;
-    public static final double aimModeShooterMotorOutput = 0.8;
+    public static final double SAFE_SHOOTER_MOTOR_OUTPUT = 0.5;
+    public static final double AIM_MODE_SHOOTER_MOTOR_OUTPUT = 0.8;
+    public static final double MOTOR_OUTPUT_TOLERANCE = 0.02;
+    public static final double MOTOR_POSITION_TOLERANCE = 1.0;
 
-    public static final double kP = -0.1;
-    public static final double minimumAdjustmentCommand = 0.05;
+    public static final double UPPER_GOAL_DISTANCE_LIMIT = 0.0;
+
+    public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
+    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
+
+    public static final double REVS_PER_INCH = 1.0 / 2.0; 
+    public static final double TICKS_PER_REV = 4096.0;
+    public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
+    
+    public static final double HOOD_TRAVEL_DISTANCE = 4.0;
 
     // Logic
     private double shooterMotorOutput;
     private boolean aimModeEnabled;
-    private boolean aimModeShooterMotorSpeedSet;
+    private boolean shooterMotorSpeedSetForAimMode;
     private boolean hoodAimed;
 
     // initializes the subsystem
     public void init() {
         aimModeEnabled = false;
 
-        shooterMotorOutput = safeShooterMotorOutput;
+        aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        fireTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
+
+        shooterMotorOutput = SAFE_SHOOTER_MOTOR_OUTPUT;
 
         shooterMasterMotor = new TalonSRX(0);
-        // Setup carap
+        shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
+        shooterMasterMotor.config_kP(0, SHOOTER_PID_CONSTANTS.p);
+        shooterMasterMotor.config_kI(0, SHOOTER_PID_CONSTANTS.i);
+        shooterMasterMotor.config_kD(0, SHOOTER_PID_CONSTANTS.d);
 
         shooterFollowerMotor = new VictorSPX(0);
         shooterFollowerMotor.follow(shooterMasterMotor);
 
         hoodMotor = new VictorSPX(0);
+        hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
+        hoodMotor.config_kP(0, HOOD_PID_CONSTANTS.p);
+        hoodMotor.config_kI(0, HOOD_PID_CONSTANTS.i);
+        hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
     }
 
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        if (aimModeEnabled == true) {
-            // Hood aiming
-            double txValue = limelightSubsystem.getTXValue();
+        shooterMasterMotor.set(ControlMode.PercentOutput, shooterMotorOutput);
 
-            double headingError = -txValue;
-            double rotationalAdjustment = 0.0;
-
-            if (txValue > 1.0) {
-                rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
-            } else if (txValue < 1.0) {
-                rotationalAdjustment = kP * headingError + minimumAdjustmentCommand;
-            }
-
-            hoodMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
-
-            // Shooter motor speed check
-            double currentOutput = shooterMasterMotor.getMotorOutputPercent();
-            if (currentOutput < aimModeShooterMotorOutput + 0.02 && currentOutput > aimModeShooterMotorOutput - 0.02) {
-                aimModeShooterMotorSpeedSet = true;
-            } else {
-                aimModeShooterMotorSpeedSet = false;
-            }
+        double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
+        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_MOTOR_OUTPUT + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_MOTOR_OUTPUT - MOTOR_OUTPUT_TOLERANCE)) {
+            shooterMotorSpeedSetForAimMode = true;
+        } else {
+            shooterMotorSpeedSetForAimMode = false;
         }
 
-        shooterMasterMotor.set(ControlMode.PercentOutput, shooterMotorOutput);
+        double currentHoodMotorPosition = hoodMotor.getSelectedSensorPosition();
+        if (currentHoodMotorPosition < (HOOD_TRAVEL_DISTANCE + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (HOOD_TRAVEL_DISTANCE - MOTOR_POSITION_TOLERANCE)) {
+            hoodAimed = true;
+        } else {
+            hoodAimed = false;
+        }
     }
 
     // respond to input updates
-    public void inputUpdate(Input signal) {
-        
+    public void inputUpdate(Input source) {
+        if (source == aimModeTrigger) {
+            if (aimModeTrigger.getValue() == true) { // Entering aim mode
+                aimModeEnabled = true;
+                shooterMotorOutput = AIM_MODE_SHOOTER_MOTOR_OUTPUT;
+                aimToGoal();
+            } else { // Exiting aim mode
+                aimModeEnabled = false;
+                shooterMotorOutput = SAFE_SHOOTER_MOTOR_OUTPUT;
+                hoodMotor.set(ControlMode.Position, 0.0);
+            }
+        }
     }
 
     // used for testing
@@ -116,24 +133,30 @@ public class Shooter implements Subsystem {
         return "Shooter";
     }
 
-    public void enableAimMode() {
-        shooterMotorOutput = aimModeShooterMotorOutput;
-
-        aimModeEnabled = true;
+    public boolean isShooterMotorSpeedSetForAimMode() {
+        return shooterMotorSpeedSetForAimMode;
     }
 
-    public void disableAimMode() {
-        shooterMotorOutput = safeShooterMotorOutput;
-
-        aimModeEnabled = false;
-    }
-
-    public boolean getAimModeShooterMotorSpeedSet() {
-        return aimModeShooterMotorSpeedSet;
-    }
-
-    public boolean getHoodAimed() {
+    public boolean isHoodAimed() {
         return hoodAimed;
+    }
+
+    private boolean willAimToUpperGoal() {
+        double distanceToTarget = limelightSubsystem.getDistanceToTarget();
+
+        if (distanceToTarget > UPPER_GOAL_DISTANCE_LIMIT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void aimToGoal() {
+        if (willAimToUpperGoal()) {
+            hoodMotor.set(ControlMode.Position, HOOD_TRAVEL_DISTANCE * TICKS_PER_INCH);
+        } else {
+            hoodMotor.set(ControlMode.Position, 0);
+        }
     }
 
 }

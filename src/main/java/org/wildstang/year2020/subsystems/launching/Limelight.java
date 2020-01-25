@@ -1,7 +1,12 @@
 package org.wildstang.year2020.subsystems.launching;
 
+import javax.management.remote.TargetedNotification;
+
+import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
+import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.year2020.robot.WSInputs;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -9,9 +14,18 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Limelight implements Subsystem {
 
-    // Miscellaneous
+    // Inputs
+    private DigitalInput aimModeTrigger;
+
+    // Constants (angles in degrees; distances in inches)
+    public static final double MOUNT_VERTICAL_ANGLE_OFFSET = 0.0;
+    public static final double MOUNT_HEIGHT = 0.0;
+    public static final double VISION_TARGET_HEIGHT = 81.25;
+
+    // Logic
     private NetworkTable netTable;
 
+    private NetworkTableEntry tvEntry;
     private NetworkTableEntry txEntry;
     private NetworkTableEntry tyEntry;
     private NetworkTableEntry tsEntry;
@@ -21,20 +35,25 @@ public class Limelight implements Subsystem {
     private NetworkTableEntry thorEntry;
 
     private NetworkTableEntry ledModeEntry;
-    
 
     @Override
     public void inputUpdate(Input source) {
-        // TODO Auto-generated method stub
-
+        if (source == aimModeTrigger) {
+            if (aimModeTrigger.getValue() == true) {
+                enableLEDs();
+            } else {
+                disableLEDs();
+            }
+        }
     }
 
     @Override
     public void init() {
-        // TODO Auto-generated method stub
+        aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");
 
+        tvEntry = netTable.getEntry("tv");
         txEntry = netTable.getEntry("tx");
         tyEntry = netTable.getEntry("ty");
         tsEntry = netTable.getEntry("ts");
@@ -70,44 +89,50 @@ public class Limelight implements Subsystem {
         return "Limelight";
     }
 
+    // Gives tv value from Limelight
+    // Returns 0.0 if value can't be retrieved
+    public double getTVValue() {
+        return tvEntry.getDouble(0.0);
+    }
+
     // Gives tx value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTXValue() {
         return txEntry.getDouble(0.0);
     }
 
     // Gives ty value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTYValue() {
         return tyEntry.getDouble(0.0);
     }
 
     // Gives ts value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTSValue() {
         return tsEntry.getDouble(0.0);
     }
 
     // Gives tshort value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTShortValue() {
         return tshortEntry.getDouble(0.0);
     }
 
     // Gives tlong value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTLongValue() {
         return tlongEntry.getDouble(0.0);
     }
 
     // Gives tvert value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTVertValue() {
         return tvertEntry.getDouble(0.0);
     }
 
     // Gives thor value from Limelight
-    // Returns 0.0 exactly if value can't be retrieved
+    // Returns 0.0 if value can't be retrieved
     public double getTHorValue() {
         return thorEntry.getDouble(0.0);
     }
@@ -120,6 +145,16 @@ public class Limelight implements Subsystem {
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
         ledModeEntry.setNumber(1);
+    }
+
+    // Calculates horizontal distance to target using the ty value and robot and field constants
+    public double getDistanceToTarget() {
+        double totalVerticalAngleOffset = Math.toRadians(getTYValue() + MOUNT_VERTICAL_ANGLE_OFFSET);
+        double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
+        
+        double distanceToTarget = targetHeightAboveCamera / Math.tan(totalVerticalAngleOffset);
+
+        return distanceToTarget;
     }
     
 }

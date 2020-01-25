@@ -11,11 +11,13 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Turret implements Subsystem {
 
     // Inputs
     private DigitalInput aimModeTrigger;
-    private DigitalInput fireTrigger;
 
     // Outputs
     private TalonSRX turretMotor;
@@ -34,17 +36,12 @@ public class Turret implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() == true) { // Entering aim mode
-                limelightSubsystem.enableLEDs();
                 aimModeEnabled = true;
-                shooterSubsystem.enableAimMode();
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
-                shooterSubsystem.disableAimMode();
-                limelightSubsystem.disableLEDs();
             }
         }
-
     }
 
     @Override
@@ -53,7 +50,6 @@ public class Turret implements Subsystem {
         turretAimed = false;
 
         aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
-        fireTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
 
         turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
 
@@ -90,8 +86,12 @@ public class Turret implements Subsystem {
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         }
 
-        if (turretAimed && shooterSubsystem.getAimModeShooterMotorSpeedSet() && shooterSubsystem.getHoodAimed()) {
-            // Do Shuffleboard thing
+        boolean hoodAimed = shooterSubsystem.isHoodAimed();
+        boolean shooterMotorSpeedSet = shooterSubsystem.isShooterMotorSpeedSetForAimMode();
+        if (hoodAimed && shooterMotorSpeedSet && turretAimed) {
+            SmartDashboard.putBoolean("Shooter Ready", true);
+        } else {
+            SmartDashboard.putBoolean("Shooter Ready", false);
         }
     }
 
