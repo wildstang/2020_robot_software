@@ -194,7 +194,7 @@ public class ControlPanel implements Subsystem{
     @Override
     public void update() {
         IsDown = Deploy.getSensorCollection().isFwdLimitSwitchClosed();
-        Encoder = CPSpinner.getSensorCollection().getQuadraturePosition();;
+        Encoder = CPSpinner.getSensorCollection().getQuadraturePosition();
         if (IsDown == true){
             if (CpDeployOn == 2){
                 CpDeployOn = 0;
