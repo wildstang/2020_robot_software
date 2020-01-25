@@ -1,25 +1,29 @@
 package org.wildstang.year2020.subsystems.controlPanel;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
+import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
+import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.timer.WsTimer;
+import org.wildstang.year2020.robot.CANConstants;
+import org.wildstang.year2020.robot.WSInputs;
 
+public class ControlPanel implements Subsystem {
 
-
-public class ControlPanel implements Subsystem{
-
-    //controlPanelDeploy
+    // controlPanelDeploy
     private int movedeploy;
     private DigitalInput CpDeploy;
     private VictorSPX Deploy;
 
-
-    //controlpanelspinner
+    // controlpanelspinner
     private boolean spininput = false;
     private DigitalInput CpSpin;
-    private TalonSPX CPSpinner;
+    private TalonSRX CPSpinner;
     private double Encoder;
-    private boolean spinOn;
     private double spinMax;
 
 
@@ -45,7 +49,7 @@ public class ControlPanel implements Subsystem{
     @Override
     public void inputUpdate(Input source) {
         
-        if (CpDeploy){
+        if (source == CpDeploy){
             if (CpDeployOn == 0){
                 CpDeployOn = 1;
                 
@@ -80,7 +84,7 @@ public class ControlPanel implements Subsystem{
         // InputListeners
         CpDeploy = (DigitalInput) Core.getInputManager().getInput(WSInputs.CpSpeed.getName());
         CpDeploy.addInputListener(this);
-        CpSpin = (DigitalInput) Core.getInputManager().getInput(WsInputs.CpSpeed.getName());
+        CpSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CpSpeed.getName());
         CpSpin.addInputListener(this);
         
         //Motors
@@ -113,7 +117,7 @@ public class ControlPanel implements Subsystem{
                     TimerHasStarted = true;
                 }
                 if(timer.hasPeriodPassed(UPWAIT)){
-                    Deploy.set(ControlMode.PencentOutput,0);
+                    Deploy.set(ControlMode.PercentOutput, 0);
                     CpDeployOn = 3;
                     TimerHasStarted = false;
                 }
@@ -123,11 +127,29 @@ public class ControlPanel implements Subsystem{
         if (Encoder >= Spins){
             CPSpinner.set(ControlMode.PercentOutput, 0.0);
             spinOn = false;
-            Intake.set(ControMode.PercentOutput,0);
+            Intake.set(ControlMode.PercentOutput,0);
         }
         if (spinOn == true){
             CPSpinner.set(ControlMode.PercentOutput, 1.0);
             Intake.set(ControlMode.PercentOutput, 1.0);
         }
+    }
+
+    @Override
+    public void selfTest() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void resetState() {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
