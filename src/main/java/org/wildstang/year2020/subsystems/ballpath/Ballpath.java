@@ -52,9 +52,7 @@ public class Ballpath implements Subsystem {
             intakeMotorSpeed = fullSpeed;
 
         } else {
-            feedMotorSpeed = 0.0;
-            kickerMotorSpeed = 0.0;
-            intakeMotorSpeed = 0.0;
+   resetState();
         }
     }
 
@@ -84,9 +82,9 @@ public class Ballpath implements Subsystem {
     @Override
     public void resetState() {
         // TODO Auto-generated method stub
-        feedMotorSpeed = 0;
-        kickerMotorSpeed = 0;
-        intakeMotorSpeed = 0;
+        feedMotorSpeed = 0.0;
+        kickerMotorSpeed = 0.0;
+        intakeMotorSpeed = 0.0;
     }
 
     @Override
