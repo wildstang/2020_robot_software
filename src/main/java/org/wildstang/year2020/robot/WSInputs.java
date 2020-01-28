@@ -79,7 +79,7 @@ public enum WSInputs implements Inputs {
                                                                                              // Subsystem
     BASE_LOCK("Base lock", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 3), false), // Driver
                                                                                            // Subsystem
-    INTAKE("Bumper", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false), 
+    INTAKE("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false), 
 
     AUTO_E_STOP("Auto E-Stop", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 0), false), // Drive/Auto
                                                                                                // Subsystem
