@@ -20,7 +20,7 @@ import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.CoreUtils;
 
-public class turret implements Subsystem {
+public class Turret implements Subsystem {
     // digital inputs
 	//DigitalInput activatelime;
 	
