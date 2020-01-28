@@ -19,7 +19,7 @@ import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.CoreUtils;
 
-public class turret implements Subsystem {
+public class Turret implements Subsystem {
     // digital inputs
 	//DigitalInput activatelime;
 	//Please comment on what the variables are.
@@ -43,7 +43,7 @@ public class turret implements Subsystem {
         aimright.addInputListener(this);
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRETLEFT.getName());
         aimleft.addInputListener(this);				
-		turretPivot = new TalonSRX(CANConstants.TURRET_PIVOT);
+		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
 	}
 
 	@Override
