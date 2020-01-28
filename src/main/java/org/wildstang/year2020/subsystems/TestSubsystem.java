@@ -45,18 +45,18 @@ public class TestSubsystem implements Subsystem {
     // states
     private double speed;
     private double maxDriveInput;
-    private double maxDriveInput2;
-    private double maxDriveInput3;
-    private double maxDriveInput4;
+    private double kickerInput;
+    private double hoodInput;
+    private double hopperFloorInput;
     private double hoodDrive;
     private double floormod;
 
     // Shuffleboard materials
     private ShuffleboardTab driveTab;
     private NetworkTableEntry maxDriveInputEntry;
-    private NetworkTableEntry maxDriveInputEntry2;
-    private NetworkTableEntry maxDriveInputEntry3;
-    private NetworkTableEntry maxDriveInputEntry4;
+    private NetworkTableEntry kickerInputEntry;
+    private NetworkTableEntry hoodInputEntry;
+    private NetworkTableEntry hopperFloorInputEntry;
 
     // initializes the subsystem
     public void init() {
@@ -70,34 +70,24 @@ public class TestSubsystem implements Subsystem {
         floor = (DigitalInput) Core.getInputManager().getInput(WSInputs.REVERSE_BUTTON.getName());
         floor.addInputListener(this);
 
-
         // register solenoids with arbitrary output names, since this is a test
-        motor = new TalonSRX(1);//3
-        motor2 = new TalonSRX(2);//2
-        motor3 = new TalonSRX(3);//1
-        motor4 = new TalonSRX(4);
-        motor5 = new TalonSRX(5);
-        //motor2.setInverted(false);
-        //motor2.follow(motor);
-        // //motor3.follow(motor);
-        // motor.configContinuousCurrentLimit(60);
-        // motor2.configContinuousCurrentLimit(60);
-        // motor3.configContinuousCurrentLimit(60);
-
-        SmartDashboard.putNumber("current",motor.getSupplyCurrent());
-
+        motor = new TalonSRX(1);//primary flywheel
+        motor2 = new TalonSRX(2);//follower flywheel
+        motor3 = new TalonSRX(3);//kicker
+        motor4 = new TalonSRX(4);//shooter hood
+        motor5 = new TalonSRX(5);//hopper floor
 
         // Add Drive tab and max drive input slider onto Shuffleboard
         driveTab = Shuffleboard.getTab("Drive");
         maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
-        maxDriveInputEntry2 = driveTab.add("Max Input Kicker", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
-        maxDriveInputEntry3 = driveTab.add("Max Input hood", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
-        maxDriveInputEntry4 = driveTab.add("Max Input hopper", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        kickerInputEntry = driveTab.add("Max Input Kicker", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        hoodInputEntry = driveTab.add("Max Input hood", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        hopperFloorInputEntry = driveTab.add("Max Input hopper", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
         
         maxDriveInput = 1.0;
-        maxDriveInput2 = 1.0;
-        maxDriveInput3 = 1.0;
-        maxDriveInput4 = 1.0;
+        kickerInput = 1.0;
+        hoodInput = 1.0;
+        hopperFloorInput = 1.0;
         hoodDrive = 0;
         floormod = 0;
 
@@ -107,16 +97,15 @@ public class TestSubsystem implements Subsystem {
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         maxDriveInput = maxDriveInputEntry.getDouble(1.0);
-        maxDriveInput2 = maxDriveInputEntry2.getDouble(1.0);
-        maxDriveInput3 = maxDriveInputEntry3.getDouble(1.0);
-        maxDriveInput4 = maxDriveInputEntry4.getDouble(1.0);
+        kickerInput = kickerInputEntry.getDouble(1.0);
+        hoodInput = hoodInputEntry.getDouble(1.0);
+        hopperFloorInput = hopperFloorInputEntry.getDouble(1.0);
 
         motor.set(ControlMode.PercentOutput , -speed * maxDriveInput);
         motor2.set(ControlMode.PercentOutput , speed * maxDriveInput);
-        motor3.set(ControlMode.PercentOutput, -maxDriveInput2);
-        motor4.set(ControlMode.PercentOutput, hoodDrive*maxDriveInput3);
-        motor5.set(ControlMode.PercentOutput, -maxDriveInput4 * floormod);
-        
+        motor3.set(ControlMode.PercentOutput, -kickerInput);
+        motor4.set(ControlMode.PercentOutput, hoodDrive*hoodInput);
+        motor5.set(ControlMode.PercentOutput, -hopperFloorInput * floormod);
     }
 
     // respond to input updates
@@ -126,11 +115,10 @@ public class TestSubsystem implements Subsystem {
             speed = joystick.getValue();
         }
         if (hoodUp.getValue()){
-            hoodDrive=maxDriveInput3;
-
+            hoodDrive=hoodInput;
         }
         else if (hoodDown.getValue()){
-            hoodDrive=-maxDriveInput3;
+            hoodDrive=-hoodInput;
         }
         else {
             hoodDrive=0;
