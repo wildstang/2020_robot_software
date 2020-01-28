@@ -1,8 +1,13 @@
-package org.wildstang.year2020.subsystems.controlPanel;
+package org.wildstang.year2020.subsystems.controlpanel;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import javax.lang.model.util.ElementScanner6;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
@@ -13,16 +18,9 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-import org.wildstang.framework.io.Input;
-import org.wildstang.framework.subsystems.Subsystem;
-import javax.lang.model.util.ElementScanner6;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SensorCollection;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-/* 
+
+/*
+
 Subsystem Controls: (for XBOX Controller)    
 DPAD Left - run the control panel wheel at full power
 DPAD Right - run the control panel wheel full reverse
@@ -38,7 +36,6 @@ control panel deploy - victor
 Sensors:
 1 encoder, attached to intake/control panel wheel talon
 2 limit switches, limiting the upwards and downwards motion of the control panel deploy
-
 
 */
 
@@ -56,7 +53,7 @@ public class ControlPanel implements Subsystem{
     private DigitalInput INTspin;
     private DigitalInput ENCspin;
 
-    //controlpanelspinner
+    //controlPanelSpinner
     private boolean spininput = false;
     private DigitalInput Spin;
     private TalonSRX Spinner;
@@ -66,7 +63,7 @@ public class ControlPanel implements Subsystem{
 
     //intake 
     // private boolean spininput detimines intake
-   // private VictorSPX Intake;
+    // private VictorSPX Intake;
 
     //other booleans/ints
     private int DeployOn;
@@ -89,7 +86,7 @@ public class ControlPanel implements Subsystem{
 
     @Override
     public String getName(){
-        return "controlPanel";
+        return "ControlPanel";
     }
     @Override
     public void inputUpdate(Input source) {
@@ -218,9 +215,8 @@ public class ControlPanel implements Subsystem{
     @Override
     public void resetState(){
     }
+    
     @Override
     public void selfTest() {
-        // DO NOT IMPLEMENT
-        // TODO WHY NOT?
     }
 }
