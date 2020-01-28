@@ -118,9 +118,9 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Buttons
     // ---------------------------------
-    INTAKE("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), // Ballpath
+    CLIMB_SELECT("CLIMB_SELECT", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 8), false), // climb
                                                                                     // Subsystem
-    REVERSE_BUTTON("Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // Ballpath
+    CLIMB_START("CLIMB_START", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 9), false), // climb
                                                                                           // Subsystem
     HOPPER_SOLENOID("Hopper solenoids", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), // Ballpath
                                                                                                         // Subsystem
