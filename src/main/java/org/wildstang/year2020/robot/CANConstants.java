@@ -13,9 +13,17 @@ public final class CANConstants {
     public static final int[] RIGHT_DRIVE_VICTORS = {4,5};
 
     // TODO put in correct IDs
-    public static final int INTAKECPWHEEL_TALON = 12;
-    public static final int CPDEPLOY_TALON = 13;
-    public static final int TURRET_PIVOT = 13;
+    public static final int BALLPATH_FEED = 9;
+    public static final int BALLPATH_KICKER = 10;
+    public static final int BALLPATH_INTAKE = 11;
+    public static final int CLIMB_VICTOR_1 = 7;
+    public static final int CLIMB_VICTOR_2 = 8;
+    public static final int TURRET_TALON = 12; //TURRET_PIVOT?
+    public static final int LAUNCHER_TALON = 5;
+    public static final int LAUNCHER_VICTOR = 6;
+    public static final int HOOD_MOTOR = 13;
+    public static final int INTAKECPWHEEL_TALON = 14;
+    public static final int CPDEPLOY_TALON = 15;
 }
 
 
