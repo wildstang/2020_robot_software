@@ -134,7 +134,7 @@ public class ControlPanel implements Subsystem{
         }
         //encoder based spinning
         if ((source == ENCspin) && ENCbool){
-            Spins = Spins + (1500);
+            Spins += (1500);
             spinOn = true;
             CMDspin = 6;
             Spinner.getSensorCollection().setQuadraturePosition(0, 0);
