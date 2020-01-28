@@ -21,8 +21,6 @@ public class Climb implements Subsystem {
     // Inputs
     private DigitalInput selectButton;
     private DigitalInput startButton;
-    private DigitalInput leftBumper;
-    private DigitalInput rightBumper;
 
     // Outputs
     private VictorSPX climbMotor1;
@@ -38,11 +36,11 @@ public class Climb implements Subsystem {
     @Override
     public void inputUpdate(Input source) {
         if (source == selectButton && source == startButton) {
-            climbInputStatus = selectButton.getValue();
-            motorspeed = -1.0; // Extends climb
-        } else if (source == leftBumper && source == rightBumper) {
-            climbInputStatus = leftBumper.getValue();
-            motorspeed = 1.0; // Retracts climb
+            climbInputStatus = true;
+            motorspeed = 1.0; // Extends climb
+        } else {
+            climbInputStatus = false;
+            motorspeed = 0; // Retracts climb via elastic magic
         }
     }
 
@@ -96,10 +94,6 @@ public class Climb implements Subsystem {
         selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START.getName());
         startButton.addInputListener(this);
-        leftBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_LEFT_BUMPER.getName());
-        leftBumper.addInputListener(this);
-        rightBumper = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_RIGHT_BUMPER.getName());
-        rightBumper.addInputListener(this);
     }
 
 }
