@@ -1,6 +1,5 @@
 package org.wildstang.year2020.subsystems.launching;
 
-import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
@@ -35,24 +34,26 @@ public class Shooter implements Subsystem {
     private Limelight limelightSubsystem;
 
     // Constants
-    public static final double SAFE_SHOOTER_MOTOR_OUTPUT = 0.5;
-    public static final double AIM_MODE_SHOOTER_MOTOR_OUTPUT = 0.8;
     public static final double MOTOR_OUTPUT_TOLERANCE = 0.02;
     public static final double MOTOR_POSITION_TOLERANCE = 1.0;
 
     public static final double UPPER_GOAL_DISTANCE_LIMIT = 0.0;
 
-    public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-
-    public static final double REVS_PER_INCH = 1.0 / 2.0; 
+    public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
+
+    // Motor velocities are measured in ticks per decisecond (ticks per 0.1 seconds)
+    public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;
+    public static final double AIM_MODE_SHOOTER_SPEED = (7500 * TICKS_PER_REV) / 600.0;
+
+    // PID constants go in order of F, P, I, D
+    public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
+    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
     
     public static final double HOOD_TRAVEL_DISTANCE = 4.0;
 
     // Logic
-    private double shooterMotorOutput;
     private boolean aimModeEnabled;
     private boolean shooterMotorSpeedSetForAimMode;
     private boolean hoodAimed;
@@ -62,9 +63,9 @@ public class Shooter implements Subsystem {
         aimModeEnabled = false;
 
         aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger.addInputListener(this);
         fireTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
-
-        shooterMotorOutput = SAFE_SHOOTER_MOTOR_OUTPUT;
+        fireTrigger.addInputListener(this);
 
         shooterMasterMotor = new TalonSRX(0);
         shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
@@ -74,6 +75,9 @@ public class Shooter implements Subsystem {
 
         shooterFollowerMotor = new VictorSPX(0);
         shooterFollowerMotor.follow(shooterMasterMotor);
+
+        shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+        shooterFollowerMotor.set(ControlMode.Follower, 0);
 
         hoodMotor = new VictorSPX(0);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
@@ -86,10 +90,8 @@ public class Shooter implements Subsystem {
 
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        shooterMasterMotor.set(ControlMode.PercentOutput, shooterMotorOutput);
-
         double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
-        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_MOTOR_OUTPUT + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_MOTOR_OUTPUT - MOTOR_OUTPUT_TOLERANCE)) {
+        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED - MOTOR_OUTPUT_TOLERANCE)) {
             shooterMotorSpeedSetForAimMode = true;
         } else {
             shooterMotorSpeedSetForAimMode = false;
@@ -108,11 +110,11 @@ public class Shooter implements Subsystem {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() == true) { // Entering aim mode
                 aimModeEnabled = true;
-                shooterMotorOutput = AIM_MODE_SHOOTER_MOTOR_OUTPUT;
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
                 aimToGoal();
             } else { // Exiting aim mode
                 aimModeEnabled = false;
-                shooterMotorOutput = SAFE_SHOOTER_MOTOR_OUTPUT;
+                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
                 hoodMotor.set(ControlMode.Position, 0.0);
             }
         }
@@ -125,7 +127,12 @@ public class Shooter implements Subsystem {
 
     // resets all variables to the default state
     public void resetState() {
-        
+        aimModeEnabled = false;
+        shooterMotorSpeedSetForAimMode = false;
+        hoodAimed = false;
+
+        shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+        hoodMotor.set(ControlMode.Position, 0.0);
     }
 
     // returns the unique name of the example

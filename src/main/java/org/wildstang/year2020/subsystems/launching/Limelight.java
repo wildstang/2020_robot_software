@@ -1,7 +1,5 @@
 package org.wildstang.year2020.subsystems.launching;
 
-import javax.management.remote.TargetedNotification;
-
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
@@ -50,6 +48,7 @@ public class Limelight implements Subsystem {
     @Override
     public void init() {
         aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger.addInputListener(this);
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");
 

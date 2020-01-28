@@ -11,7 +11,6 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Turret implements Subsystem {
@@ -50,6 +49,7 @@ public class Turret implements Subsystem {
         turretAimed = false;
 
         aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger.addInputListener(this);
 
         turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
 
