@@ -26,8 +26,11 @@ public class Ballpath implements Subsystem {
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
-    private static final double fullSpeed = 1.0;
-    private static final double reverseSpeed = -0.4;
+    private final double fullSpeed = 1.0;
+    private final double reverseSpeed = -0.4;
+    private boolean rightTriggerRunning = false;
+    private boolean YButtonRunning = false;
+    private boolean AButtonRunning = false;
 
     // Status for each motor
     private AnalogInput rightTrigger;
@@ -39,22 +42,36 @@ public class Ballpath implements Subsystem {
     
         if (rightTrigger.getValue() > 0.75) {
             //runs the hopper motor full power and the kicker motor full power
+            
+            
             feedMotorSpeed = fullSpeed;
             kickerMotorSpeed = fullSpeed;
-
+            
         } else if (source == YButton) {
             //runs hopper motor and kicker motor backwards at ~40% power
-            feedMotorSpeed = reverseSpeed;
-            kickerMotorSpeed = reverseSpeed;
 
-        } else if (source == AButton) {
+            if YButtonRunning = true {
+                YButtonRunning = false;
+                feedMotorSpeed = 0;
+                kickerMotorSpeed = 0;
+            } else {
+                YButtonRunning = true;
+                feedMotorSpeed = reverseSpeed;
+                kickerMotorSpeed = reverseSpeed;
+            }
+        }
+
+        if (source == AButton) {
             //run intake motor at 100% power
-            intakeMotorSpeed = fullSpeed;
 
-        } else {
-            feedMotorSpeed = 0.0;
-            kickerMotorSpeed = 0.0;
-            intakeMotorSpeed = 0.0;
+            if YButtonRunning = true {
+                YButtonRunning = false;
+                intakeMotorSpeed = 0;
+            } else {
+                YButtonRunning = true;
+                intakeMotorSpeed = fullSpeed;
+                
+            }
         }
     }
 
@@ -62,7 +79,7 @@ public class Ballpath implements Subsystem {
     public void init() {
         initInputs();
         initOutputs();
-
+        resetState();
     }
 
     @Override
