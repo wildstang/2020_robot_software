@@ -22,12 +22,12 @@ public class Ballpath implements Subsystem {
     private TalonSRX kickerMotor;
     private TalonSRX intakeMotor;
 
-    // Constants (to be set) 
+    // Constants 
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
-    private double fullSpeed = 1.0;
-    private double reverseSpeed = -0.4;
+    private static final double fullSpeed = 1.0;
+    private static final double reverseSpeed = -0.4;
 
     // Status for each motor
     private AnalogInput rightTrigger;
@@ -84,7 +84,9 @@ public class Ballpath implements Subsystem {
     @Override
     public void resetState() {
         // TODO Auto-generated method stub
-
+        feedMotorSpeed = 0;
+        kickerMotorSpeed = 0;
+        intakeMotorSpeed = 0;
     }
 
     @Override
