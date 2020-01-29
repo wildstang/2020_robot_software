@@ -42,7 +42,7 @@ public class Ballpath implements Subsystem {
             feedMotorSpeed = fullSpeed;
             kickerMotorSpeed = fullSpeed;
         
-        } else if (YButton.getValue()) {
+        } else if (source == YButton) {
             //runs hopper motor and kicker motor backwards at ~40% power
             feedMotorSpeed = reverseSpeed;
             kickerMotorSpeed = reverseSpeed;
@@ -52,7 +52,7 @@ public class Ballpath implements Subsystem {
             feedMotorSpeed = 0.0;
             kickerMotorSpeed = 0.0;
         } 
-        if (AButton.getValue()) {
+        if (source == AButton) {
             //run intake motor at 100% power
             intakeMotorSpeed = fullSpeed;
             
