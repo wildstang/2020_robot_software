@@ -36,33 +36,39 @@ public class Ballpath implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-    
+      
         if (rightTrigger.getValue() > 0.75) {
             //runs the hopper motor full power and the kicker motor full power
             feedMotorSpeed = fullSpeed;
             kickerMotorSpeed = fullSpeed;
-
+        
         } else if (source == YButton) {
             //runs hopper motor and kicker motor backwards at ~40% power
             feedMotorSpeed = reverseSpeed;
             kickerMotorSpeed = reverseSpeed;
 
-        } else if (source == AButton) {
-            //run intake motor at 100% power
-            intakeMotorSpeed = fullSpeed;
-
         } else {
+            //sets both motor's speed to zero if neither input is pressed
             feedMotorSpeed = 0.0;
             kickerMotorSpeed = 0.0;
+        } 
+        if (source == AButton) {
+            //run intake motor at 100% power
+            intakeMotorSpeed = fullSpeed;
+            
+        } else { 
+            //sets intake motor's speed to zero if A is not pressed
             intakeMotorSpeed = 0.0;
         }
+   
+        
     }
 
     @Override
     public void init() {
         initInputs();
         initOutputs();
-
+        resetState();
     }
 
     @Override
@@ -84,9 +90,9 @@ public class Ballpath implements Subsystem {
     @Override
     public void resetState() {
         // TODO Auto-generated method stub
-        feedMotorSpeed = 0;
-        kickerMotorSpeed = 0;
-        intakeMotorSpeed = 0;
+        feedMotorSpeed = 0.0;
+        kickerMotorSpeed = 0.0;
+        intakeMotorSpeed = 0.0;
     }
 
     @Override
