@@ -13,7 +13,6 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.framework.timer.WsTimer;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
@@ -63,18 +62,17 @@ public class ControlPanel implements Subsystem{
 
     //intake 
     // private boolean spininput detimines intake
-    // private VictorSPX Intake;
+    // private VictorSPX Intake    
 
-    //other booleans/ints
-    private int DeployOn;
-    // 1 = Up, 0 = Off-Down, 2 = Down, 3 = Off-Up
-    private boolean IsDown;
-    private WsTimer timer = new WsTimer();
-    private boolean TimerHasStarted = false;
+    //int/double
+    private double CMDspin;
     private double UPWAIT = 5.25;
     private int Spins = 0;
+    private int DeployOn;
+    //bools
+    
+    private boolean IsDown;
     private boolean start = false;
-    private double CMDspin;
     private boolean off;
     private boolean on;
     private boolean UPbool;
@@ -100,18 +98,27 @@ public class ControlPanel implements Subsystem{
             switch(DeployOn){
             case 0:
             case 1:
+            case 4:
                 DeployOn = 1;
                 break;
+            }
+            else (!UPbool){
+                DeployOn = 4;
             }
         }
         if ((source == DpadDWN) && DWNbool){
             switch(DeployOn){
             case 3:
             case 2:
+            case 4:
                 DeployOn = 2;
                 break;
             }
+            else (!UPbool){
+                DeployON = 4;
+            }
          }
+         
         //spinner
         if (FWDbool){
             CMDspin = 1; //if FWD, spin forward
@@ -125,6 +132,12 @@ public class ControlPanel implements Subsystem{
          CMDspin = 0; //if nothing pressed and encoder not running, turn motor off 
             }
         }
+        //more spiner
+        if ((source == ENCspin) && ENCbool){
+            Spins += (1500);
+            spinOn = true;
+            CMDspin = 6;
+            Spinner.getSensorCollection().setQuadraturePosition(0, 0);
         //intake controls
         if (INTbool){
             start = true;
@@ -132,12 +145,6 @@ public class ControlPanel implements Subsystem{
         else{
             off = true;
         }
-        //encoder based spinning
-        if ((source == ENCspin) && ENCbool){
-            Spins += (1500);
-            spinOn = true;
-            CMDspin = 6;
-            Spinner.getSensorCollection().setQuadraturePosition(0, 0);
     }
  }
     @Override
@@ -164,33 +171,7 @@ public class ControlPanel implements Subsystem{
         
     @Override
     public void update() {
-        IsDown = Deploy.getSensorCollection().isFwdLimitSwitchClosed();
         Encoder = Spinner.getSensorCollection().getQuadraturePosition();
-        if (IsDown == true){
-            if (DeployOn == 2){
-                DeployOn = 0;
-                Deploy.set(ControlMode.PercentOutput, 0);
-            }
-        }
-        if (!IsDown){
-            if (DeployOn == 2){
-                Deploy.set(ControlMode.PercentOutput, -1);
-            }
-        }
-        if (IsDown == true){
-            if (DeployOn == 1){
-                if(!TimerHasStarted){
-                    timer.reset();
-                    Deploy.set(ControlMode.PercentOutput, 1);
-                    TimerHasStarted = true;
-                }
-                if(timer.hasPeriodPassed(UPWAIT)){
-                    Deploy.set(ControlMode.PercentOutput,0);
-                    DeployOn = 3;
-                    TimerHasStarted = false;
-                }
-            } 
-        }
         //control panel spinner
         if (Encoder >= Spins && spinOn == true){ 
             Spinner.set(ControlMode.PercentOutput, 0.0);
