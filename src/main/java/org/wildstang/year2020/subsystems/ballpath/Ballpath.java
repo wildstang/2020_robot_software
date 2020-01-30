@@ -52,7 +52,7 @@ public class Ballpath implements Subsystem {
         } else if (source == YButton) {
             //runs hopper motor and kicker motor backwards at ~40% power
 
-            if YButtonRunning == true {
+            if (YButtonRunning == true) {
                 YButtonRunning = false;
                 feedMotorSpeed = 0;
                 kickerMotorSpeed = 0;
@@ -68,7 +68,7 @@ public class Ballpath implements Subsystem {
         if (source == AButton) {
             //run intake motor at 100% power
 
-            if YButtonRunning == true {
+            if (YButtonRunning == true) {
                 YButtonRunning = false;
                 intakeMotorSpeed = 0;
 
