@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
@@ -16,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Turret implements Subsystem {
 
     // Inputs
-    private DigitalInput aimModeTrigger;
+    private AnalogInput aimModeTrigger;
 
     // Outputs
     private TalonSRX turretMotor;
@@ -34,7 +35,7 @@ public class Turret implements Subsystem {
     @Override
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() == true) { // Entering aim mode
+            if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
                 aimModeEnabled = true;
             } else { // Exiting aim mode
                 aimModeEnabled = false;
@@ -48,7 +49,7 @@ public class Turret implements Subsystem {
         aimModeEnabled = false;
         turretAimed = false;
 
-        aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         aimModeTrigger.addInputListener(this);
 
         turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);

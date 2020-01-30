@@ -130,9 +130,9 @@ public enum WSInputs implements Inputs {
                                                                                                     // Subsystem
     HATCH_DEPLOY("Hatch Deploy", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
                                                                                                 // Subsystem
-    CARRIAGE_ROLLERS("Carriage Rollers", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
+    TURRET_AIM_MODE_TRIGGER("Turret Aim Mode Trigger", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
                                                                                                         // Subsystem
-    AUTOMATIC_STRAFE_SWITCH("Button to override strafe", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
+    TURRET_FIRE_TRIGGER("Turret Fire Trigger", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
                                                                                            // Subsystem
     WEDGE_SAFETY_1("First Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false), // Wedge
                                                                                                          // Subsystem
@@ -144,9 +144,10 @@ public enum WSInputs implements Inputs {
                                                                                                                                   // Subsystem
 
 
-    TURRET_AIM_MODE_TRIGGER("Turret Aim Mode Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false),
+    //TURRET_AIM_MODE_TRIGGER("Turret Aim Mode Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false),
     
-    TURRET_FIRE_TRIGGER("Turret Fire Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), // Fix the numbers please
+    //TURRET_FIRE_TRIGGER("Turret Fire Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 7), false), // Fix the numbers please
+
     // ********************************
     // Digital IOs
     // ********************************
