@@ -18,9 +18,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 public class Ballpath implements Subsystem {
 
     // Motors
-    private TalonSRX feedMotor;
-    private TalonSRX kickerMotor;
-    private TalonSRX intakeMotor;
+    private VictorSPX feedMotor;
+    private VictorSPX kickerMotor;
+    private VictorSPX intakeMotor;
 
     // Constants 
     //What is put into setting motors
@@ -28,16 +28,13 @@ public class Ballpath implements Subsystem {
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
     
-    private final double fullSpeed = 1.0;
-    private final double reverseSpeed = -0.4;
-    private boolean rightTriggerRunning = false;
-    private boolean YButtonRunning = false;
-    private boolean AButtonRunning = false;
+    private final double FULL_SPEED = 1.0;
+    private final double REVERSE_SPEED = -0.4;
 
     // Status for each motor
     private AnalogInput rightTrigger;
-    private DigitalInput YButton;
-    private DigitalInput AButton;
+    private DigitalInput yButton;
+    private DigitalInput aButton;
 
     @Override
     public void inputUpdate(Input source) {
@@ -46,39 +43,29 @@ public class Ballpath implements Subsystem {
 
         if (rightTrigger.getValue() > 0.75) {
             //runs the hopper motor full power and the kicker motor full power
-            feedMotorSpeed = fullSpeed;
-            kickerMotorSpeed = fullSpeed;
+            feedMotorSpeed = FULL_SPEED;
+            kickerMotorSpeed = FULL_SPEED;
             
-        } else if (source == YButton) {
+        } else if (yButton.getValue()) {
             //runs hopper motor and kicker motor backwards at ~40% power
+            feedMotorSpeed = REVERSE_SPEED;
+            kickerMotorSpeed = REVERSE_SPEED;
 
-            if (YButtonRunning == true) {
-                YButtonRunning = false;
+        } else {
                 feedMotorSpeed = 0;
                 kickerMotorSpeed = 0;
-
-            } else {
-                YButtonRunning = true;
-                feedMotorSpeed = reverseSpeed;
-                kickerMotorSpeed = reverseSpeed;
-
-            }
         }
+    
 
-        if (source == AButton) {
+        if (aButton.getValue()) {
             //run intake motor at 100% power
-
-            if (YButtonRunning == true) {
-                YButtonRunning = false;
+            intakeMotorSpeed = FULL_SPEED;
+                
+        } else {
                 intakeMotorSpeed = 0;
-
-            } else {
-                YButtonRunning = true;
-                intakeMotorSpeed = fullSpeed;
-
-            }
         }
     }
+    
 
     @Override
     public void init() {
@@ -116,19 +103,18 @@ public class Ballpath implements Subsystem {
     }
 
     private void initOutputs() {
-        feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
-        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
-        intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
+        feedMotor = new VictorSPX(CANConstants.BALLPATH_FEED);
+        kickerMotor = new VictorSPX(CANConstants.BALLPATH_KICKER);
+        intakeMotor = new VictorSPX(CANConstants.BALLPATH_INTAKE);
     }
 
 
     private void initInputs() {
         rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.RIGHT_TRIGGER.getName());
         rightTrigger.addInputListener(this);
-        YButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.Y_BUTTON.getName());
-        YButton.addInputListener(this);
-        AButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.A_BUTTON.getName());
-        AButton.addInputListener(this);
+        yButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.Y_BUTTON.getName());
+        yButton.addInputListener(this);
+        aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.A_BUTTON.getName());
+        aButton.addInputListener(this);
     }
-
 }
