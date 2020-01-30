@@ -23,9 +23,11 @@ public class Ballpath implements Subsystem {
     private TalonSRX intakeMotor;
 
     // Constants 
+    //What is put into setting motors
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
+    
     private final double fullSpeed = 1.0;
     private final double reverseSpeed = -0.4;
     private boolean rightTriggerRunning = false;
@@ -39,38 +41,41 @@ public class Ballpath implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-    
+    //they should act as a hold buttons 
+    //ie. when pressed down 
+
         if (rightTrigger.getValue() > 0.75) {
             //runs the hopper motor full power and the kicker motor full power
-            
-            
             feedMotorSpeed = fullSpeed;
             kickerMotorSpeed = fullSpeed;
             
         } else if (source == YButton) {
             //runs hopper motor and kicker motor backwards at ~40% power
 
-            if YButtonRunning = true {
+            if YButtonRunning == true {
                 YButtonRunning = false;
                 feedMotorSpeed = 0;
                 kickerMotorSpeed = 0;
+
             } else {
                 YButtonRunning = true;
                 feedMotorSpeed = reverseSpeed;
                 kickerMotorSpeed = reverseSpeed;
+
             }
         }
 
         if (source == AButton) {
             //run intake motor at 100% power
 
-            if YButtonRunning = true {
+            if YButtonRunning == true {
                 YButtonRunning = false;
                 intakeMotorSpeed = 0;
+
             } else {
                 YButtonRunning = true;
                 intakeMotorSpeed = fullSpeed;
-                
+
             }
         }
     }
@@ -91,11 +96,9 @@ public class Ballpath implements Subsystem {
     @Override
     public void update() {
         // TODO Auto-generated method stub
-
             feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
             kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
             intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
-
     }
 
     @Override
@@ -114,8 +117,8 @@ public class Ballpath implements Subsystem {
 
     private void initOutputs() {
         feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
-        kickerMotor= new TalonSRX(CANConstants.BALLPATH_KICKER);
-        intakeMotor= new TalonSRX(CANConstants.BALLPATH_INTAKE);
+        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
+        intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
     }
 
 
