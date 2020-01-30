@@ -20,5 +20,5 @@ public final class CANConstants {
     public static final int LIFT_TALON = 10;
     public static final int LIFT_VICTOR = 9;
 
-    public static final int TURRET_MOTOR = 0; // Fix the numbers please
+    public static final int TURRET_MOTOR = 11; // Fix the numbers please
 }

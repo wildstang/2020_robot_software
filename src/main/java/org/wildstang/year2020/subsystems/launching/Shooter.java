@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
 
@@ -22,8 +23,8 @@ import org.wildstang.framework.subsystems.Subsystem;
 public class Shooter implements Subsystem {
 
     // Inputs
-    private DigitalInput aimModeTrigger;
-    private DigitalInput fireTrigger;
+    private AnalogInput aimModeTrigger;
+    private AnalogInput fireTrigger;
 
     // Outputs
     private TalonSRX shooterMasterMotor;
@@ -62,9 +63,9 @@ public class Shooter implements Subsystem {
     public void init() {
         aimModeEnabled = false;
 
-        aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         aimModeTrigger.addInputListener(this);
-        fireTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
+        fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
         fireTrigger.addInputListener(this);
 
         shooterMasterMotor = new TalonSRX(0);
@@ -86,6 +87,7 @@ public class Shooter implements Subsystem {
         hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
+        hoodAimed = false;
     }
 
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
@@ -108,7 +110,7 @@ public class Shooter implements Subsystem {
     // respond to input updates
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() == true) { // Entering aim mode
+            if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
                 aimModeEnabled = true;
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
                 aimToGoal();

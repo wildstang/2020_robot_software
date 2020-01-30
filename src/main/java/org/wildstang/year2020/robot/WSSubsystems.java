@@ -18,8 +18,9 @@ public enum WSSubsystems implements Subsystems {
     //FALCONDRIVE("Falcon Drive",FalconDrive.class),
     TEST("Test", TestSubsystem.class),
     LIMELIGHT("Limelight", Limelight.class),
-    TURRET("Turret", Turret.class),
-    SHOOTER("Shooter", Shooter.class);
+    SHOOTER("Shooter", Shooter.class),
+    TURRET("Turret", Turret.class);
+    
 
     private String name;
 

@@ -60,8 +60,8 @@ public class Turret implements Subsystem {
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
 
-        limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
-        shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER);
+        limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
+        shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
     }
 
     @Override

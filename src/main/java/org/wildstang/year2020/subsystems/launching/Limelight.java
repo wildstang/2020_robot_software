@@ -3,6 +3,7 @@ package org.wildstang.year2020.subsystems.launching;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.WSInputs;
 
@@ -13,7 +14,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 public class Limelight implements Subsystem {
 
     // Inputs
-    private DigitalInput aimModeTrigger;
+    private AnalogInput aimModeTrigger;
 
     // Constants (angles in degrees; distances in inches)
     public static final double MOUNT_VERTICAL_ANGLE_OFFSET = 0.0;
@@ -37,7 +38,7 @@ public class Limelight implements Subsystem {
     @Override
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() == true) {
+            if (aimModeTrigger.getValue() > 0.75) {
                 enableLEDs();
             } else {
                 disableLEDs();
@@ -47,7 +48,7 @@ public class Limelight implements Subsystem {
 
     @Override
     public void init() {
-        aimModeTrigger = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         aimModeTrigger.addInputListener(this);
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");
