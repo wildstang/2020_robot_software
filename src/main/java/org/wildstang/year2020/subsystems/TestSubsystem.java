@@ -83,7 +83,7 @@ public class TestSubsystem implements Subsystem {
         kickerInputEntry = driveTab.add("Max Input Kicker", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
         hoodInputEntry = driveTab.add("Max Input hood", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
         hopperFloorInputEntry = driveTab.add("Max Input hopper", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
-        
+
         maxDriveInput = 1.0;
         kickerInput = 1.0;
         hoodInput = 1.0;
@@ -106,6 +106,8 @@ public class TestSubsystem implements Subsystem {
         motor3.set(ControlMode.PercentOutput, -kickerInput);
         motor4.set(ControlMode.PercentOutput, hoodDrive*hoodInput);
         motor5.set(ControlMode.PercentOutput, -hopperFloorInput * floormod);
+
+        SmartDashboard.putNumber("Shooter encoder velocity",motor.getSensorCollection().getQuadratureVelocity());
     }
 
     // respond to input updates
