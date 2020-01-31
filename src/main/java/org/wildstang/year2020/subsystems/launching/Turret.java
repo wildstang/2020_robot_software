@@ -25,7 +25,7 @@ public class Turret implements Subsystem {
     private Shooter shooterSubsystem;
 
     // Constants
-    public static final double kP = -0.1;
+    public static final double kP = -0.03;
     public static final double minimumAdjustmentCommand = 0.05;
 
     // Logic
@@ -73,18 +73,20 @@ public class Turret implements Subsystem {
     @Override
     public void update() {
         if (aimModeEnabled == true) {
-            double txValue = limelightSubsystem.getTXValue();
+            double tyValue = limelightSubsystem.getTYValue();
 
-            double headingError = -txValue;
+            double headingError = -tyValue;
             double rotationalAdjustment = 0.0;
 
-            if (txValue > 1.0) {
+            if (tyValue > 1.0) {
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
-            } else if (txValue < 1.0) {
+            } else if (tyValue < 1.0) {
                 rotationalAdjustment = kP * headingError + minimumAdjustmentCommand;
             }
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
+        } else {
+            turretMotor.set(ControlMode.PercentOutput, 0);
         }
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
@@ -100,6 +102,7 @@ public class Turret implements Subsystem {
     public void resetState() {
         // TODO Auto-generated method stub
 
+        aimModeEnabled = false;
     }
 
     @Override
