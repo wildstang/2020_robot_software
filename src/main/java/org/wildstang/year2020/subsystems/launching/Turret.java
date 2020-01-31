@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
@@ -65,12 +64,6 @@ public class Turret implements Subsystem {
     }
 
     @Override
-    public void selfTest() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void update() {
         if (aimModeEnabled == true) {
             double tyValue = limelightSubsystem.getTYValue();
@@ -100,8 +93,6 @@ public class Turret implements Subsystem {
 
     @Override
     public void resetState() {
-        // TODO Auto-generated method stub
-
         aimModeEnabled = false;
     }
 
@@ -110,4 +101,6 @@ public class Turret implements Subsystem {
         return "Turret";
     }
     
+    @Override
+    public void selfTest() {}
 }

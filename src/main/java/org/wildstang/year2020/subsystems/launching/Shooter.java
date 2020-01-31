@@ -11,7 +11,6 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
@@ -131,11 +130,6 @@ public class Shooter implements Subsystem {
         }
     }
 
-    // used for testing
-    public void selfTest() {
-
-    }
-
     // resets all variables to the default state
     public void resetState() {
         aimModeEnabled = false;
@@ -177,4 +171,6 @@ public class Shooter implements Subsystem {
         }
     }
 
+    // used for testing
+    public void selfTest() {}
 }

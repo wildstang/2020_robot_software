@@ -2,7 +2,6 @@ package org.wildstang.year2020.subsystems.launching;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.WSInputs;
@@ -66,26 +65,7 @@ public class Limelight implements Subsystem {
     }
 
     @Override
-    public void selfTest() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void update() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void resetState() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return "Limelight";
     }
 
@@ -156,5 +136,13 @@ public class Limelight implements Subsystem {
 
         return distanceToTarget;
     }
-    
+
+    @Override
+    public void selfTest() {}
+
+    @Override
+    public void update() {}
+
+    @Override
+    public void resetState() {}
 }
