@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import javax.lang.model.util.ElementScanner6;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
@@ -17,6 +18,7 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
+
 
 /*
 
@@ -47,14 +49,14 @@ public class ControlPanel implements Subsystem{
     
     private DigitalInput deployUp;
     private DigitalInput deployDown;
-    private DigitalInput fowardSpin;
+    private DigitalInput forwardSpin;
     private DigitalInput backwardSpin;
     private DigitalInput intake;
     private DigitalInput presetSpin;
     //converting inputsignal to boolean (add bool to start of input name to reference)
     private boolean booldeployUp;
     private boolean booldeployDown;
-    private boolean boolfowardSpin;
+    private boolean boolforwardSpin;
     private boolean boolbackwardSpin;
     private boolean boolintake;
     private boolean boolpresetSpin;
@@ -68,6 +70,8 @@ public class ControlPanel implements Subsystem{
     private boolean isDown; //deploy is down
     private boolean isUp; //deploy is up
     private double encoder; //double for spinner encoder
+    //Allow preset spin to color
+    String gameData;
     
     @Override
     public String getName(){
@@ -83,7 +87,7 @@ public class ControlPanel implements Subsystem{
         boolintake = intake.getValue();
         boolpresetSpin = presetSpin.getValue();
         //setting deploy speed
-        if (source == (deployUp||deployDown)){
+        if ((source == deployUp)||(source ==deployDown)){
             if (booldeployUp&&(!booldeployDown)){
                 deploySpeed = 1; //deploy goes up
             }
@@ -148,8 +152,10 @@ public class ControlPanel implements Subsystem{
     public void update(){
         //Initialize Motor Attachments
         isDown = deploy.getSensorCollection().isFwdLimitSwitchClosed();
-        isUp = deploy.getSensorCollection().isBwdLimitSwitchClosed();
+        isUp = deploy.getSensorCollection().isRevLimitSwitchClosed();
         encoder = spinner.getSensorCollection().getQuadraturePosition();
+        //Get color from field
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
         //Deploy
         if ((deploySpeed) == 1||(deploySpeed == -1)){
             if((!isDown)&&(!isUp)){//if not fully down or up move deploy to operator speed
