@@ -48,7 +48,7 @@ public class Turret implements Subsystem {
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRETLEFT.getName());
         aimleft.addInputListener(this);				
 		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
-		turretVertical = new TalonSRX(CANConstants.TURRETVERT_TALON);
+		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
 	}
 
 	@Override
