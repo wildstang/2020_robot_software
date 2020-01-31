@@ -39,165 +39,158 @@ Sensors:
 */
 
 public class ControlPanel implements Subsystem{
-
-    //controlPanelDeploy
-    private int movedeploy;
-    private TalonSRX Deploy;
-
-    //inputs
-    private DigitalInput DpadUP; 
-    private DigitalInput DpadDWN;
-    private DigitalInput FWDspin;
-    private DigitalInput BWDspin;
-    private DigitalInput INTspin;
-    private DigitalInput ENCspin;
-
-    //controlPanelSpinner
-    private boolean spininput = false;
-    private DigitalInput Spin;
-    private TalonSRX Spinner;
-    private double Encoder;
-    private boolean spinOn = false;
-    private double spinMax;
-
-    //intake 
-    // private boolean spininput detimines intake
-    // private VictorSPX Intake    
-
-    //int/double
-    private double CMDspin;
-    private double UPWAIT = 5.25;
-    private int Spins = 0;
-    private int DeployOn;
-    //bools
+    //INTAKE IS LINKED TO SPIN
+    //variables, booleans, doubles, motors, etc.
+    //motors/inputs
+    private TalonSRX deploy;
+    private TalonSRX spinner;
     
-    private boolean IsDown;
-    private boolean start = false;
-    private boolean off;
-    private boolean on;
-    private boolean UPbool;
-    private boolean DWNbool;
-    private boolean FWDbool;
-    private boolean BWDbool;
-    private boolean ENCbool;
-    private boolean INTbool;
-
+    private DigitalInput deployUp;
+    private DigitalInput deployDown;
+    private DigitalInput fowardSpin;
+    private DigitalInput backwardSpin;
+    private DigitalInput intake;
+    private DigitalInput presetSpin;
+    //converting inputsignal to boolean (add bool to start of input name to reference)
+    private boolean booldeployUp;
+    private boolean booldeployDown;
+    private boolean boolfowardSpin;
+    private boolean boolbackwardSpin;
+    private boolean boolintake;
+    private boolean boolpresetSpin;
+    //motor speed doubles
+    private double spinSpeed;
+    private double deploySpeed;
+    //presetSpin encoder setup
+    private int presetSpins = 0;
+    private int ticksToSpin = 50; //change value to amount of ticks to turn by one color on wheel, set to 3 full rotations at the moment 8 colors per full rotation
+    //Motor Attachments like switches and encoder
+    private boolean isDown; //deploy is down
+    private boolean isUp; //deploy is up
+    private double encoder; //double for spinner encoder
+    
     @Override
     public String getName(){
         return "ControlPanel";
     }
     @Override
     public void inputUpdate(Input source) {
-        UPbool = DpadUP.getValue();
-        DWNbool = DpadDWN.getValue();
-        FWDbool = FWDspin.getValue();
-        BWDbool = BWDspin.getValue();
-        ENCbool = ENCspin.getValue();
-        INTbool = INTspin.getValue();
-        if ((source == DpadUP) && UPbool){ 
-            switch(DeployOn){
-            case 0:
-            case 1:
-            case 4:
-                DeployOn = 1;
-                break;
+        //setting input booleans to input statuses
+        booldeployUp = deployUp.getValue();
+        booldeployDown = deployDown.getValue();
+        boolforwardSpin = forwardSpin.getValue();
+        boolbackwardSpin = backwardSpin.getValue();
+        boolintake = intake.getValue();
+        boolpresetSpin = presetSpin.getValue();
+        //setting deploy speed
+        if (source == (deployUp||deployDown)){
+            if (booldeployUp&&(!booldeployDown)){
+                deploySpeed = 1; //deploy goes up
             }
-            else (!UPbool){
-                DeployOn = 4;
+            if (booldeployDown&&(!booldeployUp)){
+                deploySpeed = -1; //deploy goes down
             }
-        }
-        if ((source == DpadDWN) && DWNbool){
-            switch(DeployOn){
-            case 3:
-            case 2:
-            case 4:
-                DeployOn = 2;
-                break;
-            }
-            else (!UPbool){
-                DeployON = 4;
-            }
-         }
-         
-        //spinner
-        if (FWDbool){
-            CMDspin = 1; //if FWD, spin forward
-        }
-        else{
-        if(BWDbool){
-                CMDspin = -1;    //otherwise, if BWD, spin backwards
-         }
-         else{
-           if (CMDspin != 6) //CMD 6 means encoder is running
-         CMDspin = 0; //if nothing pressed and encoder not running, turn motor off 
+            if ((!booldeployDown)&&(!booldeployUp)){
+                deploySpeed = 0;
             }
         }
-        //more spiner
-        if ((source == ENCspin) && ENCbool){
-            Spins += (1500);
-            spinOn = true;
-            CMDspin = 6;
-            Spinner.getSensorCollection().setQuadraturePosition(0, 0);
-        //intake controls
-        if (INTbool){
-            start = true;
+        //moving spinner to operator requested direction
+        if ((source == forwardSpin)||(source ==backwardSpin)){
+            if (boolforwardSpin&&(!boolbackwardSpin)){
+                spinSpeed = 1;
+                presetSpins = 0;
+            }
+            if (boolbackwardSpin&&(!boolforwardSpin)){
+                spinSpeed = -1;
+                presetSpins = 0;
+            }
+            if ((!boolbackwardSpin)&&(!boolforwardSpin)){
+                spinSpeed = 0;
+            }
         }
-        else{
-            off = true;
+        if (source == presetSpin){
+            if (boolpresetSpin){
+                presetSpins = 1; //set to one at moment but can be changed to +1 later
+                spinner.getSensorCollection().setQuadraturePosition(0, 0);
+            }
         }
+        if (source == intake){
+            if (boolintake){
+                spinSpeed = 1;
+            }
+            else{
+                spinSpeed = 0;
+            }
+        }
+        
     }
- }
     @Override
-    public void init() {
-
+    public void init(){
         // InputListeners
-        DpadDWN = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_DOWN.getName());
-        DpadDWN.addInputListener(this);
-        DpadUP = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPDEPLOY_DPAD_UP.getName());
-        DpadUP.addInputListener(this);
-        FWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_LEFT.getName());
-        FWDspin.addInputListener(this);
-        BWDspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CPWHEEL_DPAD_RIGHT.getName());
-        BWDspin.addInputListener(this);
-        ENCspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.CONTROL_PANEL_WHEEL.getName());
-        ENCspin.addInputListener(this);
-        INTspin = (DigitalInput) Core.getInputManager().getInput(WSInputs.INTAKE.getName());
-        INTspin.addInputListener(this);
+        deployDown = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployDown.getName());
+        deployDown.addInputListener(this);//dpadDown
+        deployUp = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployUp.getName());
+        deployUp.addInputListener(this);//dpadUp
+        forwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.forwardSpin.getName());
+        forwardSpin.addInputListener(this);//dpadLeft
+        backwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.backwardSpin.getName());
+        backwardSpin.addInputListener(this);//dpadRight
+        presetSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.presetSpin.getName());
+        presetSpin.addInputListener(this);//left joystick button
+        intake = (DigitalInput) Core.getInputManager().getInput(WSInputs.intake.getName());
+        intake.addInputListener(this);//A button
         //Motors
-        Deploy = new TalonSRX(CANConstants.CPDEPLOY_TALON);        
-        Spinner = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
+        deploy = new TalonSRX(CANConstants.deploy);
+        spinner = new TalonSRX(CANConstants.spinner);
         resetState();
     }
-        
     @Override
-    public void update() {
-        Encoder = Spinner.getSensorCollection().getQuadraturePosition();
-        //control panel spinner
-        if (Encoder >= Spins && spinOn == true){ 
-            Spinner.set(ControlMode.PercentOutput, 0.0);
-            spinOn = false;
+    public void update(){
+        //Initialize Motor Attachments
+        isDown = deploy.getSensorCollection().isFwdLimitSwitchClosed();
+        isUp = deploy.getSensorCollection().isBwdLimitSwitchClosed();
+        encoder = spinner.getSensorCollection().getQuadraturePosition();
+        //Deploy
+        if ((deploySpeed) == 1||(deploySpeed == -1)){
+            if((!isDown)&&(!isUp)){//if not fully down or up move deploy to operator speed
+                deploy.set(ControlMode.PercentOutput,deploySpeed);
+            }
+            if((isDown)&&(deploySpeed == 1)){//if down but operator speed is up, move up
+                deploy.set(ControlMode.PercentOutput,deploySpeed);
+            }
+            if((isUp)&&(deploySpeed == -1)){//if up but operator speed is down, move down
+                deploy.set(ControlMode.PercentOutput,deploySpeed);
+            }
         }
-         if (spinOn == true){
-            Spinner.set(ControlMode.PercentOutput, 1.0);
+        if (deploySpeed == 0){//if operator stops, stop
+            deploy.set(ControlMode.PercentOutput,deploySpeed);
         }
-        if (CMDspin != 6.0){
-            Spinner.set(ControlMode.PercentOutput, CMDspin);
+        //Spinner (Linked to Intake)
+        //Spinner Manual Spin
+        if ((spinSpeed == 1) || (spinSpeed == -1)){//if manual is on
+            spinner.set(ControlMode.PercentOutput,spinSpeed);
         }
-        //intake commands
-        if (off){
-        Spinner.set(ControlMode.PercentOutput,0);
-        off = false;
+        if ((spinSpeed == 0) && (presetSpins == 0)){//if manual and presetspins is off
+            spinner.set(ControlMode.PercentOutput,spinSpeed);
         }
-        if (start){
-            Spinner.set(ControlMode.PercentOutput,1);
-            start = false;
+        //Spinner preset spins.
+        if ((presetSpins != 0) && (encoder > (presetSpins*ticksToSpin))){
+            spinner.set(ControlMode.PercentOutput,1);
+        }
+        if ((presetSpins != 0) && (encoder <= (presetSpins*ticksToSpin))){
+            spinner.set(ControlMode.PercentOutput,0);
+            presetSpins = 0;
         }
     }
     @Override
     public void resetState(){
+        deploy.set(ControlMode.PercentOutput,0);
+        spinner.set(ControlMode.PercentOutput,0);
+        spinSpeed = 0;
+        deploySpeed = 0;
+        presetSpins = 0;
     }
-    
     @Override
-    public void selfTest() {
+    public void selfTest(){
     }
 }

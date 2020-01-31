@@ -4,7 +4,6 @@ public final class CANConstants {
     public static final int LEFT_DRIVE_TALON = 1;
     public static final int RIGHT_DRIVE_TALON = 2;
 
-
     //For FalconDrive
     public static final int LEFT_DRIVE_TALON_FOLLOWER = 3;
     public static final int RIGHT_DRIVE_TALON_FOLLOWER = 4;
@@ -22,10 +21,6 @@ public final class CANConstants {
     public static final int LAUNCHER_TALON = 5;
     public static final int LAUNCHER_VICTOR = 6;
     public static final int HOOD_MOTOR = 13;
-    public static final int INTAKECPWHEEL_TALON = 14;
-    public static final int CPDEPLOY_TALON = 15;
+    public static final int deploy = 14;
+    public static final int spinner = 15;
 }
-
-
-
-

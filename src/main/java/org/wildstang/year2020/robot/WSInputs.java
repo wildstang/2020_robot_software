@@ -102,16 +102,16 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator DPAD Buttons
     // ---------------------------------
-    CPDEPLOY_DPAD_DOWN("CPDEPLOY_DPAD_DOWN", WSInputType.JS_DPAD_BUTTON,
+    deployDown("deployDown", WSInputType.JS_DPAD_BUTTON,
             new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_DOWN), false), // controlPanel
                                                                                //Subsystem
-    CPWHEEL_DPAD_LEFT("CPWHEEL_DPAD_LEFT", WSInputType.JS_DPAD_BUTTON,
+    forwardSpin("forwardSpin", WSInputType.JS_DPAD_BUTTON,
             new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_LEFT), false), // controlPanel
                                                                                  // Subsystem
-    CPWHEEL_DPAD_RIGHT("CPWHEEL_DPAD_RIGHT", WSInputType.JS_DPAD_BUTTON,
+    backwardSpin("backwardSpin", WSInputType.JS_DPAD_BUTTON,
             new WsJSButtonInputConfig(1, JoystickConstants.DPAD_X_RIGHT), false), // controlPanel 
                                                                                   //Subsystem
-    CPDEPLOY_DPAD_UP("CPDEPLOY_DPAD_UP", WSInputType.JS_DPAD_BUTTON,
+    deployUp("deployUp", WSInputType.JS_DPAD_BUTTON,
             new WsJSButtonInputConfig(1, JoystickConstants.DPAD_Y_UP), false), // controlPanel
                                                                                  // Subsystem
 
@@ -129,9 +129,9 @@ public enum WSInputs implements Inputs {
                                                                                                     // Subsystem
     TURRETRIGHT("TURRETRIGHT", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), // Strafe
                                                                                                 // Subsystem
-    CARRIAGE_ROLLERS("Carriage Rollers", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
+    presetSpin("presetSpin", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_TRIGGER), false), // Ballpath
                                                                                                         // Subsystem
-    AUTOMATIC_STRAFE_SWITCH("Button to override strafe", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
+    intake("intake", WSInputType.JS_JOYSTICK, new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_TRIGGER), false), // OPEN *TODO: HATCH OVERRIDE
                                                                                            // Subsystem
     WEDGE_SAFETY_1("First Wedge Safety", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false), // Wedge
                                                                                                          // Subsystem
