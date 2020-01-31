@@ -3,6 +3,8 @@ package org.wildstang.year2020.subsystems.launching;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -28,7 +30,8 @@ public class Shooter implements Subsystem {
 
     // Outputs
     private TalonSRX shooterMasterMotor;
-    private VictorSPX shooterFollowerMotor;
+    //private VictorSPX shooterFollowerMotor;
+    private TalonSRX shooterFollowerMotor;
 
     private VictorSPX hoodMotor;
 
@@ -45,12 +48,13 @@ public class Shooter implements Subsystem {
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
 
     // Motor velocities are measured in ticks per decisecond (ticks per 0.1 seconds)
-    public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;
-    public static final double AIM_MODE_SHOOTER_SPEED = (7500 * TICKS_PER_REV) / 600.0;
+    public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
+    //public static final double SAFE_SHOOTER_SPEED = 8000;
+    public static final double AIM_MODE_SHOOTER_SPEED = (7500 * TICKS_PER_REV) / 600.0;//51200
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
+    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.016, 0.003, 0.0, 0.0);
     
     public static final double HOOD_TRAVEL_DISTANCE = 4.0;
 
@@ -68,17 +72,20 @@ public class Shooter implements Subsystem {
         fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
         fireTrigger.addInputListener(this);
 
-        shooterMasterMotor = new TalonSRX(0);
+        shooterMasterMotor = new TalonSRX(1);
         shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
         shooterMasterMotor.config_kP(0, SHOOTER_PID_CONSTANTS.p);
         shooterMasterMotor.config_kI(0, SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(0, SHOOTER_PID_CONSTANTS.d);
 
-        shooterFollowerMotor = new VictorSPX(0);
+        //shooterFollowerMotor = new VictorSPX(2);
+        shooterFollowerMotor = new TalonSRX(2);
         shooterFollowerMotor.follow(shooterMasterMotor);
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-        shooterFollowerMotor.set(ControlMode.Follower, 0);
+        //shooterFollowerMotor.set(ControlMode.Follower, 0);
+        shooterFollowerMotor.follow(shooterMasterMotor);
+        shooterFollowerMotor.setInverted(true);
 
         hoodMotor = new VictorSPX(0);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
@@ -93,6 +100,8 @@ public class Shooter implements Subsystem {
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
+        SmartDashboard.putNumber("Encoder position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
+        SmartDashboard.putNumber("Encoder value", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
         if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED - MOTOR_OUTPUT_TOLERANCE)) {
             shooterMotorSpeedSetForAimMode = true;
         } else {
