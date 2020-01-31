@@ -30,10 +30,14 @@ public class Turret implements Subsystem {
 	private boolean aimrighton; // is right trigger pressed?
 	private double v; // a limelight vairible for whether or not valid target is in sight
     // talons
-    TalonSRX turretPivot; //turret pivot motor
+    TalonSRX turretPivot; 
+	TalonSRX turretVertical;//turret pivot motor
 	private double x; // a varible for the motor percent output when limelight controlled
+	private double y; // a variabke for the mtotr
 	private int mx; //  a variable for the motor percent output when manually controlled
-	private double ConstantA = 1.2; // fine-tuning varible for when limelight controlled. 
+	private double height; // a cool variable
+	private double Encoder; //cool stuff
+	private double ConstantA = 1.2; // fine-tuning variable for when limelight controlled. 
 	@Override
 	public void init() {
         // initialize inputs and outputs	
@@ -44,6 +48,7 @@ public class Turret implements Subsystem {
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRETLEFT.getName());
         aimleft.addInputListener(this);				
 		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
+		turretVertical = new TalonSRX(CANConstants.TURRETVERT_TALON);
 	}
 
 	@Override
@@ -55,6 +60,7 @@ public class Turret implements Subsystem {
 	public void inputUpdate(Input source) {
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 		NetworkTableEntry tv = table.getEntry("tv");
+		NetworkTableEntry ty = table.getEntry("ty");
 		NetworkTableEntry tx = table.getEntry("tx");
 		if (aimright.getValue() || aimleft.getValue()){
 			limeOn = false;
@@ -88,16 +94,20 @@ public class Turret implements Subsystem {
 		//get limelight values
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 		NetworkTableEntry tx = table.getEntry("tx");
+		NetworkTableEntry ty = table.getEntry("ty");
 		NetworkTableEntry tv = table.getEntry("tv");
 		x = tx.getDouble(0.0);
 		v = tv.getDouble(0.0);
+		y = ty.getDouble(0.0);
 		//turn turret
+		Encoder = turretVertical.getSelectedSensorPosition();
 		if (limeOn && (mx != 1)&& (mx!= -1) && (v == 1)){
 			turretPivot.set(ControlMode.PercentOutput,F(x));
 		}
 		if ((aimrighton) || (aimlefton)){
 			turretPivot.set(ControlMode.PercentOutput,mx);
-		}
+		} 
+		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
 	}
 
 	@Override
@@ -107,9 +117,14 @@ public class Turret implements Subsystem {
 	private double F(double k){
 		return ((Math.pow(Math.abs(k/27),ConstantA))*(Math.abs(k)/k));
 	}
-
+		// Math.pow(a,b) = 
 	@Override
 	public void selfTest() {
         // we don't really test... we probably should
 	}
+	 private double Func(double c){
+        double h = height/Math.tan(c);
+        double v = 10;
+        return (Math.asin((1-Math.sqrt(1-(8*Math.pow(c,2)*(Math.pow(v,2))-(-9.8))*c*Math.pow(h,2))))/(2*c)); // the angle calculator function goes here
+    }
 }
