@@ -20,11 +20,12 @@ public class Turret implements Subsystem {
 
     // Outputs
     private TalonSRX turretMotor;
+    private TalonSRX kickerMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
 
     // Constants
-    public static final double kP = -0.03;
+    public static final double kP = -0.07;
     public static final double minimumAdjustmentCommand = 0.05;
 
     // Logic
@@ -36,6 +37,7 @@ public class Turret implements Subsystem {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
                 aimModeEnabled = true;
+            
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
@@ -53,6 +55,9 @@ public class Turret implements Subsystem {
 
         turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
 
+        kickerMotor = new TalonSRX(11);
+        kickerMotor.set(ControlMode.PercentOutput, -1.0);
+        
         // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
         turretMotor.setInverted(false);
         turretMotor.setSensorPhase(true);
@@ -66,16 +71,26 @@ public class Turret implements Subsystem {
     @Override
     public void update() {
         if (aimModeEnabled == true) {
-            double tyValue = limelightSubsystem.getTYValue();
+            double tyValue = limelightSubsystem.getTYValue() - 0.8;
+
+            SmartDashboard.putNumber("Adjusted TY", tyValue);
 
             double headingError = -tyValue;
             double rotationalAdjustment = 0.0;
 
-            if (tyValue > 1.0) {
-                rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
-            } else if (tyValue < 1.0) {
+            
+
+            if (Math.abs(tyValue) > 1.0) {
+                rotationalAdjustment = kP * headingError; //- minimumAdjustmentCommand;
+            } else if (Math.abs(tyValue) < 0.1) {
+                rotationalAdjustment = 0.0; // DO NOTHING
+            } else if (tyValue < 1.0 && tyValue > 0.0) {
                 rotationalAdjustment = kP * headingError + minimumAdjustmentCommand;
+            } else if (tyValue < 0.0 && tyValue > -1.0) {
+                rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
+
+            SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } else {

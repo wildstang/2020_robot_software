@@ -52,7 +52,7 @@ public class Shooter implements Subsystem {
     // Motor velocities are measured in ticks per decisecond (ticks per 0.1 seconds)
     public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
     //public static final double SAFE_SHOOTER_SPEED = 8000;
-    public static final double AIM_MODE_SHOOTER_SPEED = (7500 * TICKS_PER_REV) / 600.0;//51200
+    public static final double AIM_MODE_SHOOTER_SPEED = (6750 * TICKS_PER_REV) / 600.0;//51200
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);

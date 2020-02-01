@@ -62,6 +62,8 @@ public class Limelight implements Subsystem {
         thorEntry = netTable.getEntry("thor");
 
         ledModeEntry = netTable.getEntry("ledMode");
+
+        ledModeEntry.setNumber(0);
     }
 
     @Override
@@ -124,7 +126,7 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(1);
+        ledModeEntry.setNumber(0);
     }
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
