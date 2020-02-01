@@ -3,6 +3,7 @@ package org.wildstang.year2020.subsystems.launching;
 import org.wildstang.year2020.robot.WSInputs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import org.wildstang.framework.core.Core;
@@ -23,7 +24,7 @@ public class Hood implements Subsystem {
     DigitalInput rightBumper;
 
     // Outputs
-    VictorSPX hoodMotor;
+    TalonSRX hoodMotor;
 
     int hoodSpeed;
     double speedScale = 0.25;
@@ -32,7 +33,7 @@ public class Hood implements Subsystem {
     public void init() {
         leftBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         rightBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
-        hoodMotor = new VictorSPX(0);
+        hoodMotor = new TalonSRX(0);
 
         resetState();
     }

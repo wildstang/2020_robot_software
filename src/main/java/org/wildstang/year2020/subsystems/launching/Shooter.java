@@ -35,7 +35,7 @@ public class Shooter implements Subsystem {
     //private VictorSPX shooterFollowerMotor;
     private TalonSRX shooterFollowerMotor;
 
-    private VictorSPX hoodMotor;
+    private TalonSRX hoodMotor;
 
     private Limelight limelightSubsystem;
 
@@ -91,7 +91,7 @@ public class Shooter implements Subsystem {
         shooterFollowerMotor.follow(shooterMasterMotor);
         shooterFollowerMotor.setInverted(true);
 
-        hoodMotor = new VictorSPX(0);
+        hoodMotor = new TalonSRX(0);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
         hoodMotor.config_kP(0, HOOD_PID_CONSTANTS.p);
         hoodMotor.config_kI(0, HOOD_PID_CONSTANTS.i);
