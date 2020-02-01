@@ -5,6 +5,9 @@ import org.wildstang.year2020.robot.WSSubsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -61,6 +64,8 @@ public class Shooter implements Subsystem {
     private boolean aimModeEnabled;
     private boolean shooterMotorSpeedSetForAimMode;
     private boolean hoodAimed;
+    private List<Double> trailingHorizontalAngleOffsets;
+    private long lastValueAddedTimestamp;
 
     // initializes the subsystem
     public void init() {
@@ -94,6 +99,9 @@ public class Shooter implements Subsystem {
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
         hoodAimed = false;
+
+        trailingHorizontalAngleOffsets = new ArrayList<Double>();
+        lastValueAddedTimestamp = 0L;
     }
 
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
@@ -112,6 +120,16 @@ public class Shooter implements Subsystem {
             hoodAimed = true;
         } else {
             hoodAimed = false;
+        }
+
+        double horizontalAngleOffset = limelightSubsystem.getTXValue();
+        if (System.currentTimeMillis() > lastValueAddedTimestamp + 25L) {
+            if (trailingHorizontalAngleOffsets.size() == 20) {
+                trailingHorizontalAngleOffsets.remove(0);
+            }
+
+            trailingHorizontalAngleOffsets.add(horizontalAngleOffset);
+            lastValueAddedTimestamp = System.currentTimeMillis();
         }
     }
 
@@ -154,9 +172,15 @@ public class Shooter implements Subsystem {
     }
 
     private boolean willAimToUpperGoal() {
-        double distanceToTarget = limelightSubsystem.getDistanceToTarget();
+        double horizontalAngleOffsetSum = 0.0;
 
-        if (distanceToTarget > UPPER_GOAL_DISTANCE_LIMIT) {
+        for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
+            horizontalAngleOffsetSum += trailingHorizontalAngleOffsets.get(i);
+        }
+
+        double netHorizontalAngleOffset = horizontalAngleOffsetSum / (double) trailingHorizontalAngleOffsets.size();
+
+        if (netHorizontalAngleOffset <= 15.0 && netHorizontalAngleOffset >= -15.0) {
             return true;
         } else {
             return false;
