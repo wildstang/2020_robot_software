@@ -16,6 +16,9 @@ import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+
 public class Climb implements Subsystem {
 
     // Inputs
@@ -23,8 +26,8 @@ public class Climb implements Subsystem {
     private DigitalInput startButton;
 
     // Outputs
-    private VictorSPX climbMotor1;
-    private VictorSPX climbMotor2;
+    private CANSparkMax climbMotor1;
+    private CANSparkMax climbMotor2;
 
     // Variables
     private double motorspeed;
@@ -60,14 +63,14 @@ public class Climb implements Subsystem {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
         if (climbInputStatus) {
             climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(ControlMode.PercentOutput, motorspeed);
-            climbMotor2.set(ControlMode.PercentOutput, motorspeed);
+            climbMotor1.set(motorspeed);
+            climbMotor2.set(motorspeed);
         }
         // If anything else, set motorspeed to 0
         else {
             climbActiveStatus = false; // For Shuffleboard
-            climbMotor1.set(ControlMode.PercentOutput, 0);
-            climbMotor2.set(ControlMode.PercentOutput, 0);
+            climbMotor1.set(0);
+            climbMotor2.set(0);
         }
     }
 
@@ -75,6 +78,8 @@ public class Climb implements Subsystem {
     public void resetState() {
         climbInputStatus = false;
         climbActiveStatus = false;
+        climbMotor1.restoreFactoryDefaults();
+        climbMotor2.restoreFactoryDefaults();
     }
 
     @Override
@@ -84,8 +89,8 @@ public class Climb implements Subsystem {
 
     private void initOutputs() {
         //CANConstants.CLIMB_VICTOR_1.getName()????
-        climbMotor1 = new VictorSPX(CANConstants.CLIMB_VICTOR_1);
-        climbMotor2 = new VictorSPX(CANConstants.CLIMB_VICTOR_2);
+        climbMotor1 = new CANSparkMax(CANConstants.CLIMB_VICTOR_1,MotorType.kBrushless);
+        climbMotor2 = new CANSparkMax(CANConstants.CLIMB_VICTOR_2,MotorType.kBrushless);
     }
 
     private void initInputs() {
