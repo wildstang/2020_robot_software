@@ -23,6 +23,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -48,13 +49,15 @@ public class Drive implements Subsystem {
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
     private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
-    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
+    private static final int[] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_TALON_FOLLOWER, CANConstants.RIGHT_DRIVE_TALON_FOLLOWER};
+
+    //private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
     /** Left and right Talon master controllers */
     private TalonSRX[] masters = new TalonSRX[2];
     /** Left and right pairs of Victor follower controllers */
-    private VictorSPX[][] followers = new VictorSPX[2][2];
+    private TalonSRX[] followers = new TalonSRX[2];
 
     public static boolean autoEStopActivated = false;
 
@@ -87,7 +90,7 @@ public class Drive implements Subsystem {
     /**
      * This PathFollower helper activates when we're in path mode to follow paths
      */
-    private PathFollower pathFollower;
+    //private PathFollower pathFollower;
 
     /** The Cheesy helper calculates the cheesy drive strategy */
     private CheesyDriveHelper cheesyHelper = new CheesyDriveHelper();
@@ -299,19 +302,21 @@ public class Drive implements Subsystem {
      * Set brake mode when in neutral for all drive motors: true to brake, false to
      * coast
      */
+
+
     public void setBrakeMode(boolean brake) {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
             masters[side].setNeutralMode(mode);
-            for (VictorSPX follower : followers[side]) {
-                follower.setNeutralMode(mode);
-            }
+            followers[side].setNeutralMode(mode);    
+            //for (TalonSRXfollower : followers[side]) {
+            //    follower.setNeutralMode(mode);
+            //}
         }
     }
 
     /** Active stop --- stop drive motion immediately. */
     public void setFullBrakeMode() {
-        stopPathFollowing();
 
         // Set talons to hold their current position
         if (driveMode != DriveType.FULL_BRAKE) {
@@ -326,59 +331,10 @@ public class Drive implements Subsystem {
         }
     }
 
-    /** Begin to follow the given path. */
-    public void setPath(Path p_path, boolean isForwards) {
-        if (pathFollower != null) {
-            if (pathFollower.isActive()) {
-                throw new IllegalStateException("One path is already active!");
-            }
-        }
 
-        pathFollower = new PathFollower(p_path, isForwards, masters[LEFT], masters[RIGHT]);
-    }
-
-    // FIXME this is an abstraction violation to freely share the path follower
-    public PathFollower getPathFollower() {
-        return pathFollower;
-    }
-
-    public void startFollowingPath() {
-        //setPathFollowingMode();
-        
-        if (pathFollower == null) {
-            throw new IllegalStateException("No path set");
-        }
-
-        if (pathFollower.isActive()) {
-            throw new IllegalStateException("Path is already active");
-        }
-        pathFollower.start();
-    }
-
-    /** Stop following and clean up path. FIXED? */
-    public void pathCleanup() {
-        if (pathFollower != null) {
-            pathFollower.stop();
-            pathFollower = null;
-        }
-    }
-
-    /**
-     * Stop following this path.
-     * 
-     * FIXME this is weirdly redundant with pathCleanup --- something is wrong The
-     * code IS redundant with pathCleanup, do we remove this whole method or do we
-     * remove the "pathFollower.stop();" from "abortFollowingPath()"?
-     */
-    public void abortFollowingPath() {
-        if (pathFollower != null) {
-            pathFollower.stop();
-        }
-    }
 
     /** Switch to cheesy drive. */
     public void setOpenLoopDrive() {
-        stopPathFollowing();
 
         driveMode = DriveType.CHEESY;
 
@@ -410,7 +366,6 @@ public class Drive implements Subsystem {
         // https://github.com/wildstang/2019_robot_software/blob/master/design_docs/year2020/drive.md
         // before using or adding to this method.
         //if (variable){
-            stopPathFollowing();
 
             driveMode = DriveType.MAGIC;
 
@@ -452,7 +407,8 @@ public class Drive implements Subsystem {
         masters[LEFT].selectProfileSlot(DrivePID.PATH.slot, 0);
 
         masters[RIGHT].set(ControlMode.MotionProfile, 0);
-        masters[RIGHT].selectProfileSlot(DrivePID.PATH.slot, 0);
+        masters[RIGHT].selectProfileSlot(DrivePID.PATH.slot, 0)
+        ;
 
         // Use brake mode to stop quickly at end of path, since Talons will put
         // output to neutral
@@ -484,14 +440,23 @@ public class Drive implements Subsystem {
     private void initMotorControllers() /* throws CoreUtils.CTREException */ {
         for (int side : SIDES) {
             masters[side] = new TalonSRX(MASTER_IDS[side]);
-
             initMaster(side, masters[side]);
-
-            for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
-                followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
-                initFollower(side, followers[side][i]);
-            }
+            followers[side] = new TalonSRX(FOLLOWER_IDS[side]);
+            initFollower(side, followers[side]);
         }
+        
+    }
+
+    private void initFollower(int side, TalonSRX follower) {
+        TalonSRX master = masters[side];
+        if (side == LEFT) {
+            follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
+        } else {
+            follower.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
+        }
+        follower.follow(master);
+        // TODO should neutral mode on followers ever change?
+        follower.setNeutralMode(NeutralMode.Coast);
     }
 
     /**
@@ -545,25 +510,6 @@ public class Drive implements Subsystem {
         System.out.print(master_config.toString("drive talon " + SIDE_NAMES[side]));
     }
 
-    private void initFollower(int side, VictorSPX follower) {
-        TalonSRX master = masters[side];
-        if (side == LEFT) {
-            follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
-        } else {
-            follower.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
-        }
-        follower.follow(master);
-        // TODO should neutral mode on followers ever change?
-        follower.setNeutralMode(NeutralMode.Coast);
-    }
-
-    private void stopPathFollowing() {
-        if (driveMode == DriveType.PATH) {
-            abortFollowingPath();
-            pathCleanup();
-        }
-    }
-
     private void setMotorSpeeds(DriveSignal speeds) {
         masters[LEFT].set(ControlMode.PercentOutput, speeds.leftMotor);
         masters[RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor);
@@ -572,9 +518,9 @@ public class Drive implements Subsystem {
         masters[LEFT].set(ControlMode.MotionMagic, p_leftTarget);
         masters[RIGHT].set(ControlMode.MotionMagic, p_rightTarget);
     }
+
     public void setMotionMagicMode(boolean p_quickTurn, double f_gain) {
-        // Stop following any current path
-        stopPathFollowing();
+        // Stop following any current pat
 
         // Set talons to hold their current position
         if (driveMode != DriveType.MAGIC) {

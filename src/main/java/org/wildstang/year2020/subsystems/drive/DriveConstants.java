@@ -17,10 +17,9 @@ public class DriveConstants {
     /** Speed multiplier during anti-turbo */
     public static final double ANTI_TURBO_FACTOR = 0.5;
 
-
     public static final boolean LEFT_DRIVE_INVERTED = true;
     public static final boolean RIGHT_DRIVE_INVERTED = false;
 
     public static final boolean LEFT_DRIVE_SENSOR_PHASE = true;
-    public static final boolean RIGHT_DRIVE_SENSOR_PHASE = true;
+    public static final boolean RIGHT_DRIVE_SENSOR_PHASE = true;    
 }
