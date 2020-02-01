@@ -1,11 +1,12 @@
 package org.wildstang.year2020.robot;
+package frc.robot;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.AlternateEncoderType;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ControlType;
-package frc.robot;
+
 
 public final class CANConstants {
     public static final int LEFT_DRIVE_TALON = 1;
