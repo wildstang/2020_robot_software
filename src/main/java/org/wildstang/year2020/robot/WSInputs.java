@@ -87,14 +87,14 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Joysticks
     // ---------------------------------
-    LIFT_MANUAL("Lift Manual Up/Down", WSInputType.JS_JOYSTICK,
+    colorSelectY("colorSelectY", WSInputType.JS_JOYSTICK,
             new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_JOYSTICK_Y), true), // Lift
                                                                                       // Subsystem
-    //OPEN JOYSTICK("name", WSInputType.JS_JOYSTICK,
-    //        new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_JOYSTICK_X), true), // OPEN
+    colorSelectX("colorSelectX", WSInputType.JS_JOYSTICK,
+            new WsJSJoystickInputConfig(1, JoystickConstants.LEFT_JOYSTICK_X), true), // OPEN
                                                                                       // Subsystem
-    //OPEN_JOYSTICK("Lift Manual Up/Down", WSInputType.JS_JOYSTICK,
-            //new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_Y), true), // Lift
+    OPEN_JOYSTICK("Lift Manual Up/Down", WSInputType.JS_JOYSTICK,
+            new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_Y), true), // Lift
                                                                                        // Subsystem
     STRAFE_MANUAL("Hatch Strafe", WSInputType.JS_JOYSTICK,
             new WsJSJoystickInputConfig(1, JoystickConstants.RIGHT_JOYSTICK_X), true), // Lift

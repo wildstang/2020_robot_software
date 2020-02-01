@@ -13,12 +13,13 @@ import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-
+import java.lang.Math;
 
 /*
 
@@ -53,6 +54,13 @@ public class ControlPanel implements Subsystem{
     private DigitalInput backwardSpin;
     private DigitalInput intake;
     private DigitalInput presetSpin;
+    
+    private AnalogInput colorSelectX;
+    private AnalogInput colorSelectY;
+    //left joystick axis values
+    private double x;
+    private double y;
+    private double half;
     //converting inputsignal to boolean (add bool to start of input name to reference)
     private boolean booldeployUp;
     private boolean booldeployDown;
@@ -71,7 +79,50 @@ public class ControlPanel implements Subsystem{
     private boolean isUp; //deploy is up
     private double encoder; //double for spinner encoder
     //Allow preset spin to color
-    String gameData;
+    private String gameData;
+    private boolean colorSpin;
+    private String gotoColor;
+    private String currentColor;
+    private double angle;
+    private String color;
+    
+    private void getAngle(double x, double y){ 
+        if (x != 0.0){
+        half = Math.abs(x)/x; //-1 if on left side, 1 if on right
+        angle = Math.atan(y/x);//angle from x-axis
+        }
+    }
+    private String getColor(double angle,double half){
+        if (half == 1){
+        if ((0<angle)&&(angle<45)){
+            color = "green";
+        }
+        if ((45<angle)&&(angle<90)){
+            color = "blue";
+        }
+        if ((0>angle)&&(angle>-45)){
+            color = "red";
+        }
+        if ((-45>angle)&&(angle>-90)){
+            color = "yellow";
+        }
+        }
+        else{
+             if ((0<angle)&&(angle<45)){
+            color = "red";
+        }
+        if ((45<angle)&&(angle<90)){
+            color = "yellow";
+        }
+        if ((0>angle)&&(angle>-45)){
+            color = "green";
+        }
+        if ((-45>angle)&&(angle>-90)){
+            color = "blue";
+        }
+        }
+        return color;
+    }
     
     @Override
     public String getName(){
@@ -126,11 +177,17 @@ public class ControlPanel implements Subsystem{
                 spinSpeed = 0;
             }
         }
-        
+        if ((source == colorSelectX)||(source == colorSelectY)){
+            if ((colorSelectY.getValue() < -0.1) ||(colorSelectY.getValue() > 0.1)||(colorSelectX.getValue() > 0.1)||(colorSelectX.getValue() < -0.1) ){
+                getAngle(colorSelectX.getValue(),colorSelectY.getValue());
+                gotoColor = getColor(angle,half);
+                colorSpin = true;
+            }
+        }
     }
     @Override
     public void init(){
-        // InputListeners
+        //InputListeners
         deployDown = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployDown.getName());
         deployDown.addInputListener(this);//dpadDown
         deployUp = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployUp.getName());
@@ -143,6 +200,10 @@ public class ControlPanel implements Subsystem{
         presetSpin.addInputListener(this);//left joystick button
         intake = (DigitalInput) Core.getInputManager().getInput(WSInputs.intake.getName());
         intake.addInputListener(this);//A button
+        colorSelectX = (AnalogInput) Core.getInputManager().getInput(WSInputs.colorSelectX.getName());
+        colorSelectX.addInputListener(this);//left joystick X-Axis
+        colorSelectY = (AnalogInput) Core.getInputManager().getInput(WSInputs.colorSelectY.getName());
+        colorSelectY.addInputListener(this);//left joystick Y-Axis
         //Motors
         deploy = new TalonSRX(CANConstants.deploy);
         spinner = new TalonSRX(CANConstants.spinner);
@@ -156,6 +217,66 @@ public class ControlPanel implements Subsystem{
         encoder = spinner.getSensorCollection().getQuadraturePosition();
         //Get color from field
         gameData = DriverStation.getInstance().getGameSpecificMessage();
+        if(gameData.length()>0){
+            switch(gameData.charAt(0)){
+                case'B':
+                currentColor = "blue";
+                break;
+                case'G':
+                currentColor = "green";
+                break;
+                case'R':
+                currentColor = "red";
+                break;
+                case'Y':
+                currentColor = "yellow";
+                break;
+                default:
+                currentColor = "default";
+                break;
+            }
+        }
+        //Move until color
+        if ((colorSpin)&&(currentColor != gotoColor)){
+            switch(gotoColor){
+                case"yellow":
+                    if(currentColor == "blue"){
+                    
+                    spinner.set(ControlMode.PercentOutput,-1);
+                    }
+                    else{
+                        spinner.set(ControlMode.PercentOutput,1);
+                    }
+                break;
+                case"red":
+                if(currentColor == "yellow"){
+                    spinner.set(ControlMode.PercentOutput,-1);
+                    }
+                    else{
+                        spinner.set(ControlMode.PercentOutput,1);
+                    }
+                break;
+                case"blue":
+                if(currentColor == "green"){
+                    spinner.set(ControlMode.PercentOutput,-1);
+                    }
+                    else{
+                        spinner.set(ControlMode.PercentOutput,1);
+                    }
+                    break;
+                case"green":
+               if(currentColor == "red"){
+                    spinner.set(ControlMode.PercentOutput,-1);
+                    }
+                    else{
+                        spinner.set(ControlMode.PercentOutput,1);
+                    }
+                break;
+            }
+        }
+        if ((colorSpin)&&(currentColor == gotoColor)){
+            colorSpin = false;
+        }
         //Deploy
         if ((deploySpeed) == 1||(deploySpeed == -1)){
             if((!isDown)&&(!isUp)){//if not fully down or up move deploy to operator speed
@@ -188,6 +309,7 @@ public class ControlPanel implements Subsystem{
             presetSpins = 0;
         }
     }
+    
     @Override
     public void resetState(){
         deploy.set(ControlMode.PercentOutput,0);
@@ -199,4 +321,4 @@ public class ControlPanel implements Subsystem{
     @Override
     public void selfTest(){
     }
-}
+}   
