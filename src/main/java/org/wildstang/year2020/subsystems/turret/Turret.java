@@ -83,7 +83,7 @@ public class Turret implements Subsystem {
 			}
 			if ((!aimright.getValue()) && (aimrighton == true)){
 				mx = 0;
-				aimrighton = true;
+				aimrighton = false;
 			}
 		}
         // respond to registered inputs
@@ -104,7 +104,7 @@ public class Turret implements Subsystem {
 		if (limeOn && (mx != 1)&& (mx!= -1) && (v == 1)){
 			turretPivot.set(ControlMode.PercentOutput,F(x));
 		}
-		if ((aimrighton) || (aimlefton)){
+		if ((aimrighton) || (aimlefton) || (v != 1){
 			turretPivot.set(ControlMode.PercentOutput,mx);
 		} 
 		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
