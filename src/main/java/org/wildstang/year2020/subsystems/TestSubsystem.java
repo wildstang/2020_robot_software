@@ -18,6 +18,9 @@ import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 /**
  * Class:       TestSubsystem.java
  * Inputs:      1 joystick
@@ -31,6 +34,7 @@ public class TestSubsystem implements Subsystem {
 
     // outputs
     private TalonSRX motor;
+    private CANSparkMax motor2;
 
     // states
     private double speed;
@@ -47,7 +51,8 @@ public class TestSubsystem implements Subsystem {
         joystick.addInputListener(this);
 
         // register solenoids with arbitrary output names, since this is a test
-        motor = new TalonSRX(CANConstants.LEFT_DRIVE_TALON);
+        //otor = new TalonSRX(CANConstants.LEFT_DRIVE_TALON);
+        motor2 = new CANSparkMax(10,MotorType.kBrushless);
 
         // Add Drive tab and max drive input slider onto Shuffleboard
         driveTab = Shuffleboard.getTab("Drive");
@@ -61,7 +66,7 @@ public class TestSubsystem implements Subsystem {
     public void update() {
         maxDriveInput = maxDriveInputEntry.getDouble(1.0);
 
-        motor.set(ControlMode.PercentOutput , speed * maxDriveInput);
+        motor2.set(speed * maxDriveInput);
     }
 
     // respond to input updates
