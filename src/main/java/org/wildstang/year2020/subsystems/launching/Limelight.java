@@ -35,18 +35,15 @@ public class Limelight implements Subsystem {
     private NetworkTableEntry ledModeEntry;
 
     @Override
-    public void inputUpdate(Input source) {
-        if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.75) {
-                enableLEDs();
-            } else {
-                disableLEDs();
-            }
-        }
+    // Initializes the subsystem (inputs, outputs and logical variables)
+    public void init() {
+        initInputs();
+        initOutputs();
+        resetState();
     }
 
-    @Override
-    public void init() {
+    // Initializes inputs
+    private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         aimModeTrigger.addInputListener(this);
 
@@ -60,13 +57,29 @@ public class Limelight implements Subsystem {
         tlongEntry = netTable.getEntry("tlong");
         tvertEntry = netTable.getEntry("tvert");
         thorEntry = netTable.getEntry("thor");
+    }
 
+    // Initializes outputs
+    private void initOutputs() {
         ledModeEntry = netTable.getEntry("ledMode");
 
-        ledModeEntry.setNumber(0);
+        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
     }
 
     @Override
+    // Responds to updates from inputs
+    public void inputUpdate(Input source) {
+        if (source == aimModeTrigger) {
+            if (aimModeTrigger.getValue() > 0.75) {
+                enableLEDs();
+            } else {
+                disableLEDs();
+            }
+        }
+    }
+
+    @Override
+    // Returns the subsystem's name
     public String getName() {
         return "Limelight";
     }
@@ -126,7 +139,7 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(0);
+        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
     }
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
@@ -140,11 +153,14 @@ public class Limelight implements Subsystem {
     }
 
     @Override
+    // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
 
     @Override
+    // Updates the subsystem everytime the framework updates (every ~0.02 seconds; unimplemented right now)
     public void update() {}
 
     @Override
+    // Resets all variables to the default state (unimplemented right now)
     public void resetState() {}
 }

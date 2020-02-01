@@ -43,6 +43,42 @@ public class Turret implements Subsystem {
     private double lastSetpoint;
 
     @Override
+    // Initializes the subsystem (inputs, outputs and logical variables)
+    public void init() {
+        initInputs();
+        initOutputs();
+        resetState();
+    }
+
+    // Initializes inputs
+    private void initInputs() {
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger.addInputListener(this);
+        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_BACK_POSITION);
+        backPositionButton.addInputListener(this);
+        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FRONT_POSITION);
+        frontPositionButton.addInputListener(this);
+    }
+
+    // Initializes outputs
+    private void initOutputs() {
+        turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
+
+        kickerMotor = new TalonSRX(11);
+        kickerMotor.set(ControlMode.PercentOutput, -1.0);
+        
+        // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
+        turretMotor.setInverted(false);
+        turretMotor.setSensorPhase(true);
+        turretMotor.configNominalOutputForward(0, 0);
+        turretMotor.configNominalOutputReverse(0, 0);
+
+        limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
+        shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
+    }
+
+    @Override
+    // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
@@ -69,34 +105,7 @@ public class Turret implements Subsystem {
     }
 
     @Override
-    public void init() {
-        aimModeEnabled = false;
-        turretAimed = false;
-        lastSetpoint = 0.0;
-
-        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
-        aimModeTrigger.addInputListener(this);
-        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_BACK_POSITION);
-        backPositionButton.addInputListener(this);
-        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FRONT_POSITION);
-        frontPositionButton.addInputListener(this);
-
-        turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
-
-        kickerMotor = new TalonSRX(11);
-        kickerMotor.set(ControlMode.PercentOutput, -1.0);
-        
-        // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
-        turretMotor.setInverted(false);
-        turretMotor.setSensorPhase(true);
-        turretMotor.configNominalOutputForward(0, 0);
-        turretMotor.configNominalOutputReverse(0, 0);
-
-        limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
-        shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
-    }
-
-    @Override
+    // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         if (aimModeEnabled == true) {
             double tyValue = limelightSubsystem.getTYValue() - 0.8;
@@ -106,15 +115,13 @@ public class Turret implements Subsystem {
             double headingError = -tyValue;
             double rotationalAdjustment = 0.0;
 
-            
-
-            if (Math.abs(tyValue) > 1.0) {
-                rotationalAdjustment = kP * headingError; //- minimumAdjustmentCommand;
-            } else if (Math.abs(tyValue) < 0.1) {
-                rotationalAdjustment = 0.0; // DO NOTHING
-            } else if (tyValue < 1.0 && tyValue > 0.0) {
+            if (Math.abs(tyValue) > 1.0) { // Pull Turret in, not close enough
+                rotationalAdjustment = kP * headingError;
+            } else if (Math.abs(tyValue) < 0.1) { // Do nothing, we're close enough
+                rotationalAdjustment = 0.0;
+            } else if (tyValue < 1.0 && tyValue > 0.0) { // Keep pulling Turret in, almost there
                 rotationalAdjustment = kP * headingError + minimumAdjustmentCommand;
-            } else if (tyValue < 0.0 && tyValue > -1.0) {
+            } else if (tyValue < 0.0 && tyValue > -1.0) { // Keep pulling Turret in, almost there
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 
@@ -122,7 +129,7 @@ public class Turret implements Subsystem {
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } else {
-            turretMotor.set(ControlMode.PercentOutput, 0);
+            turretMotor.set(ControlMode.PercentOutput, 0.0);
         }
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
@@ -135,15 +142,21 @@ public class Turret implements Subsystem {
     }
 
     @Override
+    // Resets all variables to the default state
     public void resetState() {
         aimModeEnabled = false;
+        turretAimed = false;
+        lastSetpoint = 0.0;
     }
 
     @Override
+    // Returns the subsystem's name
     public String getName() {
         return "Turret";
     }
     
     @Override
+    // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
+
 }

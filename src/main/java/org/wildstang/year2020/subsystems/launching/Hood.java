@@ -4,7 +4,6 @@ import org.wildstang.year2020.robot.WSInputs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;

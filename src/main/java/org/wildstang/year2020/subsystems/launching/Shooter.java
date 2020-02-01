@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
@@ -32,7 +31,6 @@ public class Shooter implements Subsystem {
 
     // Outputs
     private TalonSRX shooterMasterMotor;
-    //private VictorSPX shooterFollowerMotor;
     private TalonSRX shooterFollowerMotor;
 
     private TalonSRX hoodMotor;
@@ -49,7 +47,7 @@ public class Shooter implements Subsystem {
     public static final double TICKS_PER_REV = 4096.0;
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
 
-    // Motor velocities are measured in ticks per decisecond (ticks per 0.1 seconds)
+    // Motor velocities in ticks per decisecond (ticks per 0.1 seconds)
     public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
     //public static final double SAFE_SHOOTER_SPEED = 8000;
     public static final double AIM_MODE_SHOOTER_SPEED = (6750 * TICKS_PER_REV) / 600.0;//51200
@@ -67,15 +65,24 @@ public class Shooter implements Subsystem {
     private List<Double> trailingHorizontalAngleOffsets;
     private long lastValueAddedTimestamp;
 
-    // initializes the subsystem
+    @Override
+    // Initializes the subsystem (inputs, outputs and logical variables)
     public void init() {
-        aimModeEnabled = false;
+        initInputs();
+        initOutputs();
+        resetState();
+    }
 
+    // Initializes inputs
+    private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
         aimModeTrigger.addInputListener(this);
         fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_FIRE_TRIGGER);
         fireTrigger.addInputListener(this);
+    }
 
+    // Initializes outputs
+    private void initOutputs() {
         shooterMasterMotor = new TalonSRX(1);
         shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
         shooterMasterMotor.config_kP(0, SHOOTER_PID_CONSTANTS.p);
@@ -98,13 +105,10 @@ public class Shooter implements Subsystem {
         hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
-        hoodAimed = false;
-
-        trailingHorizontalAngleOffsets = new ArrayList<Double>();
-        lastValueAddedTimestamp = 0L;
     }
 
-    // update the subsystem everytime the framework updates (every ~0.02 seconds)
+    @Override
+    // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
         SmartDashboard.putNumber("Encoder position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
@@ -133,7 +137,8 @@ public class Shooter implements Subsystem {
         }
     }
 
-    // respond to input updates
+    @Override
+    // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
@@ -148,7 +153,8 @@ public class Shooter implements Subsystem {
         }
     }
 
-    // resets all variables to the default state
+    @Override
+    // Resets all variables to the default state
     public void resetState() {
         aimModeEnabled = false;
         shooterMotorSpeedSetForAimMode = false;
@@ -156,22 +162,33 @@ public class Shooter implements Subsystem {
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
         hoodMotor.set(ControlMode.Position, 0.0);
+
+        trailingHorizontalAngleOffsets = new ArrayList<Double>();
+        lastValueAddedTimestamp = 0L;
     }
 
-    // returns the unique name of the example
+    @Override
+    // Returns the subsystem's name
     public String getName() {
         return "Shooter";
     }
 
+    @Override
+    // Tests the subsystem (unimplemented right now)
+    public void selfTest() {}
+
+    // Returns whether the shooter motor's speed is right for being in aim mode
     public boolean isShooterMotorSpeedSetForAimMode() {
         return shooterMotorSpeedSetForAimMode;
     }
 
+    // Returns whether the hood is considered done aiming
     public boolean isHoodAimed() {
         return hoodAimed;
     }
 
-    private boolean willAimToUpperGoal() {
+    // Decides whether is the inner goal is within range (+/- 15 degrees horizontally)
+    private boolean willAimToInnerGoal() {
         double horizontalAngleOffsetSum = 0.0;
 
         for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
@@ -187,14 +204,13 @@ public class Shooter implements Subsystem {
         }
     }
 
+    // Aims to either the inner or outer goal based on horizontal angle offset
     private void aimToGoal() {
-        if (willAimToUpperGoal()) {
+        if (willAimToInnerGoal()) {
             hoodMotor.set(ControlMode.Position, HOOD_TRAVEL_DISTANCE * TICKS_PER_INCH);
         } else {
             hoodMotor.set(ControlMode.Position, 0);
         }
     }
 
-    // used for testing
-    public void selfTest() {}
 }
