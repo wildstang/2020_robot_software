@@ -1,11 +1,5 @@
 package org.wildstang.year2020.robot;
-package frc.robot;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.AlternateEncoderType;
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ControlType;
+
 
 
 public final class CANConstants {
@@ -23,8 +17,8 @@ public final class CANConstants {
     public static final int BALLPATH_FEED = 9;
     public static final int BALLPATH_KICKER = 10;
     public static final int BALLPATH_INTAKE = 11;
-    public static final int CLIMB_VICTOR_1 = new CANSparkMax(7, MotorType.kBrushless); //is this what I was supposed to do?
-    public static final int CLIMB_VICTOR_2 = new CANSparkMax(8, MotorType.kBrushless);
+    public static final int CLIMB_VICTOR_1 = 7;
+    public static final int CLIMB_VICTOR_2 = 8;
     public static final int TURRET_TALON = 12;
     public static final int LAUNCHER_TALON = 5;
     public static final int LAUNCHER_VICTOR = 6;
