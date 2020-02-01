@@ -5,6 +5,7 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ControlType;
+package frc.robot;
 
 public final class CANConstants {
     public static final int LEFT_DRIVE_TALON = 1;
