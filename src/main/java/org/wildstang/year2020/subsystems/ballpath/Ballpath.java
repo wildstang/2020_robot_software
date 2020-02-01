@@ -18,9 +18,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 public class Ballpath implements Subsystem {
 
     // Motors
-    private VictorSPX feedMotor;
-    private VictorSPX kickerMotor;
-    private VictorSPX intakeMotor;
+    private TalonSRX feedMotor;
+    private TalonSRX kickerMotor;
+    private TalonSRX intakeMotor;
 
     // Constants 
     //What is put into setting motors
@@ -55,7 +55,6 @@ public class Ballpath implements Subsystem {
                 feedMotorSpeed = 0;
                 kickerMotorSpeed = 0;
         }
-    
 
         if (aButton.getValue()) {
             //run intake motor at 100% power
@@ -103,11 +102,10 @@ public class Ballpath implements Subsystem {
     }
 
     private void initOutputs() {
-        feedMotor = new VictorSPX(CANConstants.BALLPATH_FEED);
-        kickerMotor = new VictorSPX(CANConstants.BALLPATH_KICKER);
-        intakeMotor = new VictorSPX(CANConstants.BALLPATH_INTAKE);
+        feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
+        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
+        intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
     }
-
 
     private void initInputs() {
         rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.RIGHT_TRIGGER.getName());
