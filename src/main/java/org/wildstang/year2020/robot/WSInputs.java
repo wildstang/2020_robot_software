@@ -142,7 +142,9 @@ public enum WSInputs implements Inputs {
                                                                                                                               // Subsystem
     STRAFE_LIMIT_SWITCH_OVERRIDE("Strafe Limit Switch Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 11), false), // Lift
                                                                                                                                   // Subsystem
+    TURRET_BACK_POSITION("Turret Back Position", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false),
 
+    TURRET_FRONT_POSITION("Turret Front Position", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false),
 
     //TURRET_AIM_MODE_TRIGGER("Turret Aim Mode Trigger", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 6), false),
     
