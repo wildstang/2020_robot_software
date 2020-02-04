@@ -1,5 +1,6 @@
 package org.wildstang.year2020.subsystems.launching;
 
+import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -32,7 +33,7 @@ public class Hood implements Subsystem {
     public void init() {
         leftBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
         rightBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
-        hoodMotor = new TalonSRX(0);
+        hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
 
         resetState();
     }

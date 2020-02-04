@@ -1,5 +1,6 @@
 package org.wildstang.year2020.subsystems.launching;
 
+import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
@@ -54,7 +55,7 @@ public class Shooter implements Subsystem {
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.016, 0.003, 0.0, 0.0);
+    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);
     
     public static final double HOOD_TRAVEL_DISTANCE = 4.0;
 
@@ -83,14 +84,15 @@ public class Shooter implements Subsystem {
 
     // Initializes outputs
     private void initOutputs() {
-        shooterMasterMotor = new TalonSRX(1);
+        shooterMasterMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
         shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
         shooterMasterMotor.config_kP(0, SHOOTER_PID_CONSTANTS.p);
         shooterMasterMotor.config_kI(0, SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(0, SHOOTER_PID_CONSTANTS.d);
+        shooterMasterMotor.setInverted(true);
 
         //shooterFollowerMotor = new VictorSPX(2);
-        shooterFollowerMotor = new TalonSRX(2);
+        shooterFollowerMotor = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
         shooterFollowerMotor.follow(shooterMasterMotor);
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
@@ -98,7 +100,7 @@ public class Shooter implements Subsystem {
         shooterFollowerMotor.follow(shooterMasterMotor);
         shooterFollowerMotor.setInverted(true);
 
-        hoodMotor = new TalonSRX(0);
+        hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
         hoodMotor.config_kP(0, HOOD_PID_CONSTANTS.p);
         hoodMotor.config_kI(0, HOOD_PID_CONSTANTS.i);
@@ -111,8 +113,8 @@ public class Shooter implements Subsystem {
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
-        SmartDashboard.putNumber("Encoder position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
-        SmartDashboard.putNumber("Encoder value", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
+        SmartDashboard.putNumber("Encoder Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
+        SmartDashboard.putNumber("Encoder Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
         if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED - MOTOR_OUTPUT_TOLERANCE)) {
             shooterMotorSpeedSetForAimMode = true;
         } else {

@@ -64,7 +64,7 @@ public class Turret implements Subsystem {
     private void initOutputs() {
         turretMotor = new TalonSRX(CANConstants.TURRET_TALON);
 
-        kickerMotor = new TalonSRX(11);
+        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
         kickerMotor.set(ControlMode.PercentOutput, -1.0);
         
         // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
