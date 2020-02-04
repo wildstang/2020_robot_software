@@ -25,6 +25,8 @@ public class Turret implements Subsystem {
 	DigitalInput autoOn;
 	DigitalInput autoOff;
 	DigitalInput shoot;
+	DigitalInput LowSpeed;
+	DigitalInput HighSpeed;
 	AnalogInput HoodManual;
 	AnalogInput TurrManual;
 	private boolean limeOn = false; // is it being manually controlled? 
@@ -64,9 +66,9 @@ public class Turret implements Subsystem {
 		shoot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         shoot.addInputListener(this);
 		HighSpeed = (DigitalInput) Core.getInputManager().getInput(WSInputs. MANIPULATOR_SHOULDER_RIGHT.getName());
-        shoot.addInputListener(this);
+        HighSpeed.addInputListener(this);
 		LowSpeed = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT.getName());
-        shoot.addInputListener(this);
+        LowSpeed.addInputListener(this);
 		HoodManual = (Analognput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y.getName());
         HoodManual.addInputListener(this);
 		TurrManual = (Analognput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_X.getName());
