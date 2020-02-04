@@ -44,7 +44,7 @@ public class Limelight implements Subsystem {
 
     // Initializes inputs
     private void initInputs() {
-        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");

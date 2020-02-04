@@ -52,17 +52,17 @@ public class Turret implements Subsystem {
 
     // Initializes inputs
     private void initInputs() {
-        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
-        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_BACK_POSITION);
+        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT);
         backPositionButton.addInputListener(this);
-        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_FRONT_POSITION);
+        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
         frontPositionButton.addInputListener(this);
     }
 
     // Initializes outputs
     private void initOutputs() {
-        turretMotor = new TalonSRX(CANConstants.TURRET_MOTOR);
+        turretMotor = new TalonSRX(CANConstants.TURRET_TALON);
 
         kickerMotor = new TalonSRX(11);
         kickerMotor.set(ControlMode.PercentOutput, -1.0);

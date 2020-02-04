@@ -30,8 +30,8 @@ public class Hood implements Subsystem {
 
     // initializes the subsystem
     public void init() {
-        leftBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
-        rightBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.TURRET_AIM_MODE_TRIGGER);
+        leftBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        rightBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
         hoodMotor = new TalonSRX(0);
 
         resetState();
