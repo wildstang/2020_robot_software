@@ -188,21 +188,21 @@ public class ControlPanel implements Subsystem{
     @Override
     public void init(){
         //InputListeners
-        deployDown = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployDown.getName());
+        deployDown = (DigitalInput) Core.getInputManager().getInput(WSInputs. MANIPULATOR_DPAD_DOWN.getName());
         deployDown.addInputListener(this);//dpadDown
-        deployUp = (DigitalInput) Core.getInputManager().getInput(WSInputs.deployUp.getName());
+        deployUp = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_UP.getName());
         deployUp.addInputListener(this);//dpadUp
-        forwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.forwardSpin.getName());
+        forwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_RIGHT.getName());
         forwardSpin.addInputListener(this);//dpadLeft
-        backwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.backwardSpin.getName());
+        backwardSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT.getName());
         backwardSpin.addInputListener(this);//dpadRight
-        presetSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.presetSpin.getName());
+        presetSpin = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_BUTTON.getName());
         presetSpin.addInputListener(this);//left joystick button
-        intake = (DigitalInput) Core.getInputManager().getInput(WSInputs.intake.getName());
+        intake = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         intake.addInputListener(this);//A button
-        colorSelectX = (AnalogInput) Core.getInputManager().getInput(WSInputs.colorSelectX.getName());
+        colorSelectX = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X.getName());
         colorSelectX.addInputListener(this);//left joystick X-Axis
-        colorSelectY = (AnalogInput) Core.getInputManager().getInput(WSInputs.colorSelectY.getName());
+        colorSelectY = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName());
         colorSelectY.addInputListener(this);//left joystick Y-Axis
         //Motors
         deploy = new TalonSRX(CANConstants.deploy);
