@@ -84,7 +84,7 @@ public class Turret implements Subsystem {
             limeOn = true;
 	}
         }
-		isShooterOn = shoot.getValue;
+		isShooterOn = shoot.getValue();
 		
 		if ((source == aimright)||(source == aimleft)){
 			if (aimright.getValue() && (aimlefton == false)){
@@ -126,7 +126,7 @@ public class Turret implements Subsystem {
 			turretPivot.set(ControlMode.PercentOutput,mx);
 		} 
 		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
-		if (isShootOn == true){
+		if (isShooterOn == true){
 			ShootMotor.set(ControlMode.Velocity,10);
 			ShootMotor2.set(ControlMode.Velocity,10);
 				}
