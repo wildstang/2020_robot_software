@@ -31,12 +31,15 @@ public class Turret implements Subsystem {
 	private double v; // a limelight vairible for whether or not valid target is in sight
     // talons
     TalonSRX turretPivot; 
-	TalonSRX turretVertical;//turret pivot motor
+	TalonSRX shooter1; 
+	TalonSRX shooter2; 
+	TalonSRX turretVertical;
+	private boolean isShooterOn;
 	private double x; // a varible for the motor percent output when limelight controlled
 	private double y; // a variabke for the mtotr
 	private int mx; //  a variable for the motor percent output when manually controlled
-	private double height; // a cool variable
-	private double Encoder; //cool stuff
+	private double height = 10; //Change this to the heigt difference between turret and target
+	private double Encoder; //what it sounds like
 	private double ConstantA = 1.2; // fine-tuning variable for when limelight controlled. 
 	@Override
 	public void init() {
@@ -46,9 +49,18 @@ public class Turret implements Subsystem {
         aimright = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT.getName());
         aimright.addInputListener(this);
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT.getName());
-        aimleft.addInputListener(this);				
+        aimleft.addInputListener(this);		
+		autoOn = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT.getName());
+        autoOn.addInputListener(this);	
+		autoOff = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_BUTTON.getName());
+        autoOff.addInputListener(this);
+		shoot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
+        shoot.addInputListener(this);
 		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
+		ShootMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
+		ShootMotor2 = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
+		
 	}
 
 	@Override
@@ -62,12 +74,15 @@ public class Turret implements Subsystem {
 		NetworkTableEntry tv = table.getEntry("tv");
 		NetworkTableEntry ty = table.getEntry("ty");
 		NetworkTableEntry tx = table.getEntry("tx");
-		if (aimright.getValue() || aimleft.getValue()){
+		if (aimright.getValue() || aimleft.getValue() || (source == autoOff)){
 			limeOn = false;
 		}
-        else{
+        else{ if (source == autoOn){
             limeOn = true;
-        }		
+	}
+        }
+		isShooterOn = shoot.getValue;
+		
 		if ((source == aimright)||(source == aimleft)){
 			if (aimright.getValue() && (aimlefton == false)){
 				mx = 1;
@@ -108,6 +123,14 @@ public class Turret implements Subsystem {
 			turretPivot.set(ControlMode.PercentOutput,mx);
 		} 
 		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
+		if (isShootOn == true){
+			ShootMotor.set(ControlMode.Velocity,10);
+			ShootMotor2.set(ControlMode.Velocity,10);
+				}
+				else{
+		ShootMotor2.set(ControlMode.Velocity,0);
+		ShootMotor.set(ControlMode.Velocity,0);
+				}
 	}
 
 	@Override
