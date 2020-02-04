@@ -55,7 +55,8 @@ public class Shooter implements Subsystem {
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);
     
     public static final double HOOD_TRAVEL_DISTANCE = 4.0;
 
@@ -85,10 +86,15 @@ public class Shooter implements Subsystem {
     // Initializes outputs
     private void initOutputs() {
         shooterMasterMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
-        shooterMasterMotor.config_kF(0, SHOOTER_PID_CONSTANTS.f);
-        shooterMasterMotor.config_kP(0, SHOOTER_PID_CONSTANTS.p);
-        shooterMasterMotor.config_kI(0, SHOOTER_PID_CONSTANTS.i);
-        shooterMasterMotor.config_kD(0, SHOOTER_PID_CONSTANTS.d);
+        shooterMasterMotor.config_kF(0, SAFE_SHOOTER_PID_CONSTANTS.f);
+        shooterMasterMotor.config_kP(0, SAFE_SHOOTER_PID_CONSTANTS.p);
+        shooterMasterMotor.config_kI(0, SAFE_SHOOTER_PID_CONSTANTS.i);
+        shooterMasterMotor.config_kD(0, SAFE_SHOOTER_PID_CONSTANTS.d);
+        shooterMasterMotor.config_kF(1, SAFE_SHOOTER_PID_CONSTANTS.f);
+        shooterMasterMotor.config_kP(1, SAFE_SHOOTER_PID_CONSTANTS.p);
+        shooterMasterMotor.config_kI(1, SAFE_SHOOTER_PID_CONSTANTS.i);
+        shooterMasterMotor.config_kD(1, SAFE_SHOOTER_PID_CONSTANTS.d);
+
         shooterMasterMotor.setInverted(true);
 
         //shooterFollowerMotor = new VictorSPX(2);
@@ -145,10 +151,12 @@ public class Shooter implements Subsystem {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
                 aimModeEnabled = true;
+                shooterMasterMotor.selectProfileSlot(1, 0);
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
                 aimToGoal();
             } else { // Exiting aim mode
                 aimModeEnabled = false;
+                shooterMasterMotor.selectProfileSlot(0, 0);
                 shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
                 hoodMotor.set(ControlMode.Position, 0.0);
             }
