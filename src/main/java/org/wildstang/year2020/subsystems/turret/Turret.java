@@ -2,22 +2,17 @@ package org.wildstang.year2020.subsystems.turret;
 
 import java.lang.Math;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.wildstang.framework.io.Input;
-import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.core.Core;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
-import org.wildstang.year2020.robot.WSOutputs;
-import org.wildstang.framework.io.inputs.DigitalInput;
-import org.wildstang.framework.CoreUtils;
 
 public class Turret implements Subsystem {
     // digital inputs
