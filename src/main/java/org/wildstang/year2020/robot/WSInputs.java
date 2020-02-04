@@ -38,9 +38,9 @@ public enum WSInputs implements Inputs {
     //   /    +--+                 [FRONT]                         \
     //  +     |YU|                                         (3)      +       
     //  |  +--+  +--+        +----+       +----+                    | 
-    //  |  |XL    XR|        |  6 |  (X)  |  7 |       (0)     (2)  |       
+    //  |  |XL    XR|        |  6 |  (X)  |  7 |       (2)     (1)  |       
     //  |  +--+  +--+        +----+       +----+                    | 
-    //  |     |YD|                                         (1)      |       
+    //  |     |YD|                                         (0)      |       
     //  |     +--+     +--+          (X)          +--+              |
     //  |             /    \                     /    \             |
     //  |            |   8  |                   |   9  |            |
@@ -84,10 +84,10 @@ public enum WSInputs implements Inputs {
 
     // ---------------------------------
     // Driver Buttons
-    // ---------------------------------
-    DRIVER_FACE_LEFT("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 0), false), 
-    DRIVER_FACE_DOWN("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false), 
-    DRIVER_FACE_RIGHT("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 2), false), 
+    // --------------------------------- 
+    DRIVER_FACE_DOWN("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 0), false), 
+    DRIVER_FACE_RIGHT("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 1), false), 
+    DRIVER_FACE_LEFT("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 2), false),
     DRIVER_FACE_UP("Base Lock", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 3), false), 
     DRIVER_SHOULDER_LEFT("Antiturbo", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 4), false), 
     DRIVER_SHOULDER_RIGHT("Open", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(0, 5), false), 
@@ -125,9 +125,9 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Buttons
     // ---------------------------------
-    MANIPULATOR_FACE_LEFT("Turret Backwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), 
-    MANIPULATOR_FACE_DOWN("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), 
-    MANIPULATOR_FACE_RIGHT("Turret Forwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), 
+    MANIPULATOR_FACE_DOWN("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), 
+    MANIPULATOR_FACE_RIGHT("Turret Forwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), 
+    MANIPULATOR_FACE_LEFT("Turret Backwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), 
     MANIPULATOR_FACE_UP("Reverse Ballpath", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false), 
     MANIPULATOR_SHOULDER_LEFT("Shooter Speed Down", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 4), false), 
     MANIPULATOR_SHOULDER_RIGHT("Shooter Speed Up", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 5), false), 
