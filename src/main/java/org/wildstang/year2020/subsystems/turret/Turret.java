@@ -9,10 +9,12 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.core.Core;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
+
 
 public class Turret implements Subsystem {
     // digital inputs
@@ -23,10 +25,17 @@ public class Turret implements Subsystem {
 	DigitalInput autoOn;
 	DigitalInput autoOff;
 	DigitalInput shoot;
+	AnalogInput HoodManual;
+	AnalogInput TurrManual;
 	private boolean limeOn = false; // is it being manually controlled? 
 	private boolean aimlefton; //is left trigger pressed?
 	private boolean aimrighton; // is right trigger pressed?
 	private double v; // a limelight vairible for whether or not valid target is in sight
+	private double V; //shooter speed
+	private double MaxS = 300; //shooter max speed
+	private double MinS = 10;//shooter min speed
+	private double Mhood;
+	private double Mturr;
     // talons
     TalonSRX turretPivot; 
 	TalonSRX ShootMotor; 
@@ -54,6 +63,14 @@ public class Turret implements Subsystem {
         autoOff.addInputListener(this);
 		shoot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         shoot.addInputListener(this);
+		HighSpeed = (DigitalInput) Core.getInputManager().getInput(WSInputs. MANIPULATOR_SHOULDER_RIGHT.getName());
+        shoot.addInputListener(this);
+		LowSpeed = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT.getName());
+        shoot.addInputListener(this);
+		HoodManual = (Analognput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y.getName());
+        HoodManual.addInputListener(this);
+		TurrManual = (Analognput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_X.getName());
+        TurrManual.addInputListener(this);
 		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
 		ShootMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
@@ -68,6 +85,12 @@ public class Turret implements Subsystem {
 
 	@Override
 	public void inputUpdate(Input source) {
+		if (HoodManual == source){
+			Mhood = HoodManual.getValue();
+		}
+		if (TurrManual == source){
+			Mturr = TurrManual.getValue();
+		}
 		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
 		NetworkTableEntry tv = table.getEntry("tv");
 		NetworkTableEntry ty = table.getEntry("ty");
@@ -79,6 +102,18 @@ public class Turret implements Subsystem {
             limeOn = true;
 	}
         }
+		if (LowSpeed.getValue()){
+			V = MinS;
+		}
+		else{
+			if (HighSpeed.getValue()){
+			V = MaxS;
+		}
+		else{
+			V = ((MaxS+MinS)/2);
+		}
+		}
+			
 		isShooterOn = shoot.getValue();
 		
 		if ((source == aimright)||(source == aimleft)){
@@ -120,10 +155,20 @@ public class Turret implements Subsystem {
 		if ((aimrighton) || (aimlefton) || (v != 1)){
 			turretPivot.set(ControlMode.PercentOutput,mx);
 		} 
+		if (!limeOn){
+			turretPivot.set(ControlMode.PercentOutput,F(Mturr*27));
+		}
+		if (limeOn){
 		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
+		}
+		else {
+			turretVertical.set(ControlMode.PercentOutput,F(Mhood*27));
+		}
+		
+		
 		if (isShooterOn == true){
-			ShootMotor.set(ControlMode.Velocity,10);
-			ShootMotor2.set(ControlMode.Velocity,10);
+			ShootMotor.set(ControlMode.Velocity,V);
+			ShootMotor2.set(ControlMode.Velocity,V);
 				}
 				else{
 		ShootMotor2.set(ControlMode.Velocity,0);
@@ -145,7 +190,7 @@ public class Turret implements Subsystem {
 	}
 	 private double Func(double c){
         double h = height/Math.tan(c);
-        double v = 10;
+	double v = V
         return (Math.asin((1-Math.sqrt(1-(8*Math.pow(c,2)*(Math.pow(v,2))-(-9.8))*c*Math.pow(h,2))))/(2*c)); // the angle calculator function goes here
     }
 }
