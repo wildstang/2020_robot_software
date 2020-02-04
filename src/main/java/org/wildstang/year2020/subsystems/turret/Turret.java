@@ -25,14 +25,17 @@ public class Turret implements Subsystem {
 	//Please comment on what the variables are.
     DigitalInput aimright;
 	DigitalInput aimleft;
+	DigitalInput autoOn;
+	DigitalInput autoOff;
+	DigitalInput shoot;
 	private boolean limeOn = false; // is it being manually controlled? 
 	private boolean aimlefton; //is left trigger pressed?
 	private boolean aimrighton; // is right trigger pressed?
 	private double v; // a limelight vairible for whether or not valid target is in sight
     // talons
     TalonSRX turretPivot; 
-	TalonSRX shooter1; 
-	TalonSRX shooter2; 
+	TalonSRX ShootMotor; 
+	TalonSRX ShootMotor2; 
 	TalonSRX turretVertical;
 	private boolean isShooterOn;
 	private double x; // a varible for the motor percent output when limelight controlled
