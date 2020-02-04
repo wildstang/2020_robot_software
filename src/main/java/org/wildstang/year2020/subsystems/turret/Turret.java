@@ -190,7 +190,7 @@ public class Turret implements Subsystem {
 	}
 	 private double Func(double c){
         double h = height/Math.tan(c);
-	double v = V
+	double v = V;
         return (Math.asin((1-Math.sqrt(1-(8*Math.pow(c,2)*(Math.pow(v,2))-(-9.8))*c*Math.pow(h,2))))/(2*c)); // the angle calculator function goes here
     }
 }
