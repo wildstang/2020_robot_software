@@ -1,5 +1,5 @@
 package org.wildstang.year2020.subsystems.controlpanel;
-import edu.wpi.first.wpilibj.DriverStation;
+
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
+import java.lang.Math;
 import javax.lang.model.util.ElementScanner6;
 import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
@@ -19,7 +20,6 @@ import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
-import java.lang.Math;
 
 /*
 
@@ -88,38 +88,38 @@ public class ControlPanel implements Subsystem{
     
     private void getAngle(double x, double y){ 
         if (x != 0.0){
-        half = Math.abs(x)/x; //-1 if on left side, 1 if on right
-        angle = Math.atan(y/x);//angle from x-axis
+            half = Math.abs(x)/x; //-1 if on left side, 1 if on right
+            angle = Math.atan(y/x); //angle from x-axis
         }
     }
     private String getColor(double angle,double half){
         if (half == 1){
-        if ((0<angle)&&(angle<45)){
-            color = "green";
-        }
-        if ((45<angle)&&(angle<90)){
-            color = "blue";
-        }
-        if ((0>angle)&&(angle>-45)){
-            color = "red";
-        }
-        if ((-45>angle)&&(angle>-90)){
-            color = "yellow";
-        }
+            if ((0<angle)&&(angle<45)){
+                color = "green";
+            }
+            if ((45<angle)&&(angle<90)){
+                color = "blue";
+            }
+            if ((0>angle)&&(angle>-45)){
+                color = "red";
+            }
+            if ((-45>angle)&&(angle>-90)){
+                color = "yellow";
+            }
         }
         else{
-             if ((0<angle)&&(angle<45)){
-            color = "red";
-        }
-        if ((45<angle)&&(angle<90)){
-            color = "yellow";
-        }
-        if ((0>angle)&&(angle>-45)){
-            color = "green";
-        }
-        if ((-45>angle)&&(angle>-90)){
-            color = "blue";
-        }
+            if ((0<angle)&&(angle<45)){
+                color = "red";
+            }
+            if ((45<angle)&&(angle<90)){
+                color = "yellow";
+            }
+            if ((0>angle)&&(angle>-45)){
+                color = "green";
+            }
+            if ((-45>angle)&&(angle>-90)){
+                color = "blue";
+            }
         }
         return color;
     }
@@ -128,6 +128,7 @@ public class ControlPanel implements Subsystem{
     public String getName(){
         return "ControlPanel";
     }
+
     @Override
     public void inputUpdate(Input source) {
         //setting input booleans to input statuses
@@ -178,7 +179,7 @@ public class ControlPanel implements Subsystem{
             }
         }
         if ((source == colorSelectX)||(source == colorSelectY)){
-            if ((colorSelectY.getValue() < -0.1) ||(colorSelectY.getValue() > 0.1)||(colorSelectX.getValue() > 0.1)||(colorSelectX.getValue() < -0.1) ){
+            if ((colorSelectY.getValue() < -0.1)||(colorSelectY.getValue() > 0.1)||(colorSelectX.getValue() > 0.1)||(colorSelectX.getValue() < -0.1) ){
                 getAngle(colorSelectX.getValue(),colorSelectY.getValue());
                 gotoColor = getColor(angle,half);
                 colorSpin = true;
@@ -187,7 +188,7 @@ public class ControlPanel implements Subsystem{
     }
     @Override
     public void init(){
-        //InputListeners
+        //Inputs
         deployDown = (DigitalInput) Core.getInputManager().getInput(WSInputs. MANIPULATOR_DPAD_DOWN.getName());
         deployDown.addInputListener(this);//dpadDown
         deployUp = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_UP.getName());
@@ -204,7 +205,7 @@ public class ControlPanel implements Subsystem{
         colorSelectX.addInputListener(this);//left joystick X-Axis
         colorSelectY = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName());
         colorSelectY.addInputListener(this);//left joystick Y-Axis
-        //Motors
+        //Outputs
         deploy = new TalonSRX(CANConstants.deploy);
         spinner = new TalonSRX(CANConstants.spinner);
         resetState();
@@ -318,6 +319,7 @@ public class ControlPanel implements Subsystem{
         deploySpeed = 0;
         presetSpins = 0;
     }
+    
     @Override
     public void selfTest(){
     }
