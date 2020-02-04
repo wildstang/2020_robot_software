@@ -69,9 +69,9 @@ public class Turret implements Subsystem {
         HighSpeed.addInputListener(this);
 		LowSpeed = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT.getName());
         LowSpeed.addInputListener(this);
-		HoodManual = (Analoginput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y.getName());
+		HoodManual = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y.getName());
         HoodManual.addInputListener(this);
-		TurrManual = (Analoginput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_X.getName());
+		TurrManual = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_X.getName());
         TurrManual.addInputListener(this);
 		turretPivot = new TalonSRX(CANConstants.TURRET_TALON);//TURRET_PIVOT is changed to TURRET_TALON
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
