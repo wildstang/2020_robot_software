@@ -125,14 +125,6 @@ public enum WSInputs implements Inputs {
     // ---------------------------------
     // Manipulator Buttons
     // ---------------------------------
-<<<<<<< HEAD
-    RIGHT_TRIGGER("Ballpath Go", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 7), false),
-
-    Y_BUTTON("Ballpath Reverse", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 3), false),
-
-    A_BUTTON("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false),
-
-=======
     MANIPULATOR_FACE_DOWN("Intake", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 0), false), 
     MANIPULATOR_FACE_RIGHT("Turret Forwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 1), false), 
     MANIPULATOR_FACE_LEFT("Turret Backwards", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 2), false), 
@@ -145,29 +137,11 @@ public enum WSInputs implements Inputs {
     MANIPULATOR_START("Climb Activation 2", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 7), false), 
     MANIPULATOR_LEFT_JOYSTICK_BUTTON("Control Panel Movement", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 8), false), 
     MANIPULATOR_RIGHT_JOYSTICK_BUTTON("Turret Sensor Override", WSInputType.JS_BUTTON, new WsJSButtonInputConfig(1, 9), false), 
->>>>>>> master
 
     // ********************************
     // Digital IOs
     // ********************************
-<<<<<<< HEAD
-    // TODO IDs
-    STRAFE_LEFT_LIMIT("Strafe left limit", WSInputType.SWITCH, new WsDigitalInputConfig(1, false), false),
-    // TODO IDs
-    STRAFE_RIGHT_LIMIT("Strafe right limit", WSInputType.SWITCH, new WsDigitalInputConfig(2, false), false),
-
-    // TODO IDs
-    LIFT_LOWER_LIMIT("Lift Lower Limit", WSInputType.SWITCH, new WsDigitalInputConfig(3, true), false),
-    // TODO IDs
-    LIFT_UPPER_LIMIT("Lift Upper Limit", WSInputType.SWITCH, new WsDigitalInputConfig(4, true), false),
-
-    CARRIAGE_SENSOR_A("Carriage Sensor A",WSInputType.SWITCH, new WsDigitalInputConfig(5,true),false),
-
-    CARRIAGE_SENSOR_B("Carriage Sensor B",WSInputType.SWITCH, new WsDigitalInputConfig(6,true),false),
-
-=======
     
->>>>>>> master
     // -------------------------------
     // Networked sensors
     // -------------------------------
