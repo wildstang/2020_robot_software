@@ -1,20 +1,11 @@
 package org.wildstang.year2020.subsystems.climb;
-
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.framework.timer.WsTimer;
 import org.wildstang.year2020.robot.CANConstants;
-import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
-import org.wildstang.year2020.robot.WSOutputs;
 
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
