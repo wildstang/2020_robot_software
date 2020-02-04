@@ -1,5 +1,5 @@
 package org.wildstang.year2020.subsystems.controlpanel;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.ControlMode;
