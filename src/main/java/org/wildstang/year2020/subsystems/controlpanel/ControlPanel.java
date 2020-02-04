@@ -206,8 +206,8 @@ public class ControlPanel implements Subsystem{
         colorSelectY = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName());
         colorSelectY.addInputListener(this);//left joystick Y-Axis
         //Outputs
-        deploy = new TalonSRX(CANConstants.deploy);
-        spinner = new TalonSRX(CANConstants.spinner);
+        deploy = new TalonSRX(CANConstants.CPDEPLOY_TALON);
+        spinner = new TalonSRX(CANConstants.INTAKECPWHEEL_TALON);
         resetState();
     }
     @Override
