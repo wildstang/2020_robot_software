@@ -69,8 +69,6 @@ public class Drive implements Subsystem {
     private AnalogInput quickTurnInput;
     /** Button to control anti-turbo mode */
     private DigitalInput antiTurboInput;
-    /** Button to terminate current and future auto paths and return to sandstorm control */
-    private DigitalInput autoEStopInput;
 
     /**
      * Keeps track of what kind of drive we're doing (e.g. cheesy drive vs path vs
@@ -176,16 +174,7 @@ public class Drive implements Subsystem {
             
             setHeading(-headingInput.getValue());
             
-        } else if (source == autoEStopInput) {
-            
-            if (autoEStopInput.getValue() == true) {
-
-                autoEStopActivated = true;
-
-            }
-
-        }
-
+        } 
         // TODO: Do we want to make quickturn automatic?
         else if (source == quickTurnInput) {
             commandQuickTurn = quickTurnInput.getValue();
@@ -462,22 +451,19 @@ public class Drive implements Subsystem {
     /** Set up our input members and subscribe to inputUpdate events */
     private void initInputs() {
         // Set and subscribe to inputs
-        headingInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVE_HEADING);
+        headingInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_X);
         headingInput.addInputListener(this);
-        throttleInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVE_THROTTLE);
+        throttleInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y);
         throttleInput.addInputListener(this);
 
-        quickTurnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.QUICK_TURN.getName());
+        quickTurnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
         quickTurnInput.addInputListener(this);
 
-        antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.ANTITURBO.getName());
+        antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
         antiTurboInput.addInputListener(this);
 
-        baseLockInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.BASE_LOCK.getName());
+        baseLockInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_FACE_UP.getName());
         baseLockInput.addInputListener(this);
-
-        autoEStopInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.AUTO_E_STOP.getName());
-        autoEStopInput.addInputListener(this);
     }
 
     /** Initialize all drive base motor controllers. */
