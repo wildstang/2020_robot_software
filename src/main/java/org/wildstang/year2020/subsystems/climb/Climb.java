@@ -95,9 +95,9 @@ public class Climb implements Subsystem {
 
     private void initInputs() {
         IInputManager inputManager = Core.getInputManager();
-        selectButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_SELECT.getName());
+        selectButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_SELECT.getName());
         selectButton.addInputListener(this);
-        startButton = (DigitalInput) inputManager.getInput(WSInputs.CLIMB_START.getName());
+        startButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
         startButton.addInputListener(this);
     }
 
