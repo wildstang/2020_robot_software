@@ -43,7 +43,7 @@ public class TestSubsystem implements Subsystem {
     // initializes the subsystem
     public void init() {
         // register buttons with arbitrary button names, since this is a test
-        joystick = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Yq
+        joystick = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y
         .getName());
         joystick.addInputListener(this);
 
