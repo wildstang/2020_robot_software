@@ -1,27 +1,18 @@
 package org.wildstang.year2020.subsystems.drive;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.LinkedList;
-
 import org.wildstang.year2020.robot.WSInputs;
-import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
-//import org.wildstang.framework.logger.StateTracker;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SensorCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -29,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * This subsystem controls the drive wheels so that the robot can move around.
  * 
  * TODO: factor input management and drive logic into separate classes somehow.
- * 
  * TODO: Factor the helper classes into core framework
  */
 public class FalconDrive implements Subsystem {
@@ -48,7 +38,7 @@ public class FalconDrive implements Subsystem {
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
     private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
-    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
+    private static final int[] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_TALON_FOLLOWER, CANConstants.RIGHT_DRIVE_TALON_FOLLOWER };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
     /** Left and right Talon master controllers */
@@ -115,13 +105,8 @@ public class FalconDrive implements Subsystem {
     ///////////////////////////////////////////////////////////
     // PUBLIC METHODS
 
-    public FalconDrive() {
-        /* Nothing to do in constructor. */
-    }
-
     @Override
     public void init() {
-        // TODO: set up logging DONE
         Core.getStateTracker().addIOInfo("Left speed (RPM)", "Drive", "Input", null);
         Core.getStateTracker().addIOInfo("Right speed (RPM)", "Drive", "Input", null);
         Core.getStateTracker().addIOInfo("Left output", "Drive", "Input", null);
@@ -167,23 +152,14 @@ public class FalconDrive implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-
         if (source == throttleInput) {
-            
             setThrottle(-throttleInput.getValue());
-            
         } else if (source == headingInput) {
-            
             setHeading(-headingInput.getValue());
-            
         } else if (source == autoEStopInput) {
-            
             if (autoEStopInput.getValue() == true) {
-
                 autoEStopActivated = true;
-
             }
-
         }
 
         // TODO: Do we want to make quickturn automatic?
@@ -208,19 +184,14 @@ public class FalconDrive implements Subsystem {
             }
         } else {
             isQuick = false;
-
         }
     }
 
     @Override
-    public void selfTest() {
-        // DO NOT IMPLEMENT
-        // TODO WHY NOT?
-    }
+    public void selfTest() {}
 
     @Override
     public void update() {
-
         // Update dashboard with statistics on motor performance
         // TODO: Is this redundant with logging machinery? (Not redundant?)
         if (updateCounter % 10 == 0) {
@@ -355,23 +326,17 @@ public class FalconDrive implements Subsystem {
         pathFollower.start();
     }
 
-    /** Stop following and clean up path. FIXED? */
+    /** Stop following and clean up path. */
     public void pathCleanup() {
         if (pathFollower != null) {
-            pathFollower.stop();
+            abortFollowingPath();
             pathFollower = null;
         }
     }
 
-    /**
-     * Stop following this path.
-     * 
-     * FIXME this is weirdly redundant with pathCleanup --- something is wrong The
-     * code IS redundant with pathCleanup, do we remove this whole method or do we
-     * remove the "pathFollower.stop();" from "abortFollowingPath()"?
-     */
+    /** Stop following this path. */
     public void abortFollowingPath() {
-        if (pathFollower != null) {
+        if (pathFollower.isActive()) {
             pathFollower.stop();
         }
     }
@@ -478,24 +443,13 @@ public class FalconDrive implements Subsystem {
     }
 
     /** Initialize all drive base motor controllers. */
-    private void initMotorControllers() /* throws CoreUtils.CTREException */ {
+    private void initMotorControllers() {
         for (int side : SIDES) {
             masters[side] = new TalonSRX(MASTER_IDS[side]);
-
             initMaster(side, masters[side]);
 
-            followers[side]  = new TalonSRX(FOLLOWER_IDS[side][1]);
+            followers[side] = new TalonSRX(FOLLOWER_IDS[side]);
             initFollower(side,followers[side]);
-
-
-
-
-
-
-            //for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
-            //    followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
-            //    initFollower(side, followers[side][i]);
-            //}
         }
     }
 
@@ -509,7 +463,7 @@ public class FalconDrive implements Subsystem {
      * @param side   Which side (LEFT or RIGHT) this is master for
      * @param master The WSTalonSRX object to set up
      */
-    private void initMaster(int side, TalonSRX master) /* throws CoreUtils.CTREException */ {
+    private void initMaster(int side, TalonSRX master) {
         System.out.println("Initializing TalonSRX master ID " + MASTER_IDS[side]);
 
         // The Talon SRX should be directly connected to an encoder
@@ -573,10 +527,12 @@ public class FalconDrive implements Subsystem {
         masters[LEFT].set(ControlMode.PercentOutput, speeds.leftMotor);
         masters[RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor);
     }
+
     public void setMotionMagicTargetAbsolute(double p_leftTarget, double p_rightTarget) {
         masters[LEFT].set(ControlMode.MotionMagic, p_leftTarget);
         masters[RIGHT].set(ControlMode.MotionMagic, p_rightTarget);
     }
+
     public void setMotionMagicMode(boolean p_quickTurn, double f_gain) {
         // Stop following any current path
         stopPathFollowing();
@@ -616,9 +572,7 @@ public class FalconDrive implements Subsystem {
                             DrivePID.MM_DRIVE.k.f);
                     master.selectProfileSlot(DrivePID.MM_DRIVE.slot,0);
                 }
-
             }
-
 
             resetEncoders();
 
@@ -627,7 +581,8 @@ public class FalconDrive implements Subsystem {
             setBrakeMode(true);
         }
     }
-    public void setForward(boolean thing){
+
+    public void setForward(boolean thing) {
         driveMode = DriveType.MAGIC;
         if (thing) {
             masters[LEFT].set(ControlMode.PercentOutput,0.51*0.8);
