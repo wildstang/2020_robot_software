@@ -64,7 +64,17 @@ public class Ballpath implements Subsystem {
                 intakeMotorSpeed = 0;
         }
     }
-    
+    public void turnOnIntake() {
+        intakeMotorSpeed = FULL_SPEED;
+    }
+
+    public void turnOnFeed() {
+        feedMotorSpeed = FULL_SPEED;
+    }
+
+    public void turnOffFeed() {
+        feedMotorSpeed = 0;
+    }
 
     @Override
     public void init() {
@@ -108,11 +118,11 @@ public class Ballpath implements Subsystem {
     }
 
     private void initInputs() {
-        rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.RIGHT_TRIGGER.getName());
+        rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         rightTrigger.addInputListener(this);
-        yButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.Y_BUTTON.getName());
+        yButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_UP.getName());
         yButton.addInputListener(this);
-        aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.A_BUTTON.getName());
+        aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         aButton.addInputListener(this);
     }
 }
