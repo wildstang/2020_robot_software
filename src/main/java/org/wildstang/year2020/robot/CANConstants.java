@@ -5,8 +5,8 @@ public final class CANConstants {
     public static final int RIGHT_DRIVE_TALON = 2;
 
     //For FalconDrive
-    public static final int LEFT_DRIVE_TALON_FOLLOWER = 3;
-    public static final int RIGHT_DRIVE_TALON_FOLLOWER = 4;
+    public static final int[] LEFT_DRIVE_TALON_FOLLOWER = {3};
+    public static final int[] RIGHT_DRIVE_TALON_FOLLOWER = {4};
     //For normal drive (2 talons, 4 victors)
     public static final int[] LEFT_DRIVE_VICTORS = {3,4};
     public static final int[] RIGHT_DRIVE_VICTORS = {5,6};

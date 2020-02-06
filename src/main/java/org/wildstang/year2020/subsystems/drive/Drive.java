@@ -48,13 +48,16 @@ public class Drive implements Subsystem {
     private static final int[] SIDES = { LEFT, RIGHT };
     private static final String[] SIDE_NAMES = { "left", "right" };
     private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
-    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_VICTORS, CANConstants.RIGHT_DRIVE_VICTORS };
     private int pathNum = 1;
     private static final String DRIVER_STATES_FILENAME = "/home/lvuser/drive_state_";
     /** Left and right Talon master controllers */
     private TalonSRX[] masters = new TalonSRX[2];
-    /** Left and right pairs of Victor follower controllers */
-    private VictorSPX[][] followers = new VictorSPX[2][2];
+
+    //Follower declarations, type, and IDS. CHANGE THESE THREE LINES TO CHANGE DRIVE MOTOR CONTROLLERS
+    private TalonSRX[][] followers = new TalonSRX[2][1];
+    private Object FOLLOWTYPE = TalonSRX.class;
+    private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_TALON_FOLLOWER, CANConstants.RIGHT_DRIVE_TALON_FOLLOWER };
+    //CHANGE THE ABOVE THREE LINES TO CHANGE MOTOR CONTROLLERS
 
     public static boolean autoEStopActivated = false;
 
@@ -292,8 +295,14 @@ public class Drive implements Subsystem {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
             masters[side].setNeutralMode(mode);
-            for (VictorSPX follower : followers[side]) {
-                follower.setNeutralMode(mode);
+            if (FOLLOWTYPE.getClass() == TalonSRX.class){
+                for (TalonSRX follower : followers[side]) {
+                    follower.setNeutralMode(mode);
+                } 
+            } else if (FOLLOWTYPE.getClass() == VictorSPX.class) {
+                for (TalonSRX follower : followers[side]) {
+                    follower.setNeutralMode(mode);
+                }
             }
         }
     }
@@ -470,13 +479,13 @@ public class Drive implements Subsystem {
     private void initMotorControllers() /* throws CoreUtils.CTREException */ {
         for (int side : SIDES) {
             masters[side] = new TalonSRX(MASTER_IDS[side]);
-
             initMaster(side, masters[side]);
 
-            for (int i = 0; i < FOLLOWER_IDS[side].length; ++i) {
-                followers[side][i] = new VictorSPX(FOLLOWER_IDS[side][i]);
-                initFollower(side, followers[side][i]);
+            for (int i = 0; i < FOLLOWER_IDS[side].length; i++){
+                followers[side][i] = new TalonSRX(FOLLOWER_IDS[side][i]);
+                initFollower(side,followers[side][i]);
             }
+            
         }
     }
 
@@ -529,6 +538,18 @@ public class Drive implements Subsystem {
         TalonSRXConfiguration master_config = new TalonSRXConfiguration();
         master.getAllConfigs(master_config, TIMEOUT);
         System.out.print(master_config.toString("drive talon " + SIDE_NAMES[side]));
+    }
+
+    private void initFollower(int side, TalonSRX follower) {
+        TalonSRX master = masters[side];
+        if (side == LEFT) {
+            follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
+        } else {
+            follower.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
+        }
+        follower.follow(master);
+        // TODO should neutral mode on followers ever change?
+        follower.setNeutralMode(NeutralMode.Coast);
     }
 
     private void initFollower(int side, VictorSPX follower) {
