@@ -20,6 +20,7 @@ public class Turret implements Subsystem {
     private AnalogInput aimModeTrigger;
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
+    private AnalogInput manualTurret;
 
     // Outputs
     private TalonSRX turretMotor;
@@ -41,6 +42,7 @@ public class Turret implements Subsystem {
     private boolean aimModeEnabled;
     private boolean turretAimed;
     private double lastSetpoint;
+    private double manualSpeed;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -58,6 +60,8 @@ public class Turret implements Subsystem {
         backPositionButton.addInputListener(this);
         frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
         frontPositionButton.addInputListener(this);
+        manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
+        manualTurret.addInputListener(this);
     }
 
     // Initializes outputs
@@ -102,6 +106,11 @@ public class Turret implements Subsystem {
                 turretMotor.set(ControlMode.Position, (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH);
             }
         }
+        if (Math.abs(manualTurret.getValue())>0.25){
+            manualSpeed = manualTurret.getValue();
+        } else{
+            manualSpeed = 0;
+        }
     }
 
     @Override
@@ -129,7 +138,7 @@ public class Turret implements Subsystem {
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } else {
-            turretMotor.set(ControlMode.PercentOutput, 0.0);
+            turretMotor.set(ControlMode.PercentOutput, manualSpeed);
         }
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
