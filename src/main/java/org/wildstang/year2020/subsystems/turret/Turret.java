@@ -154,14 +154,14 @@ public class Turret implements Subsystem {
 			turretPivot.set(ControlMode.PercentOutput,F(x));
 		}
 		if (aimrighton){
-			turretPivot.set(ControlMode.PercentOutput,F(((1024-Encoder)/151.703));
+			turretPivot.set(ControlMode.PercentOutput,F(((1024-Encoder)/151.703)));
 			if ((F((1024-Encoder)/151.703)<0.05)&&(F((1024-Encoder)/151.703)>-0.05)){
 				aimrighton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
 		if (aimlefton){
-			turretPivot.set(ControlMode.PercentOutput,F(((-1024-Encoder)/151.703));
+			turretPivot.set(ControlMode.PercentOutput,F(((-1024-Encoder)/151.703)));
 			if ((F((-1024-Encoder)/151.703)<0.05)&&(F((-1024-Encoder)/151.703)>-0.05)){
 				aimlefton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
