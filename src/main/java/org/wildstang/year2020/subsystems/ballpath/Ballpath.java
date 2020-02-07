@@ -3,18 +3,22 @@ import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.CANConstants;
-import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
-import org.wildstang.framework.CoreUtils;
 import org.wildstang.framework.core.Core;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-
+/**
+ * Class:       Ballpath.java
+ * Inputs:      Right trigger, "A" and "Y" buttons
+ * Outputs:     3 talons (feed, kicker, intake)
+ * Description: The ballpath subsystem helps feed the power cells in the hopper to the turret.
+ *              The intake motor pulls the power cells into the ballpath which then moves balls throught it with the feed motor.
+ *              The right trigger controls both of these motors simultaneously and the "Y" button reverses their direction.
+ *              The power cells are finally handed off to the turret by the kicker motor, controlled by the "A" button.
+ */
 public class Ballpath implements Subsystem {
 
     // Motors
@@ -22,48 +26,62 @@ public class Ballpath implements Subsystem {
     private TalonSRX kickerMotor;
     private TalonSRX intakeMotor;
 
-    // Constants 
-    //What is put into setting motors
+    // Motor Speeds
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
     private double intakeMotorSpeed;
     
+    // Constants
     private final double FULL_SPEED = 1.0;
     private final double REVERSE_SPEED = -0.4;
 
-    // Status for each motor
+    // Inputs
     private AnalogInput rightTrigger;
     private DigitalInput yButton;
     private DigitalInput aButton;
 
+    /**
+     * Update Methods
+     */
+
     @Override
     public void inputUpdate(Input source) {
-    //they should act as a hold buttons 
-    //ie. when pressed down 
-
         if (rightTrigger.getValue() > 0.75) {
-            //runs the hopper motor full power and the kicker motor full power
+            // run the hopper and kicker motors at full power
             feedMotorSpeed = FULL_SPEED;
             kickerMotorSpeed = FULL_SPEED;
             
         } else if (yButton.getValue()) {
-            //runs hopper motor and kicker motor backwards at ~40% power
+            // run the hopper and kicker motors backwards at ~40% power
             feedMotorSpeed = REVERSE_SPEED;
             kickerMotorSpeed = REVERSE_SPEED;
 
         } else {
-                feedMotorSpeed = 0;
-                kickerMotorSpeed = 0;
+            // don't run the motors if neither button is pressed
+            feedMotorSpeed = 0;
+            kickerMotorSpeed = 0;
         }
 
         if (aButton.getValue()) {
-            //run intake motor at 100% power
+            // run intake motor at 100% power
             intakeMotorSpeed = FULL_SPEED;
                 
         } else {
-                intakeMotorSpeed = 0;
+            intakeMotorSpeed = 0;
         }
     }
+
+    @Override
+    public void update() {
+        feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
+        kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
+        intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
+    }
+
+    /**
+     * Auto Methods
+     */
+
     public void turnOnIntake() {
         intakeMotorSpeed = FULL_SPEED;
     }
@@ -76,45 +94,15 @@ public class Ballpath implements Subsystem {
         feedMotorSpeed = 0;
     }
 
+    /**
+     * Subsystem Initialization Methods
+     */
+
     @Override
     public void init() {
         initInputs();
         initOutputs();
         resetState();
-    }
-
-    @Override
-    public void selfTest() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void update() {
-        // TODO Auto-generated method stub
-            feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
-            kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
-            intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
-    }
-
-    @Override
-    public void resetState() {
-        // TODO Auto-generated method stub
-        feedMotorSpeed = 0;
-        kickerMotorSpeed = 0;
-        intakeMotorSpeed = 0;
-    }
-
-    @Override
-    public String getName() {
-        // TODO Auto-generated method stub
-        return "Ballpath";
-    }
-
-    private void initOutputs() {
-        feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
-        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
-        intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
     }
 
     private void initInputs() {
@@ -125,4 +113,29 @@ public class Ballpath implements Subsystem {
         aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         aButton.addInputListener(this);
     }
+
+    private void initOutputs() {
+        feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
+        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
+        intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
+    }
+
+    @Override
+    public void resetState() {
+        feedMotorSpeed = 0;
+        kickerMotorSpeed = 0;
+        intakeMotorSpeed = 0;
+    }
+
+    /**
+     * Meta Methods
+     */
+
+    @Override
+    public String getName() {
+        return "Ballpath";
+    }
+
+    @Override
+    public void selfTest() {}
 }
