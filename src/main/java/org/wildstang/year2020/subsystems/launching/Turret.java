@@ -159,4 +159,8 @@ public class Turret implements Subsystem {
     // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
 
+    public void autoAim(boolean parameter){
+        aimModeEnabled = parameter;
+    }
+
 }

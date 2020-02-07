@@ -39,7 +39,7 @@ public class Shooter implements Subsystem {
     private Limelight limelightSubsystem;
 
     // Constants
-    public static final double MOTOR_OUTPUT_TOLERANCE = 0.02;
+    public static final double MOTOR_OUTPUT_TOLERANCE = 1.04;
     public static final double MOTOR_POSITION_TOLERANCE = 1.0;
 
     public static final double UPPER_GOAL_DISTANCE_LIMIT = 0.0;
@@ -55,8 +55,8 @@ public class Shooter implements Subsystem {
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);//might push these P values way up
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);//same here
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = 0.0;
@@ -121,10 +121,10 @@ public class Shooter implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        double currentShooterMotorSpeed = shooterMasterMotor.getMotorOutputPercent();
+        double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
         SmartDashboard.putNumber("Encoder Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
         SmartDashboard.putNumber("Encoder Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
-        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED + MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED - MOTOR_OUTPUT_TOLERANCE)) {
+        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED * MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED / MOTOR_OUTPUT_TOLERANCE)) {
             shooterMotorSpeedSetForAimMode = true;
         } else {
             shooterMotorSpeedSetForAimMode = false;
@@ -228,6 +228,16 @@ public class Shooter implements Subsystem {
             
             hoodMotor.set(ControlMode.Position, 0);
         }
+    }
+    public void setAutonShooterSpeed(){
+        shooterMasterMotor.selectProfileSlot(1, 0);
+        shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+    }
+    public void setHoodPosition(double position){
+        hoodMotor.set(ControlMode.Position, position);
+    }
+    public void setAim(){
+        aimToGoal();
     }
 
 }
