@@ -97,7 +97,7 @@ public class Turret implements Subsystem {
 		NetworkTableEntry tv = table.getEntry("tv");
 		NetworkTableEntry ty = table.getEntry("ty");
 		NetworkTableEntry tx = table.getEntry("tx");
-		if (aimright.getValue() || aimleft.getValue() || (source == autoOff)){
+		if (source == autoOff){
 			limeOn = false;
 		}
         else{ if (source == autoOn){
@@ -118,24 +118,23 @@ public class Turret implements Subsystem {
 			
 		isShooterOn = shoot.getValue();
 		
-		if ((source == aimright)||(source == aimleft)){
-			if (aimright.getValue() && (aimlefton == false)){
-				mx = 1;
-				aimrighton = true;
+		
+			if (aimright.getValue()){
+				if (aimlefton){
+				aimlefton = false; 
+				}
+				aimrighton = true; 
+				limeOn = false;
 			}
-			if (aimleft.getValue() && (aimrighton == false)){
-				mx = -1;
+			if (aimleft.getValue()){
+				if (aimrighton){
+				aimrighton = false; 
+				}
 				aimlefton = true;
+				limeOn = false;
 			}
-			if ((!aimleft.getValue()) && (aimlefton == true)){
-				mx = 0;
-				aimlefton = false;
-			}
-			if ((!aimright.getValue()) && (aimrighton == true)){
-				mx = 0;
-				aimrighton = false;
-			}
-		}
+			
+		
         // respond to registered inputs
 	}
 
@@ -151,11 +150,22 @@ public class Turret implements Subsystem {
 		y = ty.getDouble(0.0);
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
-		if (limeOn && (mx != 1)&& (mx!= -1) && (v == 1)){
+		if (limeOn && (v == 1)){
 			turretPivot.set(ControlMode.PercentOutput,F(x));
 		}
-		if ((aimrighton) || (aimlefton) || (v != 1)){
-			turretPivot.set(ControlMode.PercentOutput,mx);
+		if (aimrighton){
+			turretPivot.set(ControlMode.PercentOutput,F(((1024-Encoder)/151.703));
+			if ((F((1024-Encoder)/151.703)<0.05)&&(F((1024-Encoder)/151.703)>-0.05)){
+				aimrighton = false;
+				turretPivot.set(ControlMode.PercentOutput,0.0);
+			}
+		} 
+		if (aimlefton){
+			turretPivot.set(ControlMode.PercentOutput,F(((-1024-Encoder)/151.703));
+			if ((F((-1024-Encoder)/151.703)<0.05)&&(F((-1024-Encoder)/151.703)>-0.05)){
+				aimlefton = false;
+				turretPivot.set(ControlMode.PercentOutput,0.0);
+			}
 		} 
 		if (!limeOn){
 			turretPivot.set(ControlMode.PercentOutput,F(Mturr*27));
