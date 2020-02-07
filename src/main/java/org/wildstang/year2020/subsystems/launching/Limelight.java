@@ -1,5 +1,8 @@
 package org.wildstang.year2020.subsystems.launching;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
@@ -33,6 +36,9 @@ public class Limelight implements Subsystem {
     private NetworkTableEntry thorEntry;
 
     private NetworkTableEntry ledModeEntry;
+
+    private List<Double> trailingVerticalAngleOffsets;
+    private long lastValueAddedTimestamp;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -144,10 +150,15 @@ public class Limelight implements Subsystem {
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
     public double getDistanceToTarget() {
-        double totalVerticalAngleOffset = Math.toRadians(getTYValue() + MOUNT_VERTICAL_ANGLE_OFFSET);
+        double verticalAngleOffsetSum = 0.0;
+
+        for (int i = 0; i < trailingVerticalAngleOffsets.size(); i++) {
+            verticalAngleOffsetSum += trailingVerticalAngleOffsets.get(i);
+        }
+
+        double netVerticalAngleOffset = Math.toRadians(verticalAngleOffsetSum / (double) trailingVerticalAngleOffsets.size());
         double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
-        
-        double distanceToTarget = targetHeightAboveCamera / Math.tan(totalVerticalAngleOffset);
+        double distanceToTarget = targetHeightAboveCamera / Math.tan(netVerticalAngleOffset);
 
         return distanceToTarget;
     }
@@ -157,10 +168,23 @@ public class Limelight implements Subsystem {
     public void selfTest() {}
 
     @Override
-    // Updates the subsystem everytime the framework updates (every ~0.02 seconds; unimplemented right now)
-    public void update() {}
+    // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
+    public void update() {
+        double verticalAngleOffset = getTYValue() + MOUNT_VERTICAL_ANGLE_OFFSET;
+        if (System.currentTimeMillis() > lastValueAddedTimestamp + 25L) {
+            if (trailingVerticalAngleOffsets.size() == 20) {
+                trailingVerticalAngleOffsets.remove(0);
+            }
+
+            trailingVerticalAngleOffsets.add(verticalAngleOffset);
+            lastValueAddedTimestamp = System.currentTimeMillis();
+        }
+    }
 
     @Override
     // Resets all variables to the default state (unimplemented right now)
-    public void resetState() {}
+    public void resetState() {
+        trailingVerticalAngleOffsets = new ArrayList<Double>();
+        lastValueAddedTimestamp = 0L;
+    }
 }

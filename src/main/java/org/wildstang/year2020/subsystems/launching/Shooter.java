@@ -58,7 +58,9 @@ public class Shooter implements Subsystem {
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);
     public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);
     
-    public static final double HOOD_TRAVEL_DISTANCE = 4.0;
+    // TODO: More regression coefficients may be needed based on what regression type we choose to use
+    public static final double AIMING_INNER_REGRESSION_A = 0.0;
+    public static final double AIMING_OUTER_REGRESSION_A = 0.0;
 
     // Logic
     private boolean aimModeEnabled;
@@ -66,6 +68,7 @@ public class Shooter implements Subsystem {
     private boolean hoodAimed;
     private List<Double> trailingHorizontalAngleOffsets;
     private long lastValueAddedTimestamp;
+    private double hoodTravelDistance;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -90,10 +93,10 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.config_kP(0, SAFE_SHOOTER_PID_CONSTANTS.p);
         shooterMasterMotor.config_kI(0, SAFE_SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(0, SAFE_SHOOTER_PID_CONSTANTS.d);
-        shooterMasterMotor.config_kF(1, SAFE_SHOOTER_PID_CONSTANTS.f);
-        shooterMasterMotor.config_kP(1, SAFE_SHOOTER_PID_CONSTANTS.p);
-        shooterMasterMotor.config_kI(1, SAFE_SHOOTER_PID_CONSTANTS.i);
-        shooterMasterMotor.config_kD(1, SAFE_SHOOTER_PID_CONSTANTS.d);
+        shooterMasterMotor.config_kF(1, AIMING_SHOOTER_PID_CONSTANTS.f);
+        shooterMasterMotor.config_kP(1, AIMING_SHOOTER_PID_CONSTANTS.p);
+        shooterMasterMotor.config_kI(1, AIMING_SHOOTER_PID_CONSTANTS.i);
+        shooterMasterMotor.config_kD(1, AIMING_SHOOTER_PID_CONSTANTS.d);
 
         shooterMasterMotor.setInverted(true);
 
@@ -128,7 +131,7 @@ public class Shooter implements Subsystem {
         }
 
         double currentHoodMotorPosition = hoodMotor.getSelectedSensorPosition();
-        if (currentHoodMotorPosition < (HOOD_TRAVEL_DISTANCE + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (HOOD_TRAVEL_DISTANCE - MOTOR_POSITION_TOLERANCE)) {
+        if (currentHoodMotorPosition < (hoodTravelDistance + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (hoodTravelDistance - MOTOR_POSITION_TOLERANCE)) {
             hoodAimed = true;
         } else {
             hoodAimed = false;
@@ -197,7 +200,7 @@ public class Shooter implements Subsystem {
         return hoodAimed;
     }
 
-    // Decides whether is the inner goal is within range (+/- 15 degrees horizontally)
+    // Decides whether the inner goal is within range (+/- 15 degrees horizontally)
     private boolean willAimToInnerGoal() {
         double horizontalAngleOffsetSum = 0.0;
 
@@ -217,8 +220,12 @@ public class Shooter implements Subsystem {
     // Aims to either the inner or outer goal based on horizontal angle offset
     private void aimToGoal() {
         if (willAimToInnerGoal()) {
-            hoodMotor.set(ControlMode.Position, HOOD_TRAVEL_DISTANCE * TICKS_PER_INCH);
+            hoodTravelDistance = AIMING_INNER_REGRESSION_A; // TODO: Perform regression calculation
+
+            hoodMotor.set(ControlMode.Position, hoodTravelDistance * TICKS_PER_INCH);
         } else {
+            hoodTravelDistance = AIMING_OUTER_REGRESSION_A; // TODO: Perform regression calculation
+            
             hoodMotor.set(ControlMode.Position, 0);
         }
     }
