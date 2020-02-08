@@ -170,8 +170,6 @@ public class Drive implements Subsystem {
                 setFullBrakeMode();
             } else {
                 setOpenLoopDrive();
-                setHeading(0);
-                setThrottle(0);
             }
         } else {
             isQuick = false;
