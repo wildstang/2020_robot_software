@@ -42,6 +42,11 @@ public class BasicDrive implements Subsystem {
     private double throttleJoystickPolarity = -1.0;
     private double headingJoystickPolarity = -1.0;
 
+    private boolean masterLFlip = true;
+    private boolean masterRFlip = false;
+    private boolean followLFlip = false;
+    private boolean followRFlip = false;
+
     public BasicDrive() {}
 
     @Override
@@ -53,9 +58,13 @@ public class BasicDrive implements Subsystem {
     
     public void initOutputs(){
         masterL = new TalonSRX(CANConstants.left1);
+        masterL.setInverted(masterLFlip);
         masterR = new TalonSRX(CANConstants.right1);
+        masterR.setInverted(masterRFlip);
         followL = new TalonSRX(CANConstants.left2);
+        followL.setInverted(followLFlip);
         followR = new TalonSRX(CANConstants.right2);
+        followR.setInverted(followRFlip);
         followL.follow(masterL);
         followR.follow(masterR);
     }
