@@ -140,28 +140,28 @@ public class ControlPanel implements Subsystem{
         boolpresetSpin = presetSpin.getValue();
         //setting deploy speed
         if ((source == deployUp)||(source ==deployDown)){
-            if (booldeployUp&&(!booldeployDown)){
+            if ((booldeployDown&&booldeployUp)||(!booldeployDown&&!booldeployUp)){
+                deploySpeed = 0;
+            }
+            else if (booldeployUp){
                 deploySpeed = 1; //deploy goes up
             }
-            if (booldeployDown&&(!booldeployUp)){
+            else {
                 deploySpeed = -1; //deploy goes down
-            }
-            if ((!booldeployDown)&&(!booldeployUp)){
-                deploySpeed = 0;
             }
         }
         //moving spinner to operator requested direction
         if ((source == forwardSpin)||(source ==backwardSpin)){
-            if (boolforwardSpin&&(!boolbackwardSpin)){
+            if ((!boolbackwardSpin&&!boolforwardSpin)||(boolbackwardSpin&&boolforwardSpin)){
+                spinSpeed = 0;
+            }
+            else if (boolforwardSpin){
                 spinSpeed = 1;
                 presetSpins = 0;
             }
-            if (boolbackwardSpin&&(!boolforwardSpin)){
+            else {
                 spinSpeed = -1;
                 presetSpins = 0;
-            }
-            if ((!boolbackwardSpin)&&(!boolforwardSpin)){
-                spinSpeed = 0;
             }
         }
         if (source == presetSpin){
