@@ -154,6 +154,7 @@ public class Drive implements Subsystem {
         // Default drive mode is open-loop cheesy drive.
         setBrakeMode(false);
         setOpenLoopDrive();
+        setMotorSpeeds(new DriveSignal(0,0));
         // We start at no throttle or steering.
         setThrottle(0);
         setHeading(0);
@@ -264,7 +265,7 @@ public class Drive implements Subsystem {
         case RAW:
         default:
             // Raw is default
-            driveSignal = new DriveSignal(commandThrottle, commandThrottle);
+            //driveSignal = new DriveSignal(commandThrottle, commandThrottle);
             break;
         }
         //SensorCollection leftEncoder = masters[LEFT].getSensorCollection();
@@ -384,7 +385,7 @@ public class Drive implements Subsystem {
 
         // Zero motor output
         for (TalonSRX master : masters) {
-            master.set(ControlMode.PercentOutput, 0);
+            //master.set(ControlMode.PercentOutput, 0);
         }
     }
 

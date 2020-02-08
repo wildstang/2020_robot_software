@@ -43,8 +43,8 @@ public class BasicDrive implements Subsystem {
     private double headingJoystickPolarity = -1.0;
 
     private boolean masterLFlip = true;
-    private boolean masterRFlip = true;
     private boolean followLFlip = true;
+    private boolean masterRFlip = true;
     private boolean followRFlip = true;
 
     public BasicDrive() {}
@@ -131,9 +131,9 @@ public class BasicDrive implements Subsystem {
             }
         }
         masterL.set(ControlMode.PercentOutput, leftDrivePolarity*leftDrive);
-        SmartDashboard.putNumber("left side", leftDrivePolarity*leftDrive);
+        SmartDashboard.putNumber("left drive output", leftDrivePolarity*leftDrive);
         masterR.set(ControlMode.PercentOutput, rightDrivePolarity*rightDrive);
-        SmartDashboard.putNumber("right side", rightDrivePolarity*rightDrive);
+        SmartDashboard.putNumber("right drive output", rightDrivePolarity*rightDrive);
     }
 
     @Override
