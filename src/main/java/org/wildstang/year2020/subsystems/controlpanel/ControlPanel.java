@@ -302,10 +302,10 @@ public class ControlPanel implements Subsystem{
             spinner.set(ControlMode.PercentOutput,spinSpeed);
         }
         //Spinner preset spins.
-        if ((presetSpins != 0) && (encoder > (presetSpins*ticksToSpin))){
+        if ((presetSpins != 0) && (encoder < (presetSpins*ticksToSpin))){
             spinner.set(ControlMode.PercentOutput,1);
         }
-        if ((presetSpins != 0) && (encoder <= (presetSpins*ticksToSpin))){
+        if ((presetSpins != 0) && (encoder >= (presetSpins*ticksToSpin))){
             spinner.set(ControlMode.PercentOutput,0);
             presetSpins = 0;
         }
