@@ -42,6 +42,9 @@ public class Shooter implements Subsystem {
 
     private Limelight limelightSubsystem;
 
+    private TalonSRX ballpathKicker;
+    private TalonSRX ballpathFeed;
+
     // Constants
     public static final double MOTOR_OUTPUT_TOLERANCE = 1.04;
     public static final double MOTOR_POSITION_TOLERANCE = 1.0;
@@ -59,8 +62,8 @@ public class Shooter implements Subsystem {
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.24, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.32, 0.0, 0.0);//same here
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);//might push these P values way up
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);//same here
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = 0.0;
@@ -119,8 +122,6 @@ public class Shooter implements Subsystem {
         shooterFollowerMotor.follow(shooterMasterMotor);
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-        shooterFollowerMotor.follow(shooterMasterMotor);
-        shooterFollowerMotor.setInverted(true);
 
         hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
@@ -129,6 +130,11 @@ public class Shooter implements Subsystem {
         hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
+
+        ballpathKicker = new TalonSRX(CANConstants.BALLPATH_KICKER);
+        ballpathKicker.set(ControlMode.PercentOutput, 1.0);
+
+        ballpathFeed = new TalonSRX(CANConstants.BALLPATH_FEED);
     }
 
     @Override
@@ -187,6 +193,12 @@ public class Shooter implements Subsystem {
         } else if (source == hoodManualAdjustment) {
             if (hoodManualOverride == true) {
                 hoodMotorOutput = hoodManualAdjustment.getValue();
+            }
+        } else if (source == fireTrigger) {
+            if (fireTrigger.getValue() > 0.75) {
+                ballpathFeed.set(ControlMode.PercentOutput, 1.0);
+            } else {
+                ballpathFeed.set(ControlMode.PercentOutput, 0.0);
             }
         }
     }
