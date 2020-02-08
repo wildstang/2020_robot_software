@@ -43,9 +43,9 @@ public class BasicDrive implements Subsystem {
     private double headingJoystickPolarity = -1.0;
 
     private boolean masterLFlip = true;
-    private boolean masterRFlip = false;
-    private boolean followLFlip = false;
-    private boolean followRFlip = false;
+    private boolean masterRFlip = true;
+    private boolean followLFlip = true;
+    private boolean followRFlip = true;
 
     public BasicDrive() {}
 
@@ -78,7 +78,9 @@ public class BasicDrive implements Subsystem {
     @Override
     public void inputUpdate(Input source) {
         commandHeading = -headingInput.getValue();
+        if (Math.abs(commandHeading)<0.15) commandHeading=0;
         commandThrottle = -throttleInput.getValue();
+        if (Math.abs(commandThrottle)<0.15) commandThrottle=0;
         isQuick = (Math.abs(quickTurnInput.getValue())>0.75);
     }
 
@@ -90,22 +92,22 @@ public class BasicDrive implements Subsystem {
         if (isQuick){
             if (commandThrottle>=0){
                 if (commandHeading>0){
-                    leftDrive = commandHeading;
-                    rightDrive = -commandHeading*(1-commandThrottle);
+                    leftDrive = -commandHeading;
+                    rightDrive = commandHeading*(1-commandThrottle);
                 } else if (commandHeading<0){
-                    rightDrive = -commandHeading;
-                    leftDrive = commandHeading*(1-commandThrottle);
+                    rightDrive = commandHeading;
+                    leftDrive = -commandHeading*(1-commandThrottle);
                 } else {
                     leftDrive = 0;
                     rightDrive = 0;
                 }
             } else if (commandThrottle<0){
                 if (commandHeading>0){
-                    rightDrive = -commandHeading;
-                    leftDrive = commandHeading*(1-commandThrottle);
+                    rightDrive = commandHeading;
+                    leftDrive = -commandHeading*(1-commandThrottle);
                 } else if (commandHeading < 0){
-                    leftDrive = commandHeading;
-                    rightDrive = -commandHeading*(1-commandThrottle);
+                    leftDrive = -commandHeading;
+                    rightDrive = commandHeading*(1-commandThrottle);
                 } else {
                     leftDrive = 0;
                     rightDrive = 0;
