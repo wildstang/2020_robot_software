@@ -83,7 +83,7 @@ public class Turret implements Subsystem {
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
 		ShootMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
 		ShootMotor2 = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
-		ShootMotor2.follow(CANConstants.LAUNCHER_TALON, FollowerType.AuxOutput1); 
+		ShootMotor2.follow(CANConstants.LAUNCHER_TALON); 
 		
 	}
 
