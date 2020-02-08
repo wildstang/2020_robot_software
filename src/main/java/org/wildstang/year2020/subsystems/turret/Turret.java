@@ -6,8 +6,7 @@ import java.lang.Math; //math stuff
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX; //motor stuff
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.CANTalon;
-import com.ctre.CANTalon.TalonControlMode;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -84,8 +83,7 @@ public class Turret implements Subsystem {
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
 		ShootMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
 		ShootMotor2 = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
-		ShootMotor2.changeControlMode(TalonControlMode.Follower);
-		ShootMotor2.set(CANConstants.LAUNCHER_TALON);
+		ShootMotor2.follow(CANConstants.LAUNCHER_TALON, FollowerType.AuxOutput1); 
 		
 	}
 
