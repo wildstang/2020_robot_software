@@ -51,16 +51,14 @@ public class Turret implements Subsystem {
 	TalonSRX turretVertical;
 	private boolean isShooterOn;
 	private double x; // a varible for the motor percent output when limelight controlled
-	private double y; // a variabke for the mtotr
-	private int mx; //  a variable for the motor percent output when manually controlled
-	private double height = 10; //Change this to the heigt difference between turret and target
+	private double y; // like x, but y.
+	private double height = 10; //Change this to the height difference between turret and target
 	private double Encoder; //what it sounds like
 	private double ConstantA = 1.2; // fine-tuning variable for when limelight controlled. 
 	@Override
 	public void init() {
         // initialize inputs and outputs	
-		//activatelime = (DigitalInput) Core.getInputManager().getInput(WSInputs.BUTTON.getName());
-        //activatelime.addInputListener(this);
+		
         aimright = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT.getName());
         aimright.addInputListener(this);
 		aimleft = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT.getName());
@@ -93,24 +91,20 @@ public class Turret implements Subsystem {
 
 	@Override
 	public void inputUpdate(Input source) {
-		if (HoodManual == source){
+		if (HoodManual == source){ //manual controls
 			Mhood = HoodManual.getValue();
 		}
 		if (TurrManual == source){
 			Mturr = TurrManual.getValue();
 		}
-		NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-		NetworkTableEntry tv = table.getEntry("tv");
-		NetworkTableEntry ty = table.getEntry("ty");
-		NetworkTableEntry tx = table.getEntry("tx");
-		if (source == autoOff){
+		if (source == autoOff){ //auto on/off button
 			limeOn = false;
 		}
-        else{ if (source == autoOn){
+        if (source == autoOn){
             limeOn = true;
 	}
-        }
-		if (LowSpeed.getValue()){
+        
+		if (LowSpeed.getValue()){ //speed chooser
 			V = MinS;
 		}
 		else{
@@ -125,7 +119,7 @@ public class Turret implements Subsystem {
 		isShooterOn = shoot.getValue();
 		
 		
-			if (aimright.getValue()){
+			if (aimright.getValue()){  //hotkeys pressed??
 				
 				aimrighton = true; 
 				limeOn = false;
@@ -153,38 +147,37 @@ public class Turret implements Subsystem {
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
 		if (limeOn && (v == 1)){
-			turretPivot.set(ControlMode.PercentOutput,position(x));
+			turretPivot.set(ControlMode.PercentOutput,position(x)); //move turret to point at target
 		}
 		if (limeOn && (v==0)){
-			turretPivot.set(ControlMode.PercentOutput,0.0);
+			turretPivot.set(ControlMode.PercentOutput,0.0); //but not when target out of site
 		}
 		if (!limeOn){
-			turretPivot.set(ControlMode.PercentOutput,position(Mturr*27));
+			turretPivot.set(ControlMode.PercentOutput,position(Mturr*27)); //manual control
 		}
 		if (aimrighton){
-			turretPivot.set(ControlMode.PercentOutput,position(((1024-Encoder)/151.703)));
+			turretPivot.set(ControlMode.PercentOutput,position(((1024-Encoder)/151.703))); //position control
 			if ((position((1024-Encoder)/151.703)<0.05)&&(position((1024-Encoder)/151.703)>-0.05)){
 				aimrighton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
 		if (aimlefton){
-			turretPivot.set(ControlMode.PercentOutput,position(((-1024-Encoder)/151.703)));
+			turretPivot.set(ControlMode.PercentOutput,position(((-1024-Encoder)/151.703))); //other position control
 			if ((position((-1024-Encoder)/151.703)<0.05)&&(position((-1024-Encoder)/151.703)>-0.05)){
 				aimlefton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
 		if (limeOn){
-		turretVertical.set(ControlMode.PercentOutput,position(Encoder-aim(y)));
+		turretVertical.set(ControlMode.PercentOutput,position(Encoder-aim(y))); //vertical aiming
 		}
 		else {
-			turretVertical.set(ControlMode.PercentOutput,position(Mhood*27));
+			turretVertical.set(ControlMode.PercentOutput,position(Mhood*27));// manual aiming
 		}
 		
-		
 		if (isShooterOn == true){
-			ShootMotor.set(ControlMode.Velocity,V);
+			ShootMotor.set(ControlMode.Velocity,V); //fire (or don't)
 				}
 				else{
 		ShootMotor.set(ControlMode.Velocity,0);
