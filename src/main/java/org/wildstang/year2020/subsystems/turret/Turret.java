@@ -6,6 +6,7 @@ import java.lang.Math; //math stuff
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX; //motor stuff
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.CANTalon;
 import com.ctre.CANTalon.TalonControlMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
