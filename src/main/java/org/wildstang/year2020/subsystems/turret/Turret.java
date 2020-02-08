@@ -89,8 +89,8 @@ public class Turret implements Subsystem {
 	@Override
 	public void resetState() {
         // set default values
-	TurretPivot.getSensorCollection().setQuadraturePosition(0, 0);
-	TurretVertical.getSensorCollection().setQuadraturePosition(0, 0);
+	/*TurretPivot.getSensorCollection().setQuadraturePosition(0, 0);
+	TurretVertical.getSensorCollection().setQuadraturePosition(0, 0);*/
 	}
 
 	@Override
