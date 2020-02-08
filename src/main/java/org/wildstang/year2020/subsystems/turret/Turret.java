@@ -38,7 +38,8 @@ public class Turret implements Subsystem {
 	private boolean limeOn = false; // is it being manually controlled? 
 	private boolean aimlefton; //is left trigger pressed?
 	private boolean aimrighton; // is right trigger pressed?
-	private double v; // a limelight vairible for whether or not valid target is in sight
+	private double v; //used in computing launch angle
+	private double insight;// a limelight vairible for whether or not valid target is in sight
 	private double V; //shooter speed
 	private double MaxS = 300; //shooter max speed
 	private double MinS = 10;//shooter min speed
@@ -47,7 +48,7 @@ public class Turret implements Subsystem {
     // talons
     TalonSRX turretPivot; 
 	TalonSRX ShootMotor; 
-	TalonSRX ShootMotor2; 
+	TalonSRX ShootMotor2;    
 	TalonSRX turretVertical;
 	private boolean isShooterOn;
 	private double x; // a varible for the motor percent output when limelight controlled
@@ -143,15 +144,15 @@ public class Turret implements Subsystem {
 		NetworkTableEntry ty = table.getEntry("ty");
 		NetworkTableEntry tv = table.getEntry("tv");
 		x = tx.getDouble(0.0);
-		v = tv.getDouble(0.0);
+		insight = tv.getDouble(0.0);
 		y = ty.getDouble(0.0);
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
 		HorzEncoder = turretPivot.getSelectedSensorPosition();
-		if (limeOn && (v == 1)){
+		if (limeOn && (insight == 1)){
 			turretPivot.set(ControlMode.PercentOutput,position(x)); //move turret to point at target
 		}
-		if (limeOn && (v==0)){
+		if (limeOn && (insight == 0)){
 			turretPivot.set(ControlMode.PercentOutput,0.0); //but not when target out of site
 		}
 		if (!limeOn){
