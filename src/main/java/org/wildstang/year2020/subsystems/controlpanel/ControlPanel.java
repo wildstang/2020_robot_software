@@ -298,7 +298,7 @@ public class ControlPanel implements Subsystem{
         if ((spinSpeed == 1) || (spinSpeed == -1)){//if manual is on
             spinner.set(ControlMode.PercentOutput,spinSpeed);
         }
-        if ((spinSpeed == 0) && (presetSpins == 0)){//if manual and presetspins is off
+        if ((spinSpeed == 0) && (presetSpins == 0) && !colorSpin){//if manual and presetspins is off
             spinner.set(ControlMode.PercentOutput,spinSpeed);
         }
         //Spinner preset spins.
