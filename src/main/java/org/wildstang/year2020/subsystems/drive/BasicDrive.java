@@ -79,8 +79,29 @@ public class BasicDrive implements Subsystem {
     @Override
     public void update() {
         if (isQuick){
-            leftDrive = commandHeading/commandThrottle;
-            rightDrive = -commandHeading/commandThrottle;
+            if (commandThrottle>=0){
+                if (commandHeading>0){
+                    leftDrive = commandHeading;
+                    rightDrive = -commandHeading*(1-commandThrottle);
+                } else if (commandHeading<0){
+                    rightDrive = -commandHeading;
+                    leftDrive = commandHeading*(1-commandThrottle);
+                } else {
+                    leftDrive = 0;
+                    rightDrive = 0;
+                }
+            } else if (commandThrottle<0){
+                if (commandHeading>0){
+                    rightDrive = -commandHeading;
+                    leftDrive = commandHeading*(1-commandThrottle);
+                } else if (commandHeading < 0){
+                    leftDrive = commandHeading;
+                    rightDrive = -commandHeading*(1-commandThrottle);
+                } else {
+                    leftDrive = 0;
+                    rightDrive = 0;
+                }
+            }
         } else {
             leftDrive = commandThrottle - commandHeading;
             rightDrive = commandThrottle + commandHeading;
