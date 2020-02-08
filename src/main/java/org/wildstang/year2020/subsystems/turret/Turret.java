@@ -1,19 +1,24 @@
 package org.wildstang.year2020.subsystems.turret;
+import org.wildstang.year2020.robot.CANConstants;
+import org.wildstang.year2020.robot.WSInputs;
 
-import java.lang.Math;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import java.lang.Math; //math stuff
+
+import com.ctre.phoenix.motorcontrol.can.TalonSRX; //motor stuff
 import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
+
+import edu.wpi.first.networktables.NetworkTable; //limelight stuff
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import org.wildstang.framework.io.Input;
+
+import org.wildstang.framework.io.Input; //input stuff
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.framework.core.Core;
-import org.wildstang.year2020.robot.CANConstants;
-import org.wildstang.year2020.robot.WSInputs;
+
 
 
 public class Turret implements Subsystem {
@@ -77,6 +82,8 @@ public class Turret implements Subsystem {
 		turretVertical = new TalonSRX(CANConstants.HOOD_MOTOR);
 		ShootMotor = new TalonSRX(CANConstants.LAUNCHER_TALON);
 		ShootMotor2 = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
+		ShootMotor2.changeControlMode(TalonControlMode.Follower);
+		ShootMotor2.set(CANConstants.LAUNCHER_TALON);
 		
 	}
 
@@ -120,16 +127,12 @@ public class Turret implements Subsystem {
 		
 		
 			if (aimright.getValue()){
-				if (aimlefton){
-				aimlefton = false; 
-				}
+				
 				aimrighton = true; 
 				limeOn = false;
 			}
 			if (aimleft.getValue()){
-				if (aimrighton){
-				aimrighton = false; 
-				}
+				
 				aimlefton = true;
 				limeOn = false;
 			}
@@ -151,39 +154,40 @@ public class Turret implements Subsystem {
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
 		if (limeOn && (v == 1)){
-			turretPivot.set(ControlMode.PercentOutput,F(x));
+			turretPivot.set(ControlMode.PercentOutput,position(x));
+		}
+		if (limeOn && (v==0)){
+			turretPivot.set(ControlMode.PercentOutput,0.0);
+		}
+		if (!limeOn){
+			turretPivot.set(ControlMode.PercentOutput,position(Mturr*27));
 		}
 		if (aimrighton){
-			turretPivot.set(ControlMode.PercentOutput,F(((1024-Encoder)/151.703)));
-			if ((F((1024-Encoder)/151.703)<0.05)&&(F((1024-Encoder)/151.703)>-0.05)){
+			turretPivot.set(ControlMode.PercentOutput,position(((1024-Encoder)/151.703)));
+			if ((position((1024-Encoder)/151.703)<0.05)&&(position((1024-Encoder)/151.703)>-0.05)){
 				aimrighton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
 		if (aimlefton){
-			turretPivot.set(ControlMode.PercentOutput,F(((-1024-Encoder)/151.703)));
-			if ((F((-1024-Encoder)/151.703)<0.05)&&(F((-1024-Encoder)/151.703)>-0.05)){
+			turretPivot.set(ControlMode.PercentOutput,position(((-1024-Encoder)/151.703)));
+			if ((position((-1024-Encoder)/151.703)<0.05)&&(position((-1024-Encoder)/151.703)>-0.05)){
 				aimlefton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
-		if (!limeOn){
-			turretPivot.set(ControlMode.PercentOutput,F(Mturr*27));
-		}
 		if (limeOn){
-		turretVertical.set(ControlMode.PercentOutput,F(Encoder-Func(y)));
+		turretVertical.set(ControlMode.PercentOutput,position(Encoder-aim(y)));
 		}
 		else {
-			turretVertical.set(ControlMode.PercentOutput,F(Mhood*27));
+			turretVertical.set(ControlMode.PercentOutput,position(Mhood*27));
 		}
 		
 		
 		if (isShooterOn == true){
 			ShootMotor.set(ControlMode.Velocity,V);
-			ShootMotor2.set(ControlMode.Velocity,V);
 				}
 				else{
-		ShootMotor2.set(ControlMode.Velocity,0);
 		ShootMotor.set(ControlMode.Velocity,0);
 				}
 	}
@@ -192,15 +196,15 @@ public class Turret implements Subsystem {
 	public String getName() {
 		return "Turret";
 	}
-	private double F(double k){
-		return ((Math.pow(Math.abs(k/27),ConstantA))*(Math.abs(k)/k));
+	private double position(double k){
+		return ((Math.pow(Math.abs(k/27),ConstantA))*(Math.abs(k)/k)); //to help with motor angleing
 	}
 		// Math.pow(a,b) = 
 	@Override
 	public void selfTest() {
         // we don't really test... we probably should
 	}
-	 private double Func(double c){
+	 private double aim(double c){
         double h = height/Math.tan(c);
 	double v = V;
         return (Math.asin((1-Math.sqrt(1-(8*Math.pow(c,2)*(Math.pow(v,2))-(-9.8))*c*Math.pow(h,2))))/(2*c)); // the angle calculator function goes here
