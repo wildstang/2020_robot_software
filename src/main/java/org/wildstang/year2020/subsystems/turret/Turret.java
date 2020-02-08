@@ -89,6 +89,8 @@ public class Turret implements Subsystem {
 	@Override
 	public void resetState() {
         // set default values
+	TurretPivot.getSensorCollection().setQuadraturePosition(0, 0);
+	TurretVertical.getSensorCollection().setQuadraturePosition(0, 0);
 	}
 
 	@Override
@@ -145,7 +147,7 @@ public class Turret implements Subsystem {
 		NetworkTableEntry tv = table.getEntry("tv");
 		x = tx.getDouble(0.0);
 		insight = tv.getDouble(0.0);
-		y = ty.getDouble(0.0);
+		y = ty.getDouble(0.0)+27; //this is for 45 degree angle. change added number accordingly.
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
 		HorzEncoder = turretPivot.getSelectedSensorPosition();
@@ -173,7 +175,7 @@ public class Turret implements Subsystem {
 			}
 		} 
 		if (limeOn){
-		turretVertical.set(ControlMode.PercentOutput,position(Encoder-aim(y))); //vertical aiming
+		turretVertical.set(ControlMode.PercentOutput,position(Encoder-aim(y/2))); //vertical aiming
 		}
 		else {
 			turretVertical.set(ControlMode.PercentOutput,position(Mhood*27));// manual aiming
