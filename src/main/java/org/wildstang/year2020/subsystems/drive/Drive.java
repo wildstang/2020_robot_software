@@ -199,8 +199,9 @@ public class Drive implements Subsystem {
             driveSignal = cheesyHelper.cheesyDrive(effectiveThrottle, commandHeading, isQuick);
             SmartDashboard.putNumber("driveSignal.left", driveSignal.leftMotor);
             SmartDashboard.putNumber("driveSignal.right", driveSignal.rightMotor);
-            if (commandAntiTurbo) setMotorSpeeds(driveSignal, DriveConstants.ANTI_TURBO_FACTOR);
-            else setMotorSpeeds(driveSignal, (1-DriveConstants.TURBO_FACTOR) + turboPower*DriveConstants.TURBO_FACTOR);
+            setMotorSpeeds(driveSignal, 1.0);
+            // if (commandAntiTurbo) setMotorSpeeds(driveSignal, DriveConstants.ANTI_TURBO_FACTOR);
+            // else setMotorSpeeds(driveSignal, (1-DriveConstants.TURBO_FACTOR) + turboPower*DriveConstants.TURBO_FACTOR);
             break;
         case FULL_BRAKE:
             break;
@@ -430,6 +431,7 @@ public class Drive implements Subsystem {
     private void setMotorSpeeds(DriveSignal speeds, double modifier) {
         masters[LEFT].set(ControlMode.PercentOutput, speeds.leftMotor*modifier);
         masters[RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor*modifier);
+        SmartDashboard.putNumber("2/8 testing", speeds.leftMotor*modifier);
         SmartDashboard.putNumber("master left",masters[LEFT].getMotorOutputPercent());
         SmartDashboard.putNumber("master right",masters[RIGHT].getMotorOutputPercent());
         SmartDashboard.putNumber("follow left",followers[LEFT][0].getMotorOutputPercent());
