@@ -13,7 +13,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 /**
  * Class:       Ballpath.java
  * Inputs:      Right trigger, "A" and "Y" buttons
- * Outputs:     3 talons (feed, kicker, intake)
+ * Outputs:     4 talons (feed, feed2, kicker, intake)
  * Description: The ballpath subsystem helps feed the power cells in the hopper to the turret.
  *              The intake motor pulls the power cells into the ballpath which then moves balls throught it with the feed motor.
  *              The right trigger controls both of these motors simultaneously and the "Y" button reverses their direction.
@@ -23,8 +23,10 @@ public class Ballpath implements Subsystem {
 
     // Motors
     private TalonSRX feedMotor;
+    private TalonSRX feedMotor2;
     private TalonSRX kickerMotor;
     private TalonSRX intakeMotor;
+
 
     // Motor Speeds
     private double feedMotorSpeed;
@@ -49,17 +51,17 @@ public class Ballpath implements Subsystem {
         if (rightTrigger.getValue() > 0.75) {
             // run the hopper and kicker motors at full power
             feedMotorSpeed = FULL_SPEED;
-            kickerMotorSpeed = FULL_SPEED;
+            // kickerMotorSpeed = FULL_SPEED;
             
         } else if (yButton.getValue()) {
             // run the hopper and kicker motors backwards at ~40% power
             feedMotorSpeed = REVERSE_SPEED;
-            kickerMotorSpeed = REVERSE_SPEED;
+           // kickerMotorSpeed = REVERSE_SPEED;
 
         } else {
             // don't run the motors if neither button is pressed
             feedMotorSpeed = 0;
-            kickerMotorSpeed = 0;
+           // kickerMotorSpeed = 0;
         }
 
         if (aButton.getValue()) {
@@ -116,6 +118,8 @@ public class Ballpath implements Subsystem {
 
     private void initOutputs() {
         feedMotor = new TalonSRX(CANConstants.BALLPATH_FEED);
+        feedMotor2 = new TalonSRX(CANConstants.BALLPATH_FEED_2);
+        feedMotor2.follow(feedMotor);
         kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
         intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
     }
@@ -123,7 +127,7 @@ public class Ballpath implements Subsystem {
     @Override
     public void resetState() {
         feedMotorSpeed = 0;
-        kickerMotorSpeed = 0;
+        kickerMotorSpeed = FULL_SPEED;
         intakeMotorSpeed = 0;
     }
 

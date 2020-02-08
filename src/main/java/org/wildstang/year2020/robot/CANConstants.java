@@ -13,6 +13,7 @@ public final class CANConstants {
 
     // TODO put in correct IDs
     public static final int BALLPATH_FEED = 9;
+    public static final int BALLPATH_FEED_2 = 16;
     public static final int BALLPATH_KICKER = 10;
     public static final int BALLPATH_INTAKE = 11;
     public static final int CLIMB_VICTOR_1 = 7;
