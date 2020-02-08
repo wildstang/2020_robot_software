@@ -54,6 +54,7 @@ public class Turret implements Subsystem {
 	private double y; // like x, but y.
 	private double height = 10; //Change this to the height difference between turret and target
 	private double Encoder; //what it sounds like
+	private double HorzEncoder;
 	private double ConstantA = 1.2; // fine-tuning variable for when limelight controlled. 
 	@Override
 	public void init() {
@@ -146,6 +147,7 @@ public class Turret implements Subsystem {
 		y = ty.getDouble(0.0);
 		//turn turret
 		Encoder = turretVertical.getSelectedSensorPosition();
+		HorzEncoder = turretPivot.getSelectedSensorPosition();
 		if (limeOn && (v == 1)){
 			turretPivot.set(ControlMode.PercentOutput,position(x)); //move turret to point at target
 		}
@@ -156,15 +158,15 @@ public class Turret implements Subsystem {
 			turretPivot.set(ControlMode.PercentOutput,position(Mturr*27)); //manual control
 		}
 		if (aimrighton){
-			turretPivot.set(ControlMode.PercentOutput,position(((1024-Encoder)/151.703))); //position control
-			if ((position((1024-Encoder)/151.703)<0.05)&&(position((1024-Encoder)/151.703)>-0.05)){
+			turretPivot.set(ControlMode.PercentOutput,position(((1024-HorzEncoder)/151.703))); //position control
+			if ((position((1024-HorzEncoder)/151.703)<0.05)&&(position((1024-HorzEncoder)/151.703)>-0.05)){
 				aimrighton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
 		} 
 		if (aimlefton){
-			turretPivot.set(ControlMode.PercentOutput,position(((-1024-Encoder)/151.703))); //other position control
-			if ((position((-1024-Encoder)/151.703)<0.05)&&(position((-1024-Encoder)/151.703)>-0.05)){
+			turretPivot.set(ControlMode.PercentOutput,position(((-1024-HorzEncoder)/151.703))); //other position control
+			if ((position((-1024-HorzEncoder)/151.703)<0.05)&&(position((-1024-HorzEncoder)/151.703)>-0.05)){
 				aimlefton = false;
 				turretPivot.set(ControlMode.PercentOutput,0.0);
 			}
