@@ -1,4 +1,7 @@
 package org.wildstang.year2020.subsystems.climb;
+
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
@@ -6,9 +9,6 @@ import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
-
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 
 public class Climb implements Subsystem {
 
