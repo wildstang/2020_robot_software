@@ -7,6 +7,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
@@ -24,9 +25,9 @@ public class Turret implements Subsystem {
 
     // Outputs
     private TalonSRX turretMotor;
-    private TalonSRX kickerMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.1, 0.0, 0.0);
 
     // Constants
     public static final double kP = -0.07;
@@ -41,8 +42,7 @@ public class Turret implements Subsystem {
     // Logic
     private boolean aimModeEnabled;
     private boolean turretAimed;
-    private double lastSetpoint;
-    private double manualSpeed;
+    private double turretTarget;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -68,14 +68,15 @@ public class Turret implements Subsystem {
     private void initOutputs() {
         turretMotor = new TalonSRX(CANConstants.TURRET_TALON);
 
-        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
-        kickerMotor.set(ControlMode.PercentOutput, -1.0);
-        
         // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
         turretMotor.setInverted(false);
         turretMotor.setSensorPhase(true);
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
+        turretMotor.config_kF(0, TURRET_PID_CONSTANTS.f);
+        turretMotor.config_kP(0, TURRET_PID_CONSTANTS.p);
+        turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);
+        turretMotor.config_kD(0, TURRET_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
         shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
@@ -86,31 +87,30 @@ public class Turret implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
             if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
+                turretTarget = turretMotor.getSelectedSensorPosition();
                 aimModeEnabled = true;
-                lastSetpoint = turretMotor.getSelectedSensorPosition();
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
-                turretMotor.set(ControlMode.Position, lastSetpoint);
             }
         }
 
         if (source == backPositionButton) {
-            if (backPositionButton.getValue() == true) {
-                turretMotor.set(ControlMode.Position, 0.0);
+            if (backPositionButton.getValue()) {
+                turretTarget = 0.0;
             }
         }
 
         if (source == frontPositionButton) {
-            if (frontPositionButton.getValue() == true) {
-                turretMotor.set(ControlMode.Position, (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH);
+            if (frontPositionButton.getValue()) {
+                turretTarget = (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH;
             }
         }
         if (Math.abs(manualTurret.getValue())>0.25){
-            manualSpeed = manualTurret.getValue();
-        } else{
-            manualSpeed = 0;
-        }
+            if (frontPositionButton.getValue() && backPositionButton.getValue() && aimModeEnabled){
+                turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
+            }
+        } 
     }
 
     @Override
@@ -122,6 +122,15 @@ public class Turret implements Subsystem {
             SmartDashboard.putNumber("Adjusted TY", tyValue);
 
             double headingError = -tyValue;
+            // if (shooterSubsystem.willAimToInnerGoal()){
+            //     TODO: calculate the new offset from the middle of the outer goal to the middle of the inner goal
+            //     double horizontalAngleOffsetSum = 0.0;
+            //     for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
+            //         horizontalAngleOffsetSum += trailingHorizontalAngleOffsets.get(i);
+            //     }
+            //     double netHorizontalAngleOffset = horizontalAngleOffsetSum / (double) trailingHorizontalAngleOffsets.size();
+            //     tyValue += some math involving netHorizontalAngleOffset
+            // }
             double rotationalAdjustment = 0.0;
 
             if (Math.abs(tyValue) > 1.0) { // Pull Turret in, not close enough
@@ -138,8 +147,10 @@ public class Turret implements Subsystem {
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } else {
-            turretMotor.set(ControlMode.PercentOutput, manualSpeed);
+            turretMotor.set(ControlMode.Position, turretTarget);
         }
+        SmartDashboard.putNumber("Turret PID target", turretTarget);
+        SmartDashboard.putNumber("Turret encoder", turretMotor.getSensorCollection().getQuadraturePosition());
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
         boolean shooterMotorSpeedSet = shooterSubsystem.isShooterMotorSpeedSetForAimMode();
@@ -155,7 +166,7 @@ public class Turret implements Subsystem {
     public void resetState() {
         aimModeEnabled = false;
         turretAimed = false;
-        lastSetpoint = 0.0;
+        turretTarget = 0.0;
     }
 
     @Override
