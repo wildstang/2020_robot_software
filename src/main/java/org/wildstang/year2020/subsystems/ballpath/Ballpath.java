@@ -80,7 +80,7 @@ public class Ballpath implements Subsystem{
 
     @Override
     public void update() {
-        kickerMotorSpeed = -0.7*FULL_SPEED;
+        kickerMotorSpeed = 0.7*FULL_SPEED;
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);

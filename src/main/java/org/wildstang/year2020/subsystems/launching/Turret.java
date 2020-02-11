@@ -27,11 +27,11 @@ public class Turret implements Subsystem {
     private TalonSRX turretMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
-    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1);
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1); // 0.0 0.3 0.0 0.1
 
     // Constants
-    public static final double kP = -0.07;
-    public static final double minimumAdjustmentCommand = 0.05;
+    public static final double kP = -0.05; // -.07
+    public static final double minimumAdjustmentCommand = 0.025; // 0.05
 
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
@@ -117,10 +117,12 @@ public class Turret implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
+        SmartDashboard.putNumber("Adjusted TY", limelightSubsystem.getTYValue() - 0.8);
+        SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
         if (aimModeEnabled == true) {
             double tyValue = limelightSubsystem.getTYValue() - 0.8;
 
-            SmartDashboard.putNumber("Adjusted TY", tyValue);
+            
 
             double headingError = -tyValue;
             // if (shooterSubsystem.willAimToInnerGoal()){
@@ -146,7 +148,7 @@ public class Turret implements Subsystem {
 
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
-            turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
+            turretMotor.set(ControlMode.PercentOutput, -1.0 * rotationalAdjustment);
         } else {
             turretMotor.set(ControlMode.Position, turretTarget);
         }

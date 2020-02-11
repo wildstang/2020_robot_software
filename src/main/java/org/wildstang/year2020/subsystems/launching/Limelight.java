@@ -12,6 +12,7 @@ import org.wildstang.year2020.robot.WSInputs;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Limelight implements Subsystem {
 
@@ -179,6 +180,7 @@ public class Limelight implements Subsystem {
             trailingVerticalAngleOffsets.add(verticalAngleOffset);
             lastValueAddedTimestamp = System.currentTimeMillis();
         }
+        SmartDashboard.putNumber("Target Distance", getDistanceToTarget());
     }
 
     @Override
