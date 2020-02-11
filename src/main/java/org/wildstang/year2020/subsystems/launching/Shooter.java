@@ -110,10 +110,11 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.config_kI(1, AIMING_SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(1, AIMING_SHOOTER_PID_CONSTANTS.d);
 
-        shooterMasterMotor.setInverted(true);
+        shooterMasterMotor.setInverted(false);
 
         shooterFollowerMotor = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
         shooterFollowerMotor.follow(shooterMasterMotor);
+        shooterFollowerMotor.setInverted(true);
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
 
@@ -132,6 +133,7 @@ public class Shooter implements Subsystem {
         if (hoodManualOverride == true) {
             hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
+        SmartDashboard.putNumber("Hood moving", hoodMotorOutput * HOOD_OUTPUT_SCALE);
 
         if (aimModeEnabled){
             shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
@@ -139,7 +141,9 @@ public class Shooter implements Subsystem {
         } else {
             shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
             //hoodMotor.set(ControlMode.Position, 0.0); replace later with ma3
-            hoodMotor.set(ControlMode.PercentOutput, 0.0);
+            if (!hoodManualOverride){
+                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+            }
         }
         double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
         SmartDashboard.putNumber("Shooter Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
@@ -173,12 +177,12 @@ public class Shooter implements Subsystem {
             }
         } else if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
             hoodManualOverride = !hoodManualOverride;
-            SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
         } else if (source == hoodManualAdjustment) {
             if (hoodManualOverride == true) {
                 hoodMotorOutput = hoodManualAdjustment.getValue();
             }
         } 
+        SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
     }
 
     @Override

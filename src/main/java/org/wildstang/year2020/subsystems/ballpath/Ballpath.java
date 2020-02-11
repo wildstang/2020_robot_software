@@ -34,7 +34,7 @@ public class Ballpath implements Subsystem{
     @Override
     public void inputUpdate(Input source) {
         //set feed and hopper motor speeds
-        if (rightTrigger.getValue()>0.75){
+        if (Math.abs(rightTrigger.getValue())>0.75){
             feedMotorSpeed = FULL_SPEED;
         } else if (yButton.getValue()){
             feedMotorSpeed = REVERSE_SPEED;
@@ -71,6 +71,7 @@ public class Ballpath implements Subsystem{
         hopperMotor.follow(feedMotor);
         kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
         intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
+        kickerMotor.setInverted(true);
     }
 
     @Override
@@ -79,6 +80,7 @@ public class Ballpath implements Subsystem{
 
     @Override
     public void update() {
+        kickerMotorSpeed = -0.7*FULL_SPEED;
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);

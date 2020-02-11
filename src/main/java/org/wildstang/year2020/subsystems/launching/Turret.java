@@ -27,7 +27,7 @@ public class Turret implements Subsystem {
     private TalonSRX turretMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
-    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.1, 0.0, 0.0);
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1);
 
     // Constants
     public static final double kP = -0.07;
@@ -70,7 +70,7 @@ public class Turret implements Subsystem {
 
         // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
         turretMotor.setInverted(false);
-        turretMotor.setSensorPhase(true);
+        turretMotor.setSensorPhase(false);
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
         turretMotor.config_kF(0, TURRET_PID_CONSTANTS.f);
@@ -86,7 +86,7 @@ public class Turret implements Subsystem {
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
+            if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
                 turretTarget = turretMotor.getSelectedSensorPosition();
                 aimModeEnabled = true;
             } else { // Exiting aim mode
@@ -97,17 +97,18 @@ public class Turret implements Subsystem {
 
         if (source == backPositionButton) {
             if (backPositionButton.getValue()) {
-                turretTarget = 0.0;
+                turretTarget = -29300;
             }
         }
 
         if (source == frontPositionButton) {
             if (frontPositionButton.getValue()) {
-                turretTarget = (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH;
+                turretTarget = -9800;
+                // turretTarget = (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH;
             }
         }
         if (Math.abs(manualTurret.getValue())>0.25){
-            if (frontPositionButton.getValue() && backPositionButton.getValue() && aimModeEnabled){
+            if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
                 turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
             }
         } 
@@ -167,6 +168,7 @@ public class Turret implements Subsystem {
         aimModeEnabled = false;
         turretAimed = false;
         turretTarget = 0.0;
+        turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
     }
 
     @Override
