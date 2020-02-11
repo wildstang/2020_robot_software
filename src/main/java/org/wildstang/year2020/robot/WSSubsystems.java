@@ -23,6 +23,8 @@ public enum WSSubsystems implements Subsystems {
     SHOOTER("Shooter", Shooter.class),
     TURRET("Turret", Turret.class);
     
+    DRIVEBASE("Drive Base", Drive.class);
+    //TEST("Test", TestSubsystem.class)
 
     private String name;
 
