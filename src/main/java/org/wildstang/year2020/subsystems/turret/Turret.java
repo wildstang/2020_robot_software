@@ -175,7 +175,7 @@ public class Turret implements Subsystem {
 			}
 		} 
 		if (limeOn){
-		turretVertical.set(ControlMode.PercentOutput,position(Encoder-(aim(y/2)*4096))); //vertical aiming
+		turretVertical.set(ControlMode.PercentOutput,position(Encoder-((aim(y/2)/6.28)*4096))); //vertical aiming
 		}
 		else {
 			turretVertical.set(ControlMode.PercentOutput,position(Mhood*27));// manual aiming
