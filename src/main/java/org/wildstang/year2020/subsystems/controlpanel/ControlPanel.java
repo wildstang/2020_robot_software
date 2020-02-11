@@ -89,35 +89,35 @@ public class ControlPanel implements Subsystem{
     private void getAngle(double x, double y){ 
         if (x != 0.0){
             half = Math.abs(x)/x; //-1 if on left side, 1 if on right
-            angle = Math.atan(y/x); //angle from x-axis
+            angle = Math.toDegrees(Math.atan(y/x)); //angle from x-axis
         }
     }
     private String getColor(double angle,double half){
         if (half == 1){
-            if ((0<angle)&&(angle<(Math.PI/4))){
+            if ((0<angle)&&(angle<(45))){
                 color = "green";
             }
-            if (((Math.PI/4)<angle)&&(angle<(Math.PI/2))){
+            if (((45)<angle)&&(angle<(90))){
                 color = "blue";
             }
-            if ((0>angle)&&(angle>-(Math.PI/4))){
+            if ((0>angle)&&(angle>-(45))){
                 color = "red";
             }
-            if ((-(Math.PI/4)>angle)&&(angle>-(Math.PI/2))){
+            if ((-(45)>angle)&&(angle>-(90))){
                 color = "yellow";
             }
         }
         else{
-            if ((0<angle)&&(angle<(Math.PI/4))){
+            if ((0<angle)&&(angle<(45))){
                 color = "red";
             }
-            if (((Math.PI/4)<angle)&&(angle<(Math.PI/2))){
+            if (((45)<angle)&&(angle<(90))){
                 color = "yellow";
             }
-            if ((0>angle)&&(angle>-(Math.PI/4))){
+            if ((0>angle)&&(angle>-(45))){
                 color = "green";
             }
-            if ((-(Math.PI/4)>angle)&&(angle>-(Math.PI/2))){
+            if ((-(45)>angle)&&(angle>-(90))){
                 color = "blue";
             }
         }
