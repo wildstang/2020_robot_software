@@ -413,7 +413,7 @@ public class Drive implements Subsystem {
     private void initFollower(int side, TalonSRX follower) {
         TalonSRX master = masters[side];
         if (side == LEFT) {
-            follower.setInverted(!DriveConstants.LEFT_DRIVE_INVERTED);
+            follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
         } else {
             follower.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
         }
@@ -429,6 +429,7 @@ public class Drive implements Subsystem {
     }
 
     private void setMotorSpeeds(DriveSignal speeds, double modifier) {
+        SmartDashboard.putNumber("2/10 testing", speeds.leftMotor*modifier);
         masters[LEFT].set(ControlMode.PercentOutput, speeds.leftMotor*modifier);
         masters[RIGHT].set(ControlMode.PercentOutput, speeds.rightMotor*modifier);
         SmartDashboard.putNumber("2/8 testing", speeds.leftMotor*modifier);
