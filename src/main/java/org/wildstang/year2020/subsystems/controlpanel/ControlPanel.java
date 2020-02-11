@@ -94,30 +94,30 @@ public class ControlPanel implements Subsystem{
     }
     private String getColor(double angle,double half){
         if (half == 1){
-            if ((0<angle)&&(angle<45)){
+            if ((0<angle)&&(angle<(Math.PI/4))){
                 color = "green";
             }
-            if ((45<angle)&&(angle<90)){
+            if (((Math.PI/4)<angle)&&(angle<(Math.PI/2))){
                 color = "blue";
             }
-            if ((0>angle)&&(angle>-45)){
+            if ((0>angle)&&(angle>-(Math.PI/4))){
                 color = "red";
             }
-            if ((-45>angle)&&(angle>-90)){
+            if ((-(Math.PI/4)>angle)&&(angle>-(Math.PI/2))){
                 color = "yellow";
             }
         }
         else{
-            if ((0<angle)&&(angle<45)){
+            if ((0<angle)&&(angle<(Math.PI/4))){
                 color = "red";
             }
-            if ((45<angle)&&(angle<90)){
+            if (((Math.PI/4)<angle)&&(angle<(Math.PI/2))){
                 color = "yellow";
             }
-            if ((0>angle)&&(angle>-45)){
+            if ((0>angle)&&(angle>-(Math.PI/4))){
                 color = "green";
             }
-            if ((-45>angle)&&(angle>-90)){
+            if ((-(Math.PI/4)>angle)&&(angle>-(Math.PI/2))){
                 color = "blue";
             }
         }
