@@ -29,7 +29,12 @@ public class Hood implements Subsystem {
     TalonSRX hoodMotor;
 
     int hoodSpeed;
+<<<<<<< HEAD
+    double speedScale = 0.25;
+    
+=======
     double speedScale = 1.0;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
 
     // initializes the subsystem
     public void init() {

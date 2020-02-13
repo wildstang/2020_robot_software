@@ -14,6 +14,7 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.interfaces.*; 
 
 public class Turret implements Subsystem {
 
@@ -21,7 +22,10 @@ public class Turret implements Subsystem {
     private AnalogInput aimModeTrigger;
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
+    private DigitalInput faceWall; 
     private AnalogInput manualTurret;
+    private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
+    private DigitalInput pointBlankShot; 
     private DigitalInput turretEncoderResetButton;
 
     // Outputs
@@ -36,13 +40,19 @@ public class Turret implements Subsystem {
 
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
-    public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
+    public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;     
 
     public static final double TURRET_BASE_CIRCUMFERENCE = 8.0;
 
+    public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360; 
+
     // Logic
     private boolean aimModeEnabled;
+    private boolean wallTracking;  
     private boolean turretAimed;
+    private double lastSetpoint;
+    private double manualSpeed;
+    private double wallDirection; 
     private double turretTarget;
 
     private boolean turretEncoderResetPressed;
@@ -66,6 +76,8 @@ public class Turret implements Subsystem {
         frontPositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
+        faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
+        faceWall.addInputListener(this);
         turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
         turretEncoderResetButton.addInputListener(this);
     }
@@ -98,6 +110,9 @@ public class Turret implements Subsystem {
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
+                if (!wallTracking) {
+                    turretMotor.set(ControlMode.Position, lastSetpoint);
+                }
             }
         }
 
@@ -113,6 +128,16 @@ public class Turret implements Subsystem {
                 // turretTarget = (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH;
             }
         }
+
+        if (source == faceWall) {
+            if(faceWall.getValue()) {
+                wallTracking = true;
+            }
+            else {
+                wallTracking = false;
+            }
+        }
+
         if (Math.abs(manualTurret.getValue())>0.25){
             if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
                 turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
@@ -164,8 +189,18 @@ public class Turret implements Subsystem {
 
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
-            turretMotor.set(ControlMode.PercentOutput, 1.0 * rotationalAdjustment);
-        } else {
+            turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
+        } 
+        else if(wallTracking && !aimModeEnabled) {
+            if (gyroSensor.getAngle() < 180) {
+                wallDirection = 90 + gyroSensor.getAngle();    
+            }
+            if(gyroSensor.getAngle() > 270) {
+                wallDirection = gyroSensor.getAngle() - 270;
+            }
+            
+            turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
+        } else {    
             turretMotor.set(ControlMode.Position, turretTarget);
         }
         SmartDashboard.putNumber("Turret PID target", turretTarget);
@@ -191,6 +226,8 @@ public class Turret implements Subsystem {
     public void resetState() {
         aimModeEnabled = false;
         turretAimed = false;
+        lastSetpoint = 0.0;
+        gyroSensor.reset();
         turretTarget = 0.0;
         turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
         turretEncoderResetPressed = false;
