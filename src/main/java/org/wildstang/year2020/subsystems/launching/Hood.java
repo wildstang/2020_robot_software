@@ -28,6 +28,7 @@ public class Hood implements Subsystem {
 
     int hoodSpeed;
     double speedScale = 0.25;
+    
 
     // initializes the subsystem
     public void init() {

@@ -15,6 +15,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
+import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
 
@@ -29,6 +30,7 @@ public class Shooter implements Subsystem {
     // Inputs
     private AnalogInput aimModeTrigger;
     private AnalogInput fireTrigger;
+    private DigitalInput pointBlankShot; 
 
     // Outputs
     private TalonSRX shooterMasterMotor;
@@ -47,6 +49,8 @@ public class Shooter implements Subsystem {
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
+    
+    public static final double POINTBLANK_HOOD = 0; //tbd
 
     // Motor velocities in ticks per decisecond (ticks per 0.1 seconds)
     public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
@@ -61,6 +65,7 @@ public class Shooter implements Subsystem {
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = 0.0;
     public static final double AIMING_OUTER_REGRESSION_A = 0.0;
+    
 
     // Logic
     private boolean aimModeEnabled;
@@ -84,6 +89,8 @@ public class Shooter implements Subsystem {
         aimModeTrigger.addInputListener(this);
         fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT);
         fireTrigger.addInputListener(this);
+        pointBlankShot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        pointBlankShot.addInputListener(this);
     }
 
     // Initializes outputs
@@ -142,10 +149,9 @@ public class Shooter implements Subsystem {
             if (trailingHorizontalAngleOffsets.size() == 20) {
                 trailingHorizontalAngleOffsets.remove(0);
             }
-
             trailingHorizontalAngleOffsets.add(horizontalAngleOffset);
             lastValueAddedTimestamp = System.currentTimeMillis();
-        }
+        } 
     }
 
     @Override
@@ -157,11 +163,22 @@ public class Shooter implements Subsystem {
                 shooterMasterMotor.selectProfileSlot(1, 0);
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
                 aimToGoal();
-            } else { // Exiting aim mode
+            } 
+            else { // Exiting aim mode
                 aimModeEnabled = false;
                 shooterMasterMotor.selectProfileSlot(0, 0);
                 shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
                 hoodMotor.set(ControlMode.Position, 0.0);
+            }
+        }
+        if(source == pointBlankShot) {
+            if(pointBlankShot.getValue()) {
+                hoodMotor.set(ControlMode.Position, POINTBLANK_HOOD);
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            }
+            else {
+                hoodMotor.set(ControlMode.Position, 0);
+                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
             }
         }
     }
