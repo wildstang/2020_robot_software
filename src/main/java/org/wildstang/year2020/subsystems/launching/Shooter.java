@@ -58,7 +58,7 @@ public class Shooter implements Subsystem {
     public static final double TICKS_PER_REV = 1024.0;
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
     
-    public static final double POINTBLANK_HOOD = 0; //tbd
+    public static final double POINTBLANK_HOOD = 100; //tbd
 
     // Motor velocities in ticks per decisecond
     public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
@@ -205,15 +205,14 @@ public class Shooter implements Subsystem {
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
-        if (source == aimModeTrigger) {
-            if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
-                aimModeEnabled = true;
-                shooterMasterMotor.selectProfileSlot(1, 0);
-            } else { // Exiting aim mode
-                aimModeEnabled = false;
-                shooterMasterMotor.selectProfileSlot(0, 0);
-            }
-        } else if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
+        if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
+            aimModeEnabled = true;
+            shooterMasterMotor.selectProfileSlot(1, 0);
+        } else { // Exiting aim mode
+            aimModeEnabled = false;
+            shooterMasterMotor.selectProfileSlot(0, 0);
+        } 
+        if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
             hoodManualOverride = !hoodManualOverride;
         } else if (source == hoodManualAdjustment) {
             if (hoodManualOverride == true) {
@@ -242,8 +241,6 @@ public class Shooter implements Subsystem {
                 isPointBlank = true;
             } else {
                 isPointBlank = false;
-                aimModeEnabled = false;
-                shooterMasterMotor.selectProfileSlot(0, 0);
             }
         }
         SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
@@ -314,7 +311,9 @@ public class Shooter implements Subsystem {
 
     // Aims to either the inner or outer goal based on horizontal angle offset
     private void aimToGoal() {
-        if (hoodManualOverride == false) {
+        if (isPointBlank) {
+            setHoodMotorPosition(POINTBLANK_HOOD);
+        } else if (hoodManualOverride == false) {
             if (willAimToInnerGoal()) {
                 hoodTravelDistance = AIMING_INNER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
 

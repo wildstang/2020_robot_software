@@ -25,7 +25,6 @@ public class Turret implements Subsystem {
     private DigitalInput faceWall; 
     private AnalogInput manualTurret;
     private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
-    private DigitalInput pointBlankShot; 
     private DigitalInput turretEncoderResetButton;
 
     // Outputs
@@ -140,7 +139,9 @@ public class Turret implements Subsystem {
 
         if (Math.abs(manualTurret.getValue())>0.25){
             if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
-                turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
+                manualSpeed = manualTurret.getValue();
+            } else {
+                manualSpeed = 0.0;
             }
         }
 
@@ -200,7 +201,10 @@ public class Turret implements Subsystem {
             }
             
             turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
-        } else {    
+        } else {   
+            if (Math.abs(manualSpeed) > 0.25){
+                turretTarget += TICKS_PER_INCH * manualSpeed * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
+            } 
             turretMotor.set(ControlMode.Position, turretTarget);
         }
         SmartDashboard.putNumber("Turret PID target", turretTarget);
@@ -227,6 +231,7 @@ public class Turret implements Subsystem {
         aimModeEnabled = false;
         turretAimed = false;
         lastSetpoint = 0.0;
+        manualSpeed = 0;
         gyroSensor.reset();
         turretTarget = 0.0;
         turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
