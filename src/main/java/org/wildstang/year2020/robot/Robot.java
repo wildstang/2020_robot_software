@@ -13,7 +13,6 @@ import org.wildstang.hardware.crio.RoboRIOInputFactory;
 import org.wildstang.hardware.crio.RoboRIOOutputFactory;
 import org.wildstang.year2020.auto.programs.ExampleAutoProgram;
 import org.wildstang.year2020.subsystems.drive.Drive;
-import org.wildstang.year2020.subsystems.drive.FalconDrive;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -24,6 +23,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.lang.management.GarbageCollectorMXBean;
+
+import org.wildstang.year2020.auto.programs.Ball10;
+import org.wildstang.year2020.auto.programs.TrenchCentered;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -50,6 +52,8 @@ public class Robot extends TimedRobot {
         core.createOutputs(WSOutputs.values());
         core.createSubsystems(WSSubsystems.values());
 
+        AutoManager.getInstance().addProgram(new Ball10());
+        AutoManager.getInstance().addProgram(new TrenchCentered());
         
     }
 

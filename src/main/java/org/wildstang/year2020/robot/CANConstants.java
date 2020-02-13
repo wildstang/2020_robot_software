@@ -1,12 +1,12 @@
 package org.wildstang.year2020.robot;
 
 public final class CANConstants {
-    public static final int LEFT_DRIVE_TALON = 1;
-    public static final int RIGHT_DRIVE_TALON = 2;
+    public static final int LEFT_DRIVE_TALON = 31;
+    public static final int RIGHT_DRIVE_TALON = 33;
 
     //For FalconDrive
-    public static final int LEFT_DRIVE_TALON_FOLLOWER = 3;
-    public static final int RIGHT_DRIVE_TALON_FOLLOWER = 4;
+    public static final int[] LEFT_DRIVE_TALON_FOLLOWER = {32};
+    public static final int[] RIGHT_DRIVE_TALON_FOLLOWER = {34};
     //For normal drive (2 talons, 4 victors)
     public static final int[] LEFT_DRIVE_VICTORS = {3,4};
     public static final int[] RIGHT_DRIVE_VICTORS = {5,6};
@@ -21,6 +21,6 @@ public final class CANConstants {
     public static final int LAUNCHER_TALON = 5;
     public static final int LAUNCHER_VICTOR = 6;
     public static final int HOOD_MOTOR = 13;
-    public static final int INTAKECPWHEEL_TALON = 14;
+    public static final int BALLPATH_HOPPER = 14;
     public static final int CPDEPLOY_TALON = 15;
 }

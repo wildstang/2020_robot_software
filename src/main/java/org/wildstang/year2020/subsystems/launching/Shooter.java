@@ -29,8 +29,19 @@ public class Shooter implements Subsystem {
 
     // Inputs
     private AnalogInput aimModeTrigger;
+<<<<<<< HEAD
     private AnalogInput fireTrigger;
     private DigitalInput pointBlankShot; 
+=======
+
+    private AnalogInput hoodManualAdjustment;
+    private DigitalInput hoodManualOverrideButton;
+
+    private DigitalInput hoodNudgeUpButton;
+    private DigitalInput hoodNudgeDownButton;
+
+    private DigitalInput hoodEncoderResetButton;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
 
     // Outputs
     private TalonSRX shooterMasterMotor;
@@ -52,7 +63,7 @@ public class Shooter implements Subsystem {
     
     public static final double POINTBLANK_HOOD = 0; //tbd
 
-    // Motor velocities in ticks per decisecond (ticks per 0.1 seconds)
+    // Motor velocities in ticks per decisecond
     public static final double SAFE_SHOOTER_SPEED = (5000 * TICKS_PER_REV) / 600.0;//34133
     //public static final double SAFE_SHOOTER_SPEED = 8000;
     public static final double AIM_MODE_SHOOTER_SPEED = (6750 * TICKS_PER_REV) / 600.0;//51200
@@ -60,20 +71,36 @@ public class Shooter implements Subsystem {
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.024, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.02, 0.032, 0.0, 0.0);//same here
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.8, 1.28, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = 0.0;
     public static final double AIMING_OUTER_REGRESSION_A = 0.0;
     
 
+    public static final double HOOD_OUTPUT_SCALE = 1.0;
+
+    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.2;
+
     // Logic
     private boolean aimModeEnabled;
+
     private boolean shooterMotorSpeedSetForAimMode;
     private boolean hoodAimed;
-    private List<Double> trailingHorizontalAngleOffsets;
+
+    public List<Double> trailingHorizontalAngleOffsets;
     private long lastValueAddedTimestamp;
+
     private double hoodTravelDistance;
+    private double hoodMotorOutput;
+    private boolean hoodManualOverride;
+
+    private boolean hoodEncoderResetPressed;
+    private long hoodEncoderResetTimestamp;
+
+    // This counts how many times the incremental adjustment value should be added to the regression for hood position PID regression
+    // Positive value -> upward adjustment, negative value -> downward adjustment, 0 -> no adjustment
+    private int hoodRegAdjustmentCount;  
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -87,10 +114,23 @@ public class Shooter implements Subsystem {
     private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
+<<<<<<< HEAD
         fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT);
         fireTrigger.addInputListener(this);
         pointBlankShot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
         pointBlankShot.addInputListener(this);
+=======
+        hoodManualAdjustment = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y);
+        hoodManualAdjustment.addInputListener(this);
+        hoodManualOverrideButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_BUTTON);
+        hoodManualOverrideButton.addInputListener(this);
+        hoodNudgeUpButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_UP);
+        hoodNudgeUpButton.addInputListener(this);
+        hoodNudgeDownButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_DOWN);
+        hoodNudgeDownButton.addInputListener(this);
+        hoodEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_RIGHT);
+        hoodEncoderResetButton.addInputListener(this);
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
     }
 
     // Initializes outputs
@@ -105,16 +145,13 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.config_kI(1, AIMING_SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(1, AIMING_SHOOTER_PID_CONSTANTS.d);
 
-        shooterMasterMotor.setInverted(true);
+        shooterMasterMotor.setInverted(false);
 
-        //shooterFollowerMotor = new VictorSPX(2);
         shooterFollowerMotor = new TalonSRX(CANConstants.LAUNCHER_VICTOR);
         shooterFollowerMotor.follow(shooterMasterMotor);
+        shooterFollowerMotor.setInverted(true);
 
         shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-        //shooterFollowerMotor.set(ControlMode.Follower, 0);
-        shooterFollowerMotor.follow(shooterMasterMotor);
-        shooterFollowerMotor.setInverted(true);
 
         hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
         hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
@@ -128,21 +165,29 @@ public class Shooter implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
-        SmartDashboard.putNumber("Encoder Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
-        SmartDashboard.putNumber("Encoder Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
-        if (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED * MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED / MOTOR_OUTPUT_TOLERANCE)) {
-            shooterMotorSpeedSetForAimMode = true;
-        } else {
-            shooterMotorSpeedSetForAimMode = false;
+        if (hoodManualOverride == true) {
+            hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
+        SmartDashboard.putNumber("Hood moving", hoodMotorOutput * HOOD_OUTPUT_SCALE);
 
-        double currentHoodMotorPosition = hoodMotor.getSelectedSensorPosition();
-        if (currentHoodMotorPosition < (hoodTravelDistance + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (hoodTravelDistance - MOTOR_POSITION_TOLERANCE)) {
-            hoodAimed = true;
+        if (aimModeEnabled){
+            shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            aimToGoal();
         } else {
-            hoodAimed = false;
+            shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+            //hoodMotor.set(ControlMode.Position, 0.0); replace later with ma3
+            if (!hoodManualOverride){
+                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+            }
         }
+        double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
+        SmartDashboard.putNumber("Shooter Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
+        SmartDashboard.putNumber("Shooter Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
+        shooterMotorSpeedSetForAimMode = (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED * MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED / MOTOR_OUTPUT_TOLERANCE)); 
+
+        double currentHoodMotorPosition = hoodMotor.getSensorCollection().getQuadraturePosition();
+        SmartDashboard.putNumber("Hood Position", currentHoodMotorPosition);
+        hoodAimed = (currentHoodMotorPosition < (hoodTravelDistance + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (hoodTravelDistance - MOTOR_POSITION_TOLERANCE));
 
         double horizontalAngleOffset = limelightSubsystem.getTXValue();
         if (System.currentTimeMillis() > lastValueAddedTimestamp + 25L) {
@@ -151,26 +196,59 @@ public class Shooter implements Subsystem {
             }
             trailingHorizontalAngleOffsets.add(horizontalAngleOffset);
             lastValueAddedTimestamp = System.currentTimeMillis();
+<<<<<<< HEAD
         } 
+=======
+        }
+
+        if (hoodEncoderResetPressed == true && System.currentTimeMillis() >= hoodEncoderResetTimestamp + 1000L) {
+            hoodMotor.getSensorCollection().setAnalogPosition(0, -1);
+        }
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
     }
 
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
+            if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
                 aimModeEnabled = true;
                 shooterMasterMotor.selectProfileSlot(1, 0);
+<<<<<<< HEAD
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
                 aimToGoal();
             } 
             else { // Exiting aim mode
+=======
+            } else { // Exiting aim mode
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
                 aimModeEnabled = false;
                 shooterMasterMotor.selectProfileSlot(0, 0);
-                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-                hoodMotor.set(ControlMode.Position, 0.0);
+            }
+        } else if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
+            hoodManualOverride = !hoodManualOverride;
+        } else if (source == hoodManualAdjustment) {
+            if (hoodManualOverride == true) {
+                hoodMotorOutput = hoodManualAdjustment.getValue();
+            }
+        } else if (source == hoodNudgeDownButton) {
+            if (hoodNudgeDownButton.getValue() == true) {
+                hoodRegAdjustmentCount -= 1;
+            }
+        } else if (source == hoodNudgeUpButton) {
+            if (hoodNudgeUpButton.getValue() == true) {
+                hoodRegAdjustmentCount += 1;
+            }
+        } else if (source == hoodEncoderResetButton) {
+            if (hoodEncoderResetButton.getValue() == true) {
+                hoodEncoderResetPressed = true;
+                hoodEncoderResetTimestamp = System.currentTimeMillis();
+            } else {
+                hoodEncoderResetPressed = false;
+                hoodEncoderResetTimestamp = Long.MAX_VALUE;
             }
         }
+<<<<<<< HEAD
         if(source == pointBlankShot) {
             if(pointBlankShot.getValue()) {
                 hoodMotor.set(ControlMode.Position, POINTBLANK_HOOD);
@@ -181,20 +259,33 @@ public class Shooter implements Subsystem {
                 shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
             }
         }
+=======
+
+        SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
+        SmartDashboard.putNumber("Hood PID Adjust", hoodRegAdjustmentCount);
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
     }
 
     @Override
     // Resets all variables to the default state
     public void resetState() {
         aimModeEnabled = false;
+        shooterMasterMotor.selectProfileSlot(0, 0);
         shooterMotorSpeedSetForAimMode = false;
         hoodAimed = false;
 
-        shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-        hoodMotor.set(ControlMode.Position, 0.0);
+        hoodManualOverride = false;
+        hoodMotorOutput = 0.0;
 
         trailingHorizontalAngleOffsets = new ArrayList<Double>();
         lastValueAddedTimestamp = 0L;
+
+        hoodEncoderResetPressed = false;
+        hoodEncoderResetTimestamp = Long.MAX_VALUE;
+
+        hoodRegAdjustmentCount = 0;
+
+        hoodMotor.getSensorCollection().setAnalogPosition(0, -1);
     }
 
     @Override
@@ -218,7 +309,7 @@ public class Shooter implements Subsystem {
     }
 
     // Decides whether the inner goal is within range (+/- 15 degrees horizontally)
-    private boolean willAimToInnerGoal() {
+    public boolean willAimToInnerGoal() {
         double horizontalAngleOffsetSum = 0.0;
 
         for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
@@ -236,14 +327,18 @@ public class Shooter implements Subsystem {
 
     // Aims to either the inner or outer goal based on horizontal angle offset
     private void aimToGoal() {
-        if (willAimToInnerGoal()) {
-            hoodTravelDistance = AIMING_INNER_REGRESSION_A; // TODO: Perform regression calculation
+        if (hoodManualOverride == false) {
+            if (willAimToInnerGoal()) {
+                hoodTravelDistance = AIMING_INNER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
 
-            hoodMotor.set(ControlMode.Position, hoodTravelDistance * TICKS_PER_INCH);
-        } else {
-            hoodTravelDistance = AIMING_OUTER_REGRESSION_A; // TODO: Perform regression calculation
+                //hoodMotor.set(ControlMode.Position, hoodTravelDistance * TICKS_PER_INCH); replace later with ma3
+                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+            } else {
+                hoodTravelDistance = AIMING_OUTER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
             
-            hoodMotor.set(ControlMode.Position, 0);
+                //hoodMotor.set(ControlMode.Position, 0); replace later with ma3
+                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+            }
         }
     }
     public void setAutonShooterSpeed(){
@@ -251,7 +346,9 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
     }
     public void setHoodPosition(double position){
-        hoodMotor.set(ControlMode.Position, position);
+        if (hoodManualOverride == false) {
+            hoodMotor.set(ControlMode.Position, position);
+        }
     }
     public void setAim(){
         aimToGoal();

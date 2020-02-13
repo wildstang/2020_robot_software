@@ -7,6 +7,7 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
@@ -23,18 +24,22 @@ public class Turret implements Subsystem {
     private DigitalInput frontPositionButton;
     private DigitalInput faceWall; 
     private AnalogInput manualTurret;
+<<<<<<< HEAD
     private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
     private DigitalInput pointBlankShot; 
+=======
+    private DigitalInput turretEncoderResetButton;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
 
     // Outputs
     private TalonSRX turretMotor;
-    private TalonSRX kickerMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1); // 0.0 0.3 0.0 0.1
 
     // Constants
-    public static final double kP = -0.07;
-    public static final double minimumAdjustmentCommand = 0.05;
+    public static final double kP = -0.05; // -.07
+    public static final double minimumAdjustmentCommand = 0.025; // 0.05
 
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
@@ -48,9 +53,16 @@ public class Turret implements Subsystem {
     private boolean aimModeEnabled;
     private boolean wallTracking;  
     private boolean turretAimed;
+<<<<<<< HEAD
     private double lastSetpoint;
     private double manualSpeed;
     private double wallDirection; 
+=======
+    private double turretTarget;
+
+    private boolean turretEncoderResetPressed;
+    private long turretEncoderResetTimestamp;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -70,22 +82,28 @@ public class Turret implements Subsystem {
         frontPositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
+<<<<<<< HEAD
         faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
         faceWall.addInputListener(this);
+=======
+        turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
+        turretEncoderResetButton.addInputListener(this);
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
     }
 
     // Initializes outputs
     private void initOutputs() {
         turretMotor = new TalonSRX(CANConstants.TURRET_TALON);
 
-        kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
-        kickerMotor.set(ControlMode.PercentOutput, -1.0);
-        
         // BELOW IS IMPORTED FROM 2019 LIFT -- MAY NOT BE APPLICABLE TO THIS YEAR'S CODE
         turretMotor.setInverted(false);
-        turretMotor.setSensorPhase(true);
+        turretMotor.setSensorPhase(false);
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
+        turretMotor.config_kF(0, TURRET_PID_CONSTANTS.f);
+        turretMotor.config_kP(0, TURRET_PID_CONSTANTS.p);
+        turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);
+        turretMotor.config_kD(0, TURRET_PID_CONSTANTS.d);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
         shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
@@ -95,28 +113,32 @@ public class Turret implements Subsystem {
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.75) { // Entering aim mode
+            if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
+                turretTarget = turretMotor.getSelectedSensorPosition();
                 aimModeEnabled = true;
-                lastSetpoint = turretMotor.getSelectedSensorPosition();
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
+<<<<<<< HEAD
                 if (!wallTracking) {
                     turretMotor.set(ControlMode.Position, lastSetpoint);
                 }
                 
+=======
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
             }
         }
 
         if (source == backPositionButton) {
-            if (backPositionButton.getValue() == true) {
-                turretMotor.set(ControlMode.Position, 0.0);
+            if (backPositionButton.getValue()) {
+                turretTarget = -29300;
             }
         }
 
         if (source == frontPositionButton) {
-            if (frontPositionButton.getValue() == true) {
-                turretMotor.set(ControlMode.Position, (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH);
+            if (frontPositionButton.getValue()) {
+                turretTarget = -9800;
+                // turretTarget = (TURRET_BASE_CIRCUMFERENCE / 2.0) * TICKS_PER_INCH;
             }
         }
 
@@ -130,21 +152,42 @@ public class Turret implements Subsystem {
         }
 
         if (Math.abs(manualTurret.getValue())>0.25){
-            manualSpeed = manualTurret.getValue();
-        } else{
-            manualSpeed = 0;
+            if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
+                turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
+            }
+        }
+
+        if (source == turretEncoderResetButton) {
+            if (turretEncoderResetButton.getValue() == true) {
+                turretEncoderResetPressed = true;
+                turretEncoderResetTimestamp = System.currentTimeMillis();
+            } else {
+                turretEncoderResetPressed = false;
+                turretEncoderResetTimestamp = Long.MAX_VALUE;
+            }
         }
     }
 
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
+        SmartDashboard.putNumber("Adjusted TY", limelightSubsystem.getTYValue() - 0.8);
+        SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
         if (aimModeEnabled == true) {
             double tyValue = limelightSubsystem.getTYValue() - 0.8;
 
-            SmartDashboard.putNumber("Adjusted TY", tyValue);
+            
 
             double headingError = -tyValue;
+            // if (shooterSubsystem.willAimToInnerGoal()){
+            //     TODO: calculate the new offset from the middle of the outer goal to the middle of the inner goal
+            //     double horizontalAngleOffsetSum = 0.0;
+            //     for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
+            //         horizontalAngleOffsetSum += trailingHorizontalAngleOffsets.get(i);
+            //     }
+            //     double netHorizontalAngleOffset = horizontalAngleOffsetSum / (double) trailingHorizontalAngleOffsets.size();
+            //     tyValue += some math involving netHorizontalAngleOffset
+            // }
             double rotationalAdjustment = 0.0;
 
             if (Math.abs(tyValue) > 1.0) { // Pull Turret in, not close enough
@@ -159,6 +202,7 @@ public class Turret implements Subsystem {
 
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
+<<<<<<< HEAD
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } 
         else if(wallTracking && !aimModeEnabled) {
@@ -173,7 +217,14 @@ public class Turret implements Subsystem {
         }
         else {    
             turretMotor.set(ControlMode.PercentOutput, manualSpeed);
+=======
+            turretMotor.set(ControlMode.PercentOutput, -1.0 * rotationalAdjustment);
+        } else {
+            turretMotor.set(ControlMode.Position, turretTarget);
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
         }
+        SmartDashboard.putNumber("Turret PID target", turretTarget);
+        SmartDashboard.putNumber("Turret encoder", turretMotor.getSensorCollection().getQuadraturePosition());
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
         boolean shooterMotorSpeedSet = shooterSubsystem.isShooterMotorSpeedSetForAimMode();
@@ -182,6 +233,10 @@ public class Turret implements Subsystem {
         } else {
             SmartDashboard.putBoolean("Shooter Ready", false);
         }
+
+        if (turretEncoderResetPressed == true && System.currentTimeMillis() >= turretEncoderResetTimestamp + 1000L) {
+            turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
+        }
     }
 
     @Override
@@ -189,8 +244,15 @@ public class Turret implements Subsystem {
     public void resetState() {
         aimModeEnabled = false;
         turretAimed = false;
+<<<<<<< HEAD
         lastSetpoint = 0.0;
         gyroSensor.reset();
+=======
+        turretTarget = 0.0;
+        turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
+        turretEncoderResetPressed = false;
+        turretEncoderResetTimestamp = Long.MAX_VALUE;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
     }
 
     @Override

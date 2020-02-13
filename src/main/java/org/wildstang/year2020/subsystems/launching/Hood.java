@@ -3,6 +3,8 @@ package org.wildstang.year2020.subsystems.launching;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
@@ -27,13 +29,19 @@ public class Hood implements Subsystem {
     TalonSRX hoodMotor;
 
     int hoodSpeed;
+<<<<<<< HEAD
     double speedScale = 0.25;
     
+=======
+    double speedScale = 1.0;
+>>>>>>> 8af4aea46f187b4d860e6364c94aebd26ad3d114
 
     // initializes the subsystem
     public void init() {
         leftBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        leftBumper.addInputListener(this);
         rightBumper = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
+        rightBumper.addInputListener(this);
         hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
 
         resetState();
@@ -42,6 +50,7 @@ public class Hood implements Subsystem {
     // update the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
         hoodMotor.set(ControlMode.PercentOutput, hoodSpeed * speedScale);
+        SmartDashboard.putNumber("hood position",hoodMotor.getSelectedSensorPosition());
     }
 
     // respond to input updates
