@@ -10,6 +10,8 @@ import org.wildstang.framework.core.Core;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import org.wildstang.framework.timer.WsTimer;
+
 /**
  * Class:       Ballpath.java
  * Inputs:      Right trigger, "A" and "Y" buttons
@@ -27,7 +29,6 @@ public class Ballpath implements Subsystem {
     private TalonSRX kickerMotor;
     private TalonSRX intakeMotor;
 
-
     // Motor Speeds
     private double feedMotorSpeed;
     private double kickerMotorSpeed;
@@ -36,11 +37,21 @@ public class Ballpath implements Subsystem {
     // Constants
     private final double FULL_SPEED = 1.0;
     private final double REVERSE_SPEED = -0.4;
+    private final double TIME_PASSED = 1.0;
 
     // Inputs
     private AnalogInput rightTrigger;
     private DigitalInput yButton;
     private DigitalInput aButton;
+    private DigitalInput startButton;
+    private DigitalInput selectButton;
+    private WsTimer timer = new WsTimer();
+
+    //Logic Variables 
+    private boolean running;
+    private boolean kickerOn;
+    private boolean selectPushed;
+
 
     /**
      * Update Methods
@@ -71,6 +82,19 @@ public class Ballpath implements Subsystem {
         } else {
             intakeMotorSpeed = 0;
         }
+
+        if (selectButton.getvalue()) {
+            selectPushed = true;
+        } else {
+            selectPushed = false;
+        }
+
+        if (startButton.getValue()) {
+            timer.reset();
+            running = true;
+        } else {
+            running = false;
+        }
     }
 
     @Override
@@ -78,6 +102,20 @@ public class Ballpath implements Subsystem {
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
+
+
+        if (running == true && timer.hasPeriodPassed(TIME_PASSED) && selectPushed == false) {
+            timer.reset();
+            running = false; 
+            
+            if (kickerOn == true){
+                kickerMotorSpeed = 0.0;
+                kickerOn = false;
+            } else {
+                kickerMotorSpeed = FULL_SPEED;
+                kickerOn = true;
+            }
+        }
     }
 
     /**
@@ -104,6 +142,7 @@ public class Ballpath implements Subsystem {
     public void init() {
         initInputs();
         initOutputs();
+        timer.start();
         resetState();
     }
 
@@ -114,6 +153,10 @@ public class Ballpath implements Subsystem {
         yButton.addInputListener(this);
         aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         aButton.addInputListener(this);
+        startButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_START.getName());
+        startButton.addInputListener(this);
+        selectButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SELECT.getName());
+        selectButton.addInputListener(this);
     }
 
     private void initOutputs() {
@@ -129,6 +172,7 @@ public class Ballpath implements Subsystem {
         feedMotorSpeed = 0;
         kickerMotorSpeed = FULL_SPEED;
         intakeMotorSpeed = 0;
+        kickerOn = true;
     }
 
     /**
