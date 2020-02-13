@@ -72,7 +72,7 @@ public class Shooter implements Subsystem {
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
 
-    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.2;
+    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.1;
 
     // Logic
     private boolean aimModeEnabled;
@@ -89,6 +89,8 @@ public class Shooter implements Subsystem {
 
     private boolean hoodEncoderResetPressed;
     private long hoodEncoderResetTimestamp;
+
+    private double hoodEncoderOffset;
 
     // This counts how many times the incremental adjustment value should be added to the regression for hood position PID regression
     // Positive value -> upward adjustment, negative value -> downward adjustment, 0 -> no adjustment
@@ -170,8 +172,9 @@ public class Shooter implements Subsystem {
         SmartDashboard.putNumber("Shooter Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
         shooterMotorSpeedSetForAimMode = (currentShooterMotorSpeed < (AIM_MODE_SHOOTER_SPEED * MOTOR_OUTPUT_TOLERANCE) && currentShooterMotorSpeed > (AIM_MODE_SHOOTER_SPEED / MOTOR_OUTPUT_TOLERANCE)); 
 
-        double currentHoodMotorPosition = hoodMotor.getSensorCollection().getQuadraturePosition();
-        SmartDashboard.putNumber("Hood Position", currentHoodMotorPosition);
+        double currentHoodMotorPosition = hoodMotor.getSensorCollection().getAnalogInRaw();
+        SmartDashboard.putNumber("Hood Raw", currentHoodMotorPosition);
+        SmartDashboard.putNumber("Hood Position", getHoodEncoderPosition());
         hoodAimed = (currentHoodMotorPosition < (hoodTravelDistance + MOTOR_POSITION_TOLERANCE) && currentHoodMotorPosition > (hoodTravelDistance - MOTOR_POSITION_TOLERANCE));
 
         double horizontalAngleOffset = limelightSubsystem.getTXValue();
@@ -184,7 +187,7 @@ public class Shooter implements Subsystem {
         }
 
         if (hoodEncoderResetPressed == true && System.currentTimeMillis() >= hoodEncoderResetTimestamp + 1000L) {
-            hoodMotor.getSensorCollection().setAnalogPosition(0, -1);
+            resetHoodEncoder();
         }
     }
 
@@ -247,6 +250,8 @@ public class Shooter implements Subsystem {
         hoodRegAdjustmentCount = 0;
 
         hoodMotor.getSensorCollection().setAnalogPosition(0, -1);
+
+        hoodEncoderOffset = 940.0;
     }
 
     @Override
@@ -292,13 +297,14 @@ public class Shooter implements Subsystem {
             if (willAimToInnerGoal()) {
                 hoodTravelDistance = AIMING_INNER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
 
-                //hoodMotor.set(ControlMode.Position, hoodTravelDistance * TICKS_PER_INCH); replace later with ma3
-                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+                setHoodMotorPosition(hoodTravelDistance * TICKS_PER_INCH); // replace later with ma3
+                // hoodMotor.set(ControlMode.PercentOutput, 0.0);
             } else {
                 hoodTravelDistance = AIMING_OUTER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
             
                 //hoodMotor.set(ControlMode.Position, 0); replace later with ma3
-                hoodMotor.set(ControlMode.PercentOutput, 0.0);
+                // hoodMotor.set(ControlMode.PercentOutput, 0.0);
+                setHoodMotorPosition(hoodTravelDistance * TICKS_PER_INCH);
             }
         }
     }
@@ -306,13 +312,27 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.selectProfileSlot(1, 0);
         shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
     }
-    public void setHoodPosition(double position){
+    public void setHoodPosition(double position){ // Fix name
         if (hoodManualOverride == false) {
-            hoodMotor.set(ControlMode.Position, position);
+            setHoodMotorPosition(position);
         }
     }
     public void setAim(){
         aimToGoal();
+    }
+
+    public void resetHoodEncoder() {
+        hoodEncoderOffset = hoodMotor.getSensorCollection().getAnalogInRaw();
+        setHoodMotorPosition(0.0);
+    }
+
+    public double getHoodEncoderPosition() {
+        double currentHoodEncoderValue = hoodMotor.getSensorCollection().getAnalogInRaw();
+        return (currentHoodEncoderValue - hoodEncoderOffset + 1024) % 1024;
+    }
+
+    public void setHoodMotorPosition(double position) {
+        hoodMotor.set(ControlMode.Position, (position + hoodEncoderOffset + 1024) % 1024);
     }
 
 }

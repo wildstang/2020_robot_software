@@ -133,10 +133,10 @@ public class Turret implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        SmartDashboard.putNumber("Adjusted TY", limelightSubsystem.getTYValue() - 0.8);
+        SmartDashboard.putNumber("Adjusted TY", limelightSubsystem.getTXValue() - 0.8);
         SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
         if (aimModeEnabled == true) {
-            double tyValue = limelightSubsystem.getTYValue() - 0.8;
+            double tyValue = limelightSubsystem.getTXValue() - 0.8;
 
             
 
@@ -164,7 +164,7 @@ public class Turret implements Subsystem {
 
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
-            turretMotor.set(ControlMode.PercentOutput, -1.0 * rotationalAdjustment);
+            turretMotor.set(ControlMode.PercentOutput, 1.0 * rotationalAdjustment);
         } else {
             turretMotor.set(ControlMode.Position, turretTarget);
         }
@@ -181,6 +181,8 @@ public class Turret implements Subsystem {
 
         if (turretEncoderResetPressed == true && System.currentTimeMillis() >= turretEncoderResetTimestamp + 1000L) {
             turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
+            turretTarget = 0.0;
+            turretMotor.set(ControlMode.Position, turretTarget);
         }
     }
 
