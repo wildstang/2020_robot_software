@@ -1,6 +1,8 @@
 package org.wildstang.year2020.subsystems.ballpath;
+
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.framework.timer.WsTimer;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.framework.io.inputs.AnalogInput;
@@ -25,11 +27,18 @@ public class Ballpath implements Subsystem{
     //Constants
     private final double FULL_SPEED = 1.0;
     private final double REVERSE_SPEED = -0.4;
+    private final double TIME_PASSED = 1.0;
 
     //Inputs
     private AnalogInput rightTrigger;
     private DigitalInput yButton;
     private DigitalInput aButton;
+    private DigitalInput startButton;
+    private DigitalInput selectButton;
+    private WsTimer timer = new WsTimer();
+
+    private boolean running;
+    private boolean kickerOn;
 
     @Override
     public void inputUpdate(Input source) {
@@ -47,6 +56,16 @@ public class Ballpath implements Subsystem{
         } else {
             intakeMotorSpeed = 0;
         }
+        running = !selectButton.getValue();
+        if (startButton.getValue()){
+            if (!running){
+                timer.reset();
+                running = true;
+            }
+            
+        } else {
+            running = false;
+        }
 
     }
 
@@ -63,6 +82,10 @@ public class Ballpath implements Subsystem{
         yButton.addInputListener(this);
         aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         aButton.addInputListener(this);
+        startButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_START.getName());
+        startButton.addInputListener(this);
+        selectButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SELECT.getName());
+        selectButton.addInputListener(this);
     }
 
     private void initOutputs(){
@@ -85,6 +108,17 @@ public class Ballpath implements Subsystem{
         kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
 
+        if (running && timer.hasPeriodPassed(TIME_PASSED)){
+            timer.reset();
+            running = false;
+            if (kickerOn) {
+                kickerMotorSpeed = 0.0;
+                kickerOn = false;
+            } else {
+                kickerMotorSpeed = FULL_SPEED;
+                kickerOn = true;
+            }
+        }
     }
 
     @Override
@@ -92,7 +126,9 @@ public class Ballpath implements Subsystem{
         feedMotorSpeed = 0.0;
         kickerMotorSpeed = 0.0;
         intakeMotorSpeed = 0.0;
-
+        kickerOn = true;
+        running = false;
+        timer.start();
     }
 
     @Override
