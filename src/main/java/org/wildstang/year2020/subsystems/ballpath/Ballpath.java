@@ -83,7 +83,7 @@ public class Ballpath implements Subsystem {
             intakeMotorSpeed = 0;
         }
 
-        if (selectButton.getvalue()) {
+        if (selectButton.getValue()) {
             selectPushed = true;
         } else {
             selectPushed = false;
