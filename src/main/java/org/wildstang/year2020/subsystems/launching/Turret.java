@@ -22,6 +22,7 @@ public class Turret implements Subsystem {
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
     private AnalogInput manualTurret;
+    private DigitalInput turretEncoderResetButton;
 
     // Outputs
     private TalonSRX turretMotor;
@@ -44,6 +45,9 @@ public class Turret implements Subsystem {
     private boolean turretAimed;
     private double turretTarget;
 
+    private boolean turretEncoderResetPressed;
+    private long turretEncoderResetTimestamp;
+
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
     public void init() {
@@ -62,6 +66,8 @@ public class Turret implements Subsystem {
         frontPositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
+        turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
+        turretEncoderResetButton.addInputListener(this);
     }
 
     // Initializes outputs
@@ -111,7 +117,17 @@ public class Turret implements Subsystem {
             if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
                 turretTarget += TICKS_PER_INCH * manualTurret.getValue() * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
             }
-        } 
+        }
+
+        if (source == turretEncoderResetButton) {
+            if (turretEncoderResetButton.getValue() == true) {
+                turretEncoderResetPressed = true;
+                turretEncoderResetTimestamp = System.currentTimeMillis();
+            } else {
+                turretEncoderResetPressed = false;
+                turretEncoderResetTimestamp = Long.MAX_VALUE;
+            }
+        }
     }
 
     @Override
@@ -162,6 +178,10 @@ public class Turret implements Subsystem {
         } else {
             SmartDashboard.putBoolean("Shooter Ready", false);
         }
+
+        if (turretEncoderResetPressed == true && System.currentTimeMillis() >= turretEncoderResetTimestamp + 1000L) {
+            turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
+        }
     }
 
     @Override
@@ -171,6 +191,8 @@ public class Turret implements Subsystem {
         turretAimed = false;
         turretTarget = 0.0;
         turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
+        turretEncoderResetPressed = false;
+        turretEncoderResetTimestamp = Long.MAX_VALUE;
     }
 
     @Override
