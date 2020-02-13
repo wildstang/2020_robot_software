@@ -29,7 +29,7 @@ public class Climb implements Subsystem {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == selectButton && source == startButton) {
+        if ( selectButton.getValue() && startButton.getValue()) {
             climbInputStatus = true;
             motorspeed = 1.0; // Extends climb
         } else {
@@ -69,8 +69,8 @@ public class Climb implements Subsystem {
     public void resetState() {
         climbInputStatus = false;
         climbActiveStatus = false;
-        climbMotor1.restoreFactoryDefaults();
-        climbMotor2.restoreFactoryDefaults();
+        //climbMotor1.restoreFactoryDefaults();
+        //climbMotor2.restoreFactoryDefaults();
     }
 
     @Override
