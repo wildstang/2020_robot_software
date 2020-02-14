@@ -18,6 +18,7 @@ import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.pid.PIDConstants;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.framework.timer.WsTimer;
 
 /**
  * Class:       TestSubsystem.java
@@ -37,6 +38,9 @@ public class Shooter implements Subsystem {
 
     private DigitalInput hoodNudgeUpButton;
     private DigitalInput hoodNudgeDownButton;
+
+    private DigitalInput startButton;
+    private DigitalInput selectButton;
 
     private DigitalInput hoodEncoderResetButton;
 
@@ -109,6 +113,10 @@ public class Shooter implements Subsystem {
     private int hoodRegAdjustmentCount;  
 
     private double hoodTarget;
+    private WsTimer timer = new WsTimer();
+    private static final double TIMEPASSED = 1.0;
+    private boolean running;
+    private boolean shooterOn;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -136,6 +144,10 @@ public class Shooter implements Subsystem {
         hoodNudgeDownButton.addInputListener(this);
         hoodEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_RIGHT);
         hoodEncoderResetButton.addInputListener(this);
+        startButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_START);
+        startButton.addInputListener(this);
+        selectButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SELECT);
+        selectButton.addInputListener(this);
     }
 
     // Initializes outputs
@@ -174,6 +186,17 @@ public class Shooter implements Subsystem {
         // SmartDashboard.putNumber("Area Adjust", limelightSubsystem.getTAValue() / Math.cos(limelightSubsystem.getTXValue()));
         SmartDashboard.putNumber("Dist to Target", limelightSubsystem.getDistanceToTarget());
         
+        if(running && timer.hasPeriodPassed(TIMEPASSED)) {
+            timer.reset();
+            running = false;
+            if(shooterOn) {
+                shooterMasterMotor.set(ControlMode.Velocity, 0.0);
+                shooterOn = false;
+            } else {
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+                shooterOn = true;
+            }
+        }
         if (hoodManualOverride == true) {
             hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
@@ -181,9 +204,11 @@ public class Shooter implements Subsystem {
 
         if (aimModeEnabled){
             shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            shooterOn = true;
             aimToGoal();
         } else {
             shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+            shooterOn = true;
             //hoodMotor.set(ControlMode.Position, 0.0); replace later with ma3
             if (!hoodManualOverride){
                 setHoodMotorPosition(0.0);
@@ -268,9 +293,19 @@ public class Shooter implements Subsystem {
             } else {
                 isPointBlank = false;
             }
+        } else if(source == startButton) {
+            if(startButton.getValue()) {
+                if(!running) {
+                    timer.reset();
+                    running = true;
+                }
+            }
+        } else {
+            running = false;
         }
         SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
         SmartDashboard.putNumber("Hood PID Adjust", hoodRegAdjustmentCount);
+        running = !selectButton.getValue();
     }
 
     @Override
@@ -296,6 +331,9 @@ public class Shooter implements Subsystem {
         hoodMotor.getSensorCollection().setAnalogPosition(0, -1);
 
         hoodEncoderOffset = 940.0;
+
+        running = false;
+        shooterOn = false;
     }
 
     @Override
