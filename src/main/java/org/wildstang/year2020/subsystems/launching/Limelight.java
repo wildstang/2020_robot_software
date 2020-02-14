@@ -27,6 +27,7 @@ public class Limelight implements Subsystem {
     // Logic
     private NetworkTable netTable;
 
+    private NetworkTableEntry taEntry;
     private NetworkTableEntry tvEntry;
     private NetworkTableEntry txEntry;
     private NetworkTableEntry tyEntry;
@@ -56,6 +57,7 @@ public class Limelight implements Subsystem {
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");
 
+        taEntry = netTable.getEntry("ta");
         tvEntry = netTable.getEntry("tv");
         txEntry = netTable.getEntry("tx");
         tyEntry = netTable.getEntry("ty");
@@ -89,6 +91,10 @@ public class Limelight implements Subsystem {
     // Returns the subsystem's name
     public String getName() {
         return "Limelight";
+    }
+
+    public double getTAValue() {
+        return taEntry.getDouble(0.0);
     }
 
     // Gives tv value from Limelight
@@ -151,17 +157,19 @@ public class Limelight implements Subsystem {
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
     public double getDistanceToTarget() {
-        double verticalAngleOffsetSum = 0.0;
+        // double verticalAngleOffsetSum = 0.0;
 
-        for (int i = 0; i < trailingVerticalAngleOffsets.size(); i++) {
-            verticalAngleOffsetSum += trailingVerticalAngleOffsets.get(i);
-        }
+        // for (int i = 0; i < trailingVerticalAngleOffsets.size(); i++) {
+        //     verticalAngleOffsetSum += trailingVerticalAngleOffsets.get(i);
+        // }
 
-        double netVerticalAngleOffset = Math.toRadians(verticalAngleOffsetSum / (double) trailingVerticalAngleOffsets.size());
-        double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
-        double distanceToTarget = targetHeightAboveCamera / Math.tan(netVerticalAngleOffset);
+        // double netVerticalAngleOffset = Math.toRadians(verticalAngleOffsetSum / (double) trailingVerticalAngleOffsets.size());
+        // double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
+        // double distanceToTarget = targetHeightAboveCamera / Math.tan(netVerticalAngleOffset);
 
-        return distanceToTarget;
+        double distance = (75.5 / Math.sin(Math.toRadians(33.25 + getTYValue()))) / 12.0;
+
+        return distance;
     }
 
     @Override

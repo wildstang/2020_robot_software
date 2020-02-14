@@ -24,7 +24,7 @@ public class Turret implements Subsystem {
     private DigitalInput frontPositionButton;
     private DigitalInput faceWall; 
     private AnalogInput manualTurret;
-    private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
+    //private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
     private DigitalInput turretEncoderResetButton;
 
     // Outputs
@@ -193,12 +193,12 @@ public class Turret implements Subsystem {
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
         } 
         else if(wallTracking && !aimModeEnabled) {
-            if (gyroSensor.getAngle() < 180) {
-                wallDirection = 90 + gyroSensor.getAngle();    
-            }
-            if(gyroSensor.getAngle() > 270) {
-                wallDirection = gyroSensor.getAngle() - 270;
-            }
+            // if (gyroSensor.getAngle() < 180) {
+            //     wallDirection = 90 + gyroSensor.getAngle();    
+            // }
+            // if(gyroSensor.getAngle() > 270) {
+            //     wallDirection = gyroSensor.getAngle() - 270;
+            // }
             
             turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
         } else {   
@@ -232,7 +232,7 @@ public class Turret implements Subsystem {
         turretAimed = false;
         lastSetpoint = 0.0;
         manualSpeed = 0;
-        gyroSensor.reset();
+        //gyroSensor.reset();
         turretTarget = 0.0;
         turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
         turretEncoderResetPressed = false;

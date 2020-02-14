@@ -71,13 +71,19 @@ public class Shooter implements Subsystem {
     public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.025, 1.28, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
-    public static final double AIMING_INNER_REGRESSION_A = 0.0;
-    public static final double AIMING_OUTER_REGRESSION_A = 0.0;
+    public static final double AIMING_INNER_REGRESSION_A = -1.9325;
+    public static final double AIMING_INNER_REGRESSION_B = 74.177;
+    public static final double AIMING_INNER_REGRESSION_C = -69.84;
+    public static final double AIMING_OUTER_REGRESSION_A = -1.9325;
+    public static final double AIMING_OUTER_REGRESSION_B = 74.177;
+    public static final double AIMING_OUTER_REGRESSION_C = -69.84;
     
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
 
-    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.1;
+    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.05;
+
+    public static final double HOOD_KP = -0.015;
 
     // Logic
     private boolean aimModeEnabled;
@@ -101,6 +107,8 @@ public class Shooter implements Subsystem {
     // This counts how many times the incremental adjustment value should be added to the regression for hood position PID regression
     // Positive value -> upward adjustment, negative value -> downward adjustment, 0 -> no adjustment
     private int hoodRegAdjustmentCount;  
+
+    private double hoodTarget;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -162,6 +170,10 @@ public class Shooter implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
+        // SmartDashboard.putNumber("Area Value", limelightSubsystem.getTAValue());
+        // SmartDashboard.putNumber("Area Adjust", limelightSubsystem.getTAValue() / Math.cos(limelightSubsystem.getTXValue()));
+        SmartDashboard.putNumber("Dist to Target", limelightSubsystem.getDistanceToTarget());
+        
         if (hoodManualOverride == true) {
             hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
@@ -200,6 +212,20 @@ public class Shooter implements Subsystem {
         if (hoodEncoderResetPressed == true && System.currentTimeMillis() >= hoodEncoderResetTimestamp + 1000L) {
             resetHoodEncoder();
         }
+
+        SmartDashboard.putNumber("Hood Target", hoodTarget);
+
+        if (Math.abs(hoodTarget - getHoodEncoderPosition()) > 500.0) {
+            if (hoodTarget > 500.0) {
+                hoodMotor.set(ControlMode.PercentOutput, ((hoodTarget - 1024.0) - getHoodEncoderPosition()) * HOOD_KP);
+            } else if (getHoodEncoderPosition() > 500.0) {
+                hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - (getHoodEncoderPosition() - 1024.0)) * HOOD_KP);
+            }
+            
+        } else {
+            hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP);
+        }
+        
     }
 
     @Override
@@ -315,16 +341,20 @@ public class Shooter implements Subsystem {
             setHoodMotorPosition(POINTBLANK_HOOD);
         } else if (hoodManualOverride == false) {
             if (willAimToInnerGoal()) {
-                hoodTravelDistance = AIMING_INNER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
+                hoodTravelDistance = (AIMING_INNER_REGRESSION_A * (Math.pow(limelightSubsystem.getDistanceToTarget(), 2))) 
+                                        + (AIMING_INNER_REGRESSION_B * limelightSubsystem.getDistanceToTarget()) 
+                                        + (AIMING_INNER_REGRESSION_C + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT));
 
-                setHoodMotorPosition(hoodTravelDistance * TICKS_PER_INCH); // replace later with ma3
+                setHoodMotorPosition(hoodTravelDistance); // replace later with ma3
                 // hoodMotor.set(ControlMode.PercentOutput, 0.0);
             } else {
-                hoodTravelDistance = AIMING_OUTER_REGRESSION_A + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT); // TODO: Perform regression calculation
+                hoodTravelDistance = (AIMING_INNER_REGRESSION_A * (Math.pow(limelightSubsystem.getDistanceToTarget(), 2))) 
+                                        + (AIMING_INNER_REGRESSION_B * limelightSubsystem.getDistanceToTarget()) 
+                                        + (AIMING_INNER_REGRESSION_C + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT));
             
                 //hoodMotor.set(ControlMode.Position, 0); replace later with ma3
                 // hoodMotor.set(ControlMode.PercentOutput, 0.0);
-                setHoodMotorPosition(hoodTravelDistance * TICKS_PER_INCH);
+                setHoodMotorPosition(hoodTravelDistance);
             }
         }
     }
@@ -352,7 +382,12 @@ public class Shooter implements Subsystem {
     }
 
     public void setHoodMotorPosition(double position) {
-        hoodMotor.set(ControlMode.Position, (position + hoodEncoderOffset + 1024) % 1024);
+        hoodTarget = position;
+
+        // hoodMotor.set(ControlMode.Position, (position + hoodEncoderOffset + 1024) % 1024);
+
+        
+
     }
 
 }
