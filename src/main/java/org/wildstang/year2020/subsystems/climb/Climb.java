@@ -15,6 +15,7 @@ public class Climb implements Subsystem {
     // Inputs
     private DigitalInput selectButton;
     private DigitalInput startButton;
+    private DigitalInput downButton;
 
     // Outputs
     private CANSparkMax climbMotor1;
@@ -22,19 +23,24 @@ public class Climb implements Subsystem {
 
     // Variables
     private double motorspeed;
+    private final double LIFT_HEIGHT = 0;
 
     // Statuses
     private boolean climbInputStatus;
     private boolean climbActiveStatus; // For Shuffleboard
+    private boolean climbCompleteStatus;
+    private boolean downPressed;
 
     @Override
     public void inputUpdate(Input source) {
-        if ( selectButton.getValue() && startButton.getValue()) {
+        if (selectButton.getValue() && startButton.getValue()) {
             climbInputStatus = true;
             motorspeed = 1.0; // Extends climb
+        }
+        if (downButton.getValue()) {
+            downPressed = true;
         } else {
-            climbInputStatus = false;
-            motorspeed = 0; // Retracts climb via elastic magic
+          downPressed = false;
         }
     }
 
@@ -56,19 +62,31 @@ public class Climb implements Subsystem {
             climbActiveStatus = true; // For Shuffleboard
             climbMotor1.set(motorspeed);
             climbMotor2.set(motorspeed);
+            if (climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT && climbMotor2.getEncoder().getPosition() >= LIFT_HEIGHT) {
+                climbActiveStatus = false;
+                climbCompleteStatus = true;
+            }
+        }
+
+        if (climbCompleteStatus == true && downPressed == true) {
+            climbActiveStatus = true;
+            climbMotor1.set(motorspeed);
+            climbMotor2.set(motorspeed);
         }
         // If anything else, set motorspeed to 0
-        else {
+        if (climbCompleteStatus == true && downPressed == false) {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
             climbMotor2.set(0);
         }
+        
     }
 
     @Override
     public void resetState() {
         climbInputStatus = false;
         climbActiveStatus = false;
+        climbCompleteStatus = false;
         //climbMotor1.restoreFactoryDefaults();
         //climbMotor2.restoreFactoryDefaults();
     }
@@ -89,6 +107,8 @@ public class Climb implements Subsystem {
         selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
         startButton.addInputListener(this);
+        downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
+        downButton.addInputListener(this);
     }
 
 }
