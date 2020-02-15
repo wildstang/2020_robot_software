@@ -85,7 +85,7 @@ public class Turret implements Subsystem {
         turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
         turretEncoderResetButton.addInputListener(this);
 
-        gyroSensor = new AHRS(gyroPort  );
+        // gyroSensor = new AHRS(gyroPort  );
     }
 
     // Initializes outputs
@@ -221,16 +221,16 @@ public class Turret implements Subsystem {
         } //end of aim mode 
 
 
-        else if(wallTracking && !aimModeEnabled) {
-            if (gyroSensor.getAngle() < 180) {
-                 wallDirection = 90 + gyroSensor.getAngle();    
-            }
-            if(gyroSensor.getAngle() > 270) {
-                 wallDirection = gyroSensor.getAngle() - 270;
-            }
+        // else if(wallTracking && !aimModeEnabled) {
+        //     if (gyroSensor.getAngle() < 180) {
+        //          wallDirection = 90 + gyroSensor.getAngle();    
+        //     }
+        //     if(gyroSensor.getAngle() > 270) {
+        //          wallDirection = gyroSensor.getAngle() - 270;
+        //     }
             
-            turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
-        }  //end of wall tracking
+        //     turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
+        // }  //end of wall tracking
         
         
         

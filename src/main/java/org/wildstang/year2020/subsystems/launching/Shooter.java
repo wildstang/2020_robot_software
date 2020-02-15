@@ -367,11 +367,14 @@ public class Shooter implements Subsystem {
     // Decides whether the inner goal is within range
     public boolean willAimToInnerGoal() {
         if (limelightSubsystem.getDistanceToTarget() < INNER_GOAL_MIN_DISTANCE) { // Is the robot too close to see the inner goal?
+            SmartDashboard.putBoolean("Aiming Inner", false);
             return false; // Too close
         } else {
             if (limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToTarget() < INNER_GOAL_STANDARD_RATIO - INNER_GOAL_THRESHOLD) { // Is the robot's angle to the target too far off?
+                SmartDashboard.putBoolean("Aiming Inner", false);
                 return false; // Angle too far off of target
             } else {
+                SmartDashboard.putBoolean("Aiming Inner", true);
                 return true; // Within +/- 15 degree bubble and far enough away
             }
         }
