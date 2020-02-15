@@ -26,6 +26,12 @@ import java.lang.management.GarbageCollectorMXBean;
 
 import org.wildstang.year2020.auto.programs.Ball10;
 import org.wildstang.year2020.auto.programs.TrenchCentered;
+import org.wildstang.year2020.auto.programs.Prog120;
+import org.wildstang.year2020.auto.programs.Prog144;
+import org.wildstang.year2020.auto.programs.Prog168;
+import org.wildstang.year2020.auto.programs.Prog192;
+import org.wildstang.year2020.auto.programs.Prog216;
+import org.wildstang.year2020.auto.programs.Prog240;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,6 +60,12 @@ public class Robot extends TimedRobot {
 
         AutoManager.getInstance().addProgram(new Ball10());
         AutoManager.getInstance().addProgram(new TrenchCentered());
+        AutoManager.getInstance().addProgram(new Prog120());
+        AutoManager.getInstance().addProgram(new Prog144());
+        AutoManager.getInstance().addProgram(new Prog168());
+        AutoManager.getInstance().addProgram(new Prog192());
+        AutoManager.getInstance().addProgram(new Prog216());
+        AutoManager.getInstance().addProgram(new Prog240());
         
     }
 
