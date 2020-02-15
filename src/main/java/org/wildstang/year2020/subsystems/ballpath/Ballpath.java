@@ -105,19 +105,17 @@ public class Ballpath implements Subsystem{
     public void update() {
         kickerMotorSpeed = 0.7*FULL_SPEED;
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
-        kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
 
         if (running && timer.hasPeriodPassed(TIME_PASSED)){
             timer.reset();
             running = false;
-            if (kickerOn) {
-                kickerMotorSpeed = 0.0;
-                kickerOn = false;
-            } else {
-                kickerMotorSpeed = FULL_SPEED;
-                kickerOn = true;
-            }
+            kickerOn = !kickerOn;
+        } 
+        if (kickerOn){
+            kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
+        } else {
+            kickerMotor.set(ControlMode.PercentOutput, 0.0);
         }
     }
 
@@ -135,5 +133,13 @@ public class Ballpath implements Subsystem{
     public String getName() {
         return "Ballpath";
     }
-    
+    public void turnOnIntake(){
+        intakeMotorSpeed = FULL_SPEED;
+    }
+    public void turnOnFeed(){
+        feedMotorSpeed = FULL_SPEED;
+    }
+    public void turnOffFeed(){
+        feedMotorSpeed = 0.0;
+    }
 }
