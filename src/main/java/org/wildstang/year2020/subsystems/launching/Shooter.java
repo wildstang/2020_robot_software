@@ -403,8 +403,8 @@ public class Shooter implements Subsystem {
         }
     }
     //Usable for auto
-    public void setAim(){
-        aimModeEnabled = true;
+    public void setAim(boolean aiming){
+        aimModeEnabled = aiming;
     }
 
     public void resetHoodEncoder() {
