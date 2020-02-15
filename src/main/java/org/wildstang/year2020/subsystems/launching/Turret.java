@@ -90,6 +90,7 @@ public class Turret implements Subsystem {
         turretMotor.setSensorPhase(false);
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
+        turretMotor.configPeakCurrentLimit(25);
         turretMotor.config_kF(0, TURRET_PID_CONSTANTS.f);
         turretMotor.config_kP(0, TURRET_PID_CONSTANTS.p);
         turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);

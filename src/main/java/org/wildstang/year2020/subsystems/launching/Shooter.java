@@ -117,6 +117,7 @@ public class Shooter implements Subsystem {
     private static final double TIMEPASSED = 1.0;
     private boolean running;
     private boolean shooterOn;
+    private boolean autoMode;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -189,29 +190,26 @@ public class Shooter implements Subsystem {
         if(running && timer.hasPeriodPassed(TIMEPASSED)) {
             timer.reset();
             running = false;
-            if(shooterOn) {
-                shooterMasterMotor.set(ControlMode.Velocity, 0.0);
-                shooterOn = false;
-            } else {
-                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-                shooterOn = true;
-            }
+            shooterOn = !shooterOn;
         }
         if (hoodManualOverride == true) {
             hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
         SmartDashboard.putNumber("Hood moving", hoodMotorOutput * HOOD_OUTPUT_SCALE);
 
-        if (aimModeEnabled){
+        if (!shooterOn){
+            shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+        } else if (aimModeEnabled){
             shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-            shooterOn = true;
             aimToGoal();
         } else {
-            shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-            shooterOn = true;
-            //hoodMotor.set(ControlMode.Position, 0.0); replace later with ma3
-            if (!hoodManualOverride){
-                setHoodMotorPosition(0.0);
+            if (autoMode){
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            } else {
+                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+                if (!hoodManualOverride){
+                    setHoodMotorPosition(0.0);
+                }
             }
         }
         double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
@@ -299,13 +297,14 @@ public class Shooter implements Subsystem {
                     timer.reset();
                     running = true;
                 }
+                running = !selectButton.getValue();
+            } else {
+                running = false;
             }
-        } else {
-            running = false;
-        }
+        } 
         SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
         SmartDashboard.putNumber("Hood PID Adjust", hoodRegAdjustmentCount);
-        running = !selectButton.getValue();
+        autoMode = false;
     }
 
     @Override
@@ -333,7 +332,9 @@ public class Shooter implements Subsystem {
         hoodEncoderOffset = 940.0;
 
         running = false;
-        shooterOn = false;
+        shooterOn = true;
+        timer.start();
+        autoMode = true;
     }
 
     @Override
@@ -396,17 +397,14 @@ public class Shooter implements Subsystem {
             }
         }
     }
-    public void setAutonShooterSpeed(){
-        shooterMasterMotor.selectProfileSlot(1, 0);
-        shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-    }
     public void setHoodPosition(double position){ // Fix name
         if (hoodManualOverride == false) {
             setHoodMotorPosition(position);
         }
     }
+    //Usable for auto
     public void setAim(){
-        aimToGoal();
+        aimModeEnabled = true;
     }
 
     public void resetHoodEncoder() {
@@ -419,6 +417,7 @@ public class Shooter implements Subsystem {
         return (currentHoodEncoderValue - hoodEncoderOffset + 1024) % 1024;
     }
 
+    //Usable for auto
     public void setHoodMotorPosition(double position) {
         hoodTarget = position;
 
@@ -426,6 +425,10 @@ public class Shooter implements Subsystem {
 
         
 
+    }
+    //usable for auto
+    public void autoOn(){
+        autoMode = true;
     }
 
 }
