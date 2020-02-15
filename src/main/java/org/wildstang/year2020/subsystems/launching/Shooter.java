@@ -89,6 +89,11 @@ public class Shooter implements Subsystem {
 
     public static final double HOOD_KP = -0.015;
 
+    public static final double INNER_GOAL_MIN_DISTANCE = 5.00;
+    // Ratio of horizontal length of target to distance from target (should be constant if robot is straight on target)
+    public static final double INNER_GOAL_STANDARD_RATIO = 1.0;
+    public static final double INNER_GOAL_THRESHOLD = 0.1;
+
     // Logic
     private boolean aimModeEnabled;
 
@@ -186,6 +191,8 @@ public class Shooter implements Subsystem {
         // SmartDashboard.putNumber("Area Value", limelightSubsystem.getTAValue());
         // SmartDashboard.putNumber("Area Adjust", limelightSubsystem.getTAValue() / Math.cos(limelightSubsystem.getTXValue()));
         SmartDashboard.putNumber("Dist to Target", limelightSubsystem.getDistanceToTarget());
+        SmartDashboard.putNumber("THOR Value", limelightSubsystem.getTHorValue());
+        SmartDashboard.putNumber("Magic Ratio", limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToTarget());
         
         if(running && timer.hasPeriodPassed(TIMEPASSED)) {
             timer.reset();
@@ -357,24 +364,35 @@ public class Shooter implements Subsystem {
         return hoodAimed;
     }
 
-    // Decides whether the inner goal is within range (+/- 15 degrees horizontally)
+    // Decides whether the inner goal is within range
     public boolean willAimToInnerGoal() {
-        double horizontalAngleOffsetSum = 0.0;
-
-        for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
-            horizontalAngleOffsetSum += trailingHorizontalAngleOffsets.get(i);
-        }
-
-        double netHorizontalAngleOffset = horizontalAngleOffsetSum / (double) trailingHorizontalAngleOffsets.size();
-
-        if (netHorizontalAngleOffset <= 15.0 && netHorizontalAngleOffset >= -15.0) {
-            return true;
+        if (limelightSubsystem.getDistanceToTarget() < INNER_GOAL_MIN_DISTANCE) { // Is the robot too close to see the inner goal?
+            return false; // Too close
         } else {
-            return false;
+            if (limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToTarget() < INNER_GOAL_STANDARD_RATIO - INNER_GOAL_THRESHOLD) { // Is the robot's angle to the target too far off?
+                return false; // Angle too far off of target
+            } else {
+                return true; // Within +/- 15 degree bubble and far enough away
+            }
         }
+
+
+        // double horizontalAngleOffsetSum = 0.0;
+
+        // for (int i = 0; i < trailingHorizontalAngleOffsets.size(); i++) {
+        //     horizontalAngleOffsetSum += trailingHorizontalAngleOffsets.get(i);
+        // }
+
+        // double netHorizontalAngleOffset = horizontalAngleOffsetSum / (double) trailingHorizontalAngleOffsets.size();
+
+        // if (netHorizontalAngleOffset <= 15.0 && netHorizontalAngleOffset >= -15.0) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     }
 
-    // Aims to either the inner or outer goal based on horizontal angle offset
+    // Aims to either the inner or outer goal
     private void aimToGoal() {
         if (isPointBlank) {
             setHoodMotorPosition(POINTBLANK_HOOD);
@@ -387,8 +405,8 @@ public class Shooter implements Subsystem {
                 setHoodMotorPosition(hoodTravelDistance); // replace later with ma3
                 // hoodMotor.set(ControlMode.PercentOutput, 0.0);
             } else {
-                hoodTravelDistance = (AIMING_INNER_REGRESSION_A * (Math.pow(limelightSubsystem.getDistanceToTarget(), 2))) 
-                                        + (AIMING_INNER_REGRESSION_B * limelightSubsystem.getDistanceToTarget()) 
+                hoodTravelDistance = (AIMING_INNER_REGRESSION_A * (Math.pow(limelightSubsystem.getDistanceToInnerGoal(), 2))) 
+                                        + (AIMING_INNER_REGRESSION_B * limelightSubsystem.getDistanceToInnerGoal()) 
                                         + (AIMING_INNER_REGRESSION_C + (hoodRegAdjustmentCount * HOOD_REG_ADJUSTMENT_INCREMENT));
             
                 //hoodMotor.set(ControlMode.Position, 0); replace later with ma3
@@ -397,11 +415,13 @@ public class Shooter implements Subsystem {
             }
         }
     }
+
     public void setHoodPosition(double position){ // Fix name
         if (hoodManualOverride == false) {
-            setHoodMotorPosition(position);
+            setHoodMotorPosition(position); // TODO: Merge into setHoodMotorPosition(), remove this func and rename other one
         }
     }
+
     //Usable for auto
     public void setAim(boolean aiming){
         aimModeEnabled = aiming;
@@ -422,10 +442,8 @@ public class Shooter implements Subsystem {
         hoodTarget = position;
 
         // hoodMotor.set(ControlMode.Position, (position + hoodEncoderOffset + 1024) % 1024);
-
-        
-
     }
+
     //usable for auto
     public void autoOn(){
         autoMode = true;

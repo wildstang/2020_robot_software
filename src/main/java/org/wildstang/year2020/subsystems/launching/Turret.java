@@ -160,14 +160,19 @@ public class Turret implements Subsystem {
     @Override
     // Updates the subsystem everytime the framework updates (every ~0.02 seconds)
     public void update() {
-        SmartDashboard.putNumber("Adjusted TY", limelightSubsystem.getTXValue() - 0.8);
+        SmartDashboard.putNumber("Adjusted TX", limelightSubsystem.getTXValue() - 0.8);
         SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
         if (aimModeEnabled == true) {
-            double tyValue = limelightSubsystem.getTXValue() - 0.8;
+            double txValue = 0.0;
+            if (shooterSubsystem.willAimToInnerGoal() == true) { // Do we need to adjust the turret aiming angle?
+                txValue = Math.toDegrees(Math.atan(limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToInnerGoal())) - 0.8;
+            } else {
+                txValue = limelightSubsystem.getTXValue() - 0.8;
+            }
 
             
 
-            double headingError = -tyValue;
+            double headingError = -txValue;
             // if (shooterSubsystem.willAimToInnerGoal()){
             //     TODO: calculate the new offset from the middle of the outer goal to the middle of the inner goal
             //     double horizontalAngleOffsetSum = 0.0;
@@ -179,13 +184,13 @@ public class Turret implements Subsystem {
             // }
             double rotationalAdjustment = 0.0;
 
-            if (Math.abs(tyValue) > 1.0) { // Pull Turret in, not close enough
+            if (Math.abs(txValue) > 1.0) { // Pull Turret in, not close enough
                 rotationalAdjustment = kP * headingError;
-            } else if (Math.abs(tyValue) < 0.1) { // Do nothing, we're close enough
+            } else if (Math.abs(txValue) < 0.1) { // Do nothing, we're close enough
                 rotationalAdjustment = 0.0;
-            } else if (tyValue < 1.0 && tyValue > 0.0) { // Keep pulling Turret in, almost there
+            } else if (txValue < 1.0 && txValue > 0.0) { // Keep pulling Turret in, almost there
                 rotationalAdjustment = kP * headingError + minimumAdjustmentCommand;
-            } else if (tyValue < 0.0 && tyValue > -1.0) { // Keep pulling Turret in, almost there
+            } else if (txValue < 0.0 && txValue > -1.0) { // Keep pulling Turret in, almost there
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 

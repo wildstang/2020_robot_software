@@ -172,6 +172,11 @@ public class Limelight implements Subsystem {
         return distance;
     }
 
+    // Calculates estimated distance to inner goal (right now, we're saying it's target distance + 30 inches)
+    public double getDistanceToInnerGoal() {
+        return getDistanceToTarget() + 2.5;
+    }
+
     @Override
     // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
