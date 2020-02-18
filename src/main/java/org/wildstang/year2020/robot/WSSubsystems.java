@@ -16,7 +16,7 @@ import org.wildstang.framework.core.Subsystems;
 public enum WSSubsystems implements Subsystems {
     DRIVEBASE("Drive Base", Drive.class),
     //FALCONDRIVE("Falcon Drive",FalconDrive.class),%
-    TEST("Test", TestSubsystem.class),
+    //TEST("Test", TestSubsystem.class),
     BALLPATH("Ballpath", Ballpath.class),
     LIMELIGHT("Limelight", Limelight.class),
     SHOOTER("Shooter", Shooter.class),
