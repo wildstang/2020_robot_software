@@ -14,6 +14,9 @@ public class PathNameConstants {
     public static final String TEST192 = "Test192";
     public static final String TEST216 = "Test216";
     public static final String TEST240 = "Test240";
+
+    public static final String TRENCH10A = "trench10a";
+    public static final String TRENCH10B = "trench10b";
     
 
     

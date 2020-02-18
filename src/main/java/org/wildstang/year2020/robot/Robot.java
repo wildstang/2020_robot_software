@@ -32,6 +32,7 @@ import org.wildstang.year2020.auto.programs.Prog168;
 import org.wildstang.year2020.auto.programs.Prog192;
 import org.wildstang.year2020.auto.programs.Prog216;
 import org.wildstang.year2020.auto.programs.Prog240;
+import org.wildstang.year2020.auto.programs.Trench10;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -60,6 +61,7 @@ public class Robot extends TimedRobot {
 
         AutoManager.getInstance().addProgram(new Ball10());
         AutoManager.getInstance().addProgram(new TrenchCentered());
+        AutoManager.getInstance().addProgram(new Trench10());
         AutoManager.getInstance().addProgram(new Prog120());
         AutoManager.getInstance().addProgram(new Prog144());
         AutoManager.getInstance().addProgram(new Prog168());

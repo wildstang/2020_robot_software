@@ -44,7 +44,7 @@ public class Turret implements Subsystem {
 
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 4096.0;
-    public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;     
+    public static final double TICKS_PER_INCH = 108.8;//TICKS_PER_REV * REVS_PER_INCH;     
 
     public static final double TURRET_BASE_CIRCUMFERENCE = 8.0;
 
@@ -97,7 +97,7 @@ public class Turret implements Subsystem {
         turretMotor.setSensorPhase(false);
         turretMotor.configNominalOutputForward(0, 0);
         turretMotor.configNominalOutputReverse(0, 0);
-        turretMotor.configPeakCurrentLimit(25);
+        turretMotor.configPeakCurrentLimit(10);
         turretMotor.config_kF(0, TURRET_PID_CONSTANTS.f);
         turretMotor.config_kP(0, TURRET_PID_CONSTANTS.p);
         turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);
@@ -126,7 +126,7 @@ public class Turret implements Subsystem {
 
         if (source == backPositionButton) {
             if (backPositionButton.getValue()) {
-                turretTarget = -29300;
+                turretTarget = -29400;
             }
         }
 
