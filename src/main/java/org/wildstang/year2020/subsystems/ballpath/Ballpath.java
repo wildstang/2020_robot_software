@@ -62,17 +62,17 @@ public class Ballpath implements Subsystem {
         if (rightTrigger.getValue() > 0.75) {
             // run the hopper and kicker motors at full power
             feedMotorSpeed = FULL_SPEED;
-            // kickerMotorSpeed = FULL_SPEED;
+            kickerMotorSpeed = FULL_SPEED;
             
         } else if (yButton.getValue()) {
             // run the hopper and kicker motors backwards at ~40% power
             feedMotorSpeed = REVERSE_SPEED;
-           // kickerMotorSpeed = REVERSE_SPEED;
+            kickerMotorSpeed = REVERSE_SPEED;
 
         } else {
             // don't run the motors if neither button is pressed
             feedMotorSpeed = 0;
-           // kickerMotorSpeed = 0;
+            kickerMotorSpeed = 0;
         }
 
         if (aButton.getValue()) {
