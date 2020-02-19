@@ -10,6 +10,8 @@ import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.CANConstants;
 import org.wildstang.year2020.robot.WSInputs;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Climb implements Subsystem {
 
     // Inputs
@@ -35,6 +37,7 @@ public class Climb implements Subsystem {
     public void inputUpdate(Input source) {
         if (selectButton.getValue() && startButton.getValue()) {
             climbInputStatus = true;
+        
             motorspeed = 1.0; // Extends climb
         }
         if (downButton.getValue()) {
@@ -68,6 +71,7 @@ public class Climb implements Subsystem {
             }
         }
 
+        SmartDashboard.putBoolean("Climb started",climbInputStatus);
         if (climbCompleteStatus == true && downPressed == true) {
             climbActiveStatus = true;
             climbMotor1.set(motorspeed);
