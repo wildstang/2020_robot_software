@@ -83,7 +83,7 @@ public class Ballpath implements Subsystem {
             intakeMotorSpeed = 0;
         }
 
-        if (selectButton.getValue()) {
+    /*    if (selectButton.getValue()) {
             selectPushed = true;
         } else {
             selectPushed = false;
@@ -94,7 +94,7 @@ public class Ballpath implements Subsystem {
             running = true;
         } else {
             running = false;
-        }
+        } */
     }
 
     @Override
@@ -104,7 +104,7 @@ public class Ballpath implements Subsystem {
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
 
 
-        if (running == true && timer.hasPeriodPassed(TIME_PASSED) && selectPushed == false) {
+    /*    if (running == true && timer.hasPeriodPassed(TIME_PASSED) && selectPushed == false) {
             timer.reset();
             running = false; 
             
@@ -115,8 +115,8 @@ public class Ballpath implements Subsystem {
                 kickerMotorSpeed = FULL_SPEED;
                 kickerOn = true;
             }
-        }
-    }
+        } */
+    }  
 
     /**
      * Auto Methods
