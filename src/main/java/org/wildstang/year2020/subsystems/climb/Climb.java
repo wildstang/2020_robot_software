@@ -24,8 +24,9 @@ public class Climb implements Subsystem {
     private CANSparkMax climbMotor2;
 
     // Variables
-    private double motorspeed;
-    private final double LIFT_HEIGHT = 0;
+    private final double MOTOR_SPEED = 0.3;
+    private final double LIFT_HEIGHT = -55;
+    private final double LIFT_BOTTOM = -0.5;
 
     // Statuses
     private boolean climbInputStatus;
@@ -37,13 +38,15 @@ public class Climb implements Subsystem {
     public void inputUpdate(Input source) {
         if (selectButton.getValue() && startButton.getValue()) {
             climbInputStatus = true;
-        
-            motorspeed = 1.0; // Extends climb
         }
+        else {
+            climbInputStatus = false;
+        }
+
         if (downButton.getValue()) {
             downPressed = true;
         } else {
-          downPressed = false;
+            downPressed = false;
         }
     }
 
@@ -63,19 +66,20 @@ public class Climb implements Subsystem {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
         if (climbInputStatus) {
             climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(motorspeed);
-            climbMotor2.set(motorspeed);
-            if (climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT && climbMotor2.getEncoder().getPosition() >= LIFT_HEIGHT) {
-                climbActiveStatus = false;
-                climbCompleteStatus = true;
-            }
+            climbMotor1.set(MOTOR_SPEED);
+            climbMotor2.set(MOTOR_SPEED);
+        }
+
+        if (climbActiveStatus && !climbCompleteStatus && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT && climbMotor2.getEncoder().getPosition() >= LIFT_HEIGHT) {
+            climbActiveStatus = false;
+            climbCompleteStatus = true;
         }
 
         SmartDashboard.putBoolean("Climb started",climbInputStatus);
         if (climbCompleteStatus == true && downPressed == true) {
             climbActiveStatus = true;
-            climbMotor1.set(motorspeed);
-            climbMotor2.set(motorspeed);
+            climbMotor1.set(MOTOR_SPEED);
+            climbMotor2.set(MOTOR_SPEED);
         }
         // If anything else, set motorspeed to 0
         if (climbCompleteStatus == true && downPressed == false) {
@@ -84,6 +88,8 @@ public class Climb implements Subsystem {
             climbMotor2.set(0);
         }
         
+        SmartDashboard.putNumber("Climb Motor 1 Encoder",climbMotor1.getEncoder().getPosition());
+        SmartDashboard.putNumber("Climb Motor 2 Encoder",climbMotor2.getEncoder().getPosition());
     }
 
     @Override
@@ -107,9 +113,9 @@ public class Climb implements Subsystem {
 
     private void initInputs() {
         IInputManager inputManager = Core.getInputManager();
-        selectButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_SELECT.getName());
+        selectButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_SELECT.getName());
         selectButton.addInputListener(this);
-        startButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
+        startButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_START.getName());
         startButton.addInputListener(this);
         downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
         downButton.addInputListener(this);
