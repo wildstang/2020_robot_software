@@ -141,9 +141,9 @@ public class Turret implements Subsystem {
         if (Math.abs(manualTurret.getValue())>0.25){
             if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
                 manualSpeed = manualTurret.getValue();
-            } else {
-                manualSpeed = 0.0;
-            }
+            } 
+        }else {
+            manualSpeed = 0.0;
         }
 
         if (source == turretEncoderResetButton) {
@@ -163,11 +163,11 @@ public class Turret implements Subsystem {
         SmartDashboard.putNumber("Adjusted TX", limelightSubsystem.getTXValue() - 0.8);
         SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
         if (aimModeEnabled == true) {
-            double tyValue = limelightSubsystem.getTXValue() - 0.8;
+            double txValue = limelightSubsystem.getTXValue() - 0.8;
 
             
 
-            double headingError = -tyValue;
+            double headingError = -txValue;
             // if (shooterSubsystem.willAimToInnerGoal()){
             //     TODO: calculate the new offset from the middle of the outer goal to the middle of the inner goal
             //     double horizontalAngleOffsetSum = 0.0;
