@@ -36,6 +36,7 @@ public class Trench10 extends AutoProgram {
         addStep(new FeedOnStep());
         addStep(new DelayStep(1.5));
         addStep(new FeedOffStep());
+        addStep(new SetHoodStep(0.0));
 
         AutoParallelStepGroup third = new AutoParallelStepGroup();
         third.addStep(new AutoAimStep(false));
@@ -45,7 +46,9 @@ public class Trench10 extends AutoProgram {
         AutoParallelStepGroup fourth = new AutoParallelStepGroup();
         fourth.addStep(new PathFollowerStep(PathNameConstants.TRENCH10B,true,false));
         AutoSerialStepGroup fourthA = new AutoSerialStepGroup();
-        fourthA.addStep(new DelayStep(2.0));
+        fourthA.addStep(new DelayStep(1.5));
+        fourthA.addStep(new SetHoodStep(550));
+        fourthA.addStep(new DelayStep(0.5));
         fourthA.addStep(new AutoAimStep(true));
         fourth.addStep(fourthA);
         addStep(fourth);
