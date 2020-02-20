@@ -10,13 +10,8 @@ import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 import edu.wpi.first.wpilibj.DriverStation;
 
-/*
-    Use IC2 bus for this Java class to communicate to the Arduino over serial
-    Finish this class FIRST before working on the arduino ino file
-    If you don't know what you're doing, please leave this alone (e.g me)
+    // TODO: implement alliance colors and completed climb (as well as standard rainbow colors) and other misc things in code
 
-    TODO: implement alliance colors and completed climb (as well as standard rainbow colors) and other misc things in code
-*/
 
 public class LED implements Subsystem
 {
@@ -24,9 +19,9 @@ public class LED implements Subsystem
     private String name;
     WsI2COutput ledOutput;
     // TODO properly reference launcher subsystem class here
-    private launcher launcher;
+    private Shooter launcher;
 
-    // Command IDs
+    // Pattern IDs
     private static final int OFF_ID = 1;
     private static final int DISABLED_ID = 2;
     private static final int AUTO_ID = 3;
