@@ -25,8 +25,8 @@ public class Climb implements Subsystem {
 
     // Variables
     private final double MOTOR_SPEED = 0.3;
-    private final double LIFT_HEIGHT = -55;
-    private final double LIFT_BOTTOM = -0.5;
+    private final double LIFT_HEIGHT = 55;
+    private final double LIFT_BOTTOM = 109.5;
 
     // Statuses
     private boolean climbInputStatus;
@@ -70,26 +70,23 @@ public class Climb implements Subsystem {
             climbMotor2.set(MOTOR_SPEED);
         }
 
-        if (climbActiveStatus && !climbCompleteStatus && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT && climbMotor2.getEncoder().getPosition() >= LIFT_HEIGHT) {
+        if (climbActiveStatus && !climbCompleteStatus && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
             climbActiveStatus = false;
             climbCompleteStatus = true;
         }
 
         SmartDashboard.putBoolean("Climb started",climbInputStatus);
-        if (climbCompleteStatus == true && downPressed == true) {
+        if (climbCompleteStatus == true && downPressed == true && climbMotor1.getEncoder().getPosition() <= LIFT_BOTTOM) {
             climbActiveStatus = true;
             climbMotor1.set(MOTOR_SPEED);
             climbMotor2.set(MOTOR_SPEED);
-        }
-        // If anything else, set motorspeed to 0
-        if (climbCompleteStatus == true && downPressed == false) {
+        } else if (climbCompleteStatus == true) {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
             climbMotor2.set(0);
         }
         
         SmartDashboard.putNumber("Climb Motor 1 Encoder",climbMotor1.getEncoder().getPosition());
-        SmartDashboard.putNumber("Climb Motor 2 Encoder",climbMotor2.getEncoder().getPosition());
     }
 
     @Override
@@ -97,6 +94,7 @@ public class Climb implements Subsystem {
         climbInputStatus = false;
         climbActiveStatus = false;
         climbCompleteStatus = false;
+        climbMotor1.getEncoder().setPosition(0.0);
         //climbMotor1.restoreFactoryDefaults();
         //climbMotor2.restoreFactoryDefaults();
     }
