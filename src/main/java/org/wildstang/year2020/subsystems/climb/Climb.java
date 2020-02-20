@@ -24,7 +24,7 @@ public class Climb implements Subsystem {
     private CANSparkMax climbMotor2;
 
     // Variables
-    private final double MOTOR_SPEED = 0.3;
+    private final double MOTOR_SPEED = 1.0;
     private final double LIFT_HEIGHT = 55;
     private final double LIFT_BOTTOM = 109.5;
 
