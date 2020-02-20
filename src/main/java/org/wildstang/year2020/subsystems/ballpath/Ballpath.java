@@ -21,24 +21,17 @@ public class Ballpath implements Subsystem{
 
     //Motor Speeds
     private double feedMotorSpeed;
-    private double kickerMotorSpeed;
     private double intakeMotorSpeed;
 
     //Constants
     private final double FULL_SPEED = 1.0;
+    private final double KICKER_MOTOR_CONSTANT = 0.7;
     private final double REVERSE_SPEED = -0.4;
-    private final double TIME_PASSED = 1.0;
 
     //Inputs
     private AnalogInput rightTrigger;
     private DigitalInput yButton;
     private DigitalInput aButton;
-    private DigitalInput startButton;
-    private DigitalInput selectButton;
-    private WsTimer timer = new WsTimer();
-
-    private boolean running;
-    private boolean kickerOn;
 
     @Override
     public void inputUpdate(Input source) {
@@ -56,17 +49,6 @@ public class Ballpath implements Subsystem{
         } else {
             intakeMotorSpeed = 0;
         }
-        running = !selectButton.getValue();
-        if (startButton.getValue()){
-            if (!running){
-                timer.reset();
-                running = true;
-            }
-            
-        } else {
-            running = false;
-        }
-
     }
 
     @Override
@@ -82,10 +64,6 @@ public class Ballpath implements Subsystem{
         yButton.addInputListener(this);
         aButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN.getName());
         aButton.addInputListener(this);
-        startButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_START.getName());
-        startButton.addInputListener(this);
-        selectButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SELECT.getName());
-        selectButton.addInputListener(this);
     }
 
     private void initOutputs(){
@@ -104,30 +82,15 @@ public class Ballpath implements Subsystem{
 
     @Override
     public void update() {
-        kickerMotorSpeed = 0.7*FULL_SPEED;
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
-
-        if (running && timer.hasPeriodPassed(TIME_PASSED)){
-            timer.reset();
-            running = false;
-            kickerOn = !kickerOn;
-        } 
-        if (kickerOn){
-            kickerMotor.set(ControlMode.PercentOutput, kickerMotorSpeed);
-        } else {
-            kickerMotor.set(ControlMode.PercentOutput, 0.0);
-        }
+        kickerMotor.set(ControlMode.PercentOutput, feedMotorSpeed * KICKER_MOTOR_CONSTANT);   
     }
 
     @Override
     public void resetState() {
         feedMotorSpeed = 0.0;
-        kickerMotorSpeed = 0.0;
         intakeMotorSpeed = 0.0;
-        kickerOn = true;
-        running = false;
-        timer.start();
     }
 
     @Override
