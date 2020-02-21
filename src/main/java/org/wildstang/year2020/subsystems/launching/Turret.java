@@ -16,8 +16,8 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.interfaces.*; 
+// import edu.wpi.first.wpilibj.I2C;
+// import edu.wpi.first.wpilibj.interfaces.*; 
 
 public class Turret implements Subsystem {
 
@@ -25,7 +25,8 @@ public class Turret implements Subsystem {
     private AnalogInput aimModeTrigger;
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
-    private DigitalInput faceWall; 
+    private DigitalInput sidePositionButton;
+    // private DigitalInput faceWall; 
     private AnalogInput manualTurret;
     // private static AHRS gyroSensor;
     // private static I2C.Port gyroPort;
@@ -35,7 +36,7 @@ public class Turret implements Subsystem {
     private TalonSRX turretMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
-    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1); // 0.0 0.3 0.0 0.1
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.15, 0.0, 0.1); // 0.0 0.3 0.0 0.1
 
 
     // Constants
@@ -53,7 +54,7 @@ public class Turret implements Subsystem {
 
     // Logic
     private boolean aimModeEnabled;
-    private boolean wallTracking;  
+    // private boolean wallTracking;  
     private boolean turretAimed;
     private double lastSetpoint;
     private double manualSpeed;
@@ -75,14 +76,16 @@ public class Turret implements Subsystem {
     private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
-        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT);
+        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN);
         backPositionButton.addInputListener(this);
-        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
+        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_UP);
         frontPositionButton.addInputListener(this);
+        sidePositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
+        sidePositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
-        faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
-        faceWall.addInputListener(this);
+        // faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
+        // faceWall.addInputListener(this);
         turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
         turretEncoderResetButton.addInputListener(this);
 
@@ -119,15 +122,20 @@ public class Turret implements Subsystem {
             } else { // Exiting aim mode
                 aimModeEnabled = false;
                 turretAimed = false;
-                if (!wallTracking) {
+                // if (!wallTracking) {
                     turretMotor.set(ControlMode.Position, lastSetpoint);
-                }
+                // }
             }
         }
 
         if (source == backPositionButton) {
             if (backPositionButton.getValue()) {
                 turretTarget = -29400;
+            }
+        }
+        if (source == sidePositionButton){
+            if (sidePositionButton.getValue()){
+                turretTarget = -19600;
             }
         }
 
@@ -138,14 +146,14 @@ public class Turret implements Subsystem {
             }
         }
 
-        if (source == faceWall) {
-            if(faceWall.getValue()) {
-                wallTracking = true;
-            }
-            else {
-                wallTracking = false;
-            }
-        }
+        // if (source == faceWall) {
+        //     if(faceWall.getValue()) {
+        //         wallTracking = true;
+        //     }
+        //     else {
+        //         wallTracking = false;
+        //     }
+        // }
 
         if (Math.abs(manualTurret.getValue())>0.25){
             if (!frontPositionButton.getValue() && !backPositionButton.getValue() && !aimModeEnabled){
@@ -228,7 +236,7 @@ public class Turret implements Subsystem {
         //     turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
         // }  // End of wall tracking; start of manual control
         else {
-            turretTarget += TICKS_PER_INCH * manualSpeed * TURRET_BASE_CIRCUMFERENCE / 20.0;
+            turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
 
             if (turretTarget > 290 * TICK_PER_DEGREE || turretTarget < 0) {
                 turretMotor.set(ControlMode.PercentOutput, 0.0);

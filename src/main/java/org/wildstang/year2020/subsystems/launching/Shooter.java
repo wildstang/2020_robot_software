@@ -53,26 +53,26 @@ public class Shooter implements Subsystem {
     private Limelight limelightSubsystem;
 
     // Constants
-    public static final double MOTOR_OUTPUT_TOLERANCE = 1.04;
-    public static final double MOTOR_POSITION_TOLERANCE = 1.0;
+    public static final double MOTOR_OUTPUT_TOLERANCE = 1.04;//flywheel tolerance for determining it it's at the setpoint
+    public static final double MOTOR_POSITION_TOLERANCE = 1.0;//hood tolerance for determining if it's at the setpoint
 
-    public static final double UPPER_GOAL_DISTANCE_LIMIT = 0.0;
+    public static final double UPPER_GOAL_DISTANCE_LIMIT = 0.0;//unused
 
     public static final double REVS_PER_INCH = 1.0 / 2.0;
     public static final double TICKS_PER_REV = 1024.0;
     public static final double TICKS_PER_INCH = TICKS_PER_REV * REVS_PER_INCH;
     
-    public static final double POINTBLANK_HOOD = 100; //tbd
+    public static final double POINTBLANK_HOOD = 45; //hood angle for pointblank shot
 
     // Motor velocities in ticks per decisecond
-    public static final double SAFE_SHOOTER_SPEED = (3750 * TICKS_PER_REV) / 600.0;//34133
+    public static final double SAFE_SHOOTER_SPEED = (3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
     //public static final double SAFE_SHOOTER_SPEED = 8000;
     public static final double AIM_MODE_SHOOTER_SPEED = (6750 * TICKS_PER_REV) / 600.0;//51200
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.015, 0.024, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.025, 1.28, 0.0, 0.0);//same here // 0.02 0.032
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.025, 5.00, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = -1.9325;
@@ -85,11 +85,11 @@ public class Shooter implements Subsystem {
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
 
-    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 0.05;
+    private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 5;
 
     public static final double HOOD_KP = -0.015;
 
-    public static final double INNER_GOAL_MIN_DISTANCE = 5.00;
+    public static final double INNER_GOAL_MIN_DISTANCE = 10.00;
     // Ratio of horizontal length of target to distance from target (should be constant if robot is straight on target)
     public static final double INNER_GOAL_STANDARD_RATIO = 1.0;
     public static final double INNER_GOAL_THRESHOLD = 0.1;
@@ -105,6 +105,7 @@ public class Shooter implements Subsystem {
 
     private double hoodTravelDistance;
     private double hoodMotorOutput;
+    private double minimumHoodAdjustment;
     private boolean hoodManualOverride;
     private boolean isPointBlank;
 
@@ -245,16 +246,17 @@ public class Shooter implements Subsystem {
 
         SmartDashboard.putNumber("Hood Target", hoodTarget);
 
-        if (Math.abs(hoodTarget - getHoodEncoderPosition()) > 500.0) {
-            if (hoodTarget > 500.0) {
-                hoodMotor.set(ControlMode.PercentOutput, ((hoodTarget - 1024.0) - getHoodEncoderPosition()) * HOOD_KP);
-            } else if (getHoodEncoderPosition() > 500.0) {
-                hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - (getHoodEncoderPosition() - 1024.0)) * HOOD_KP);
-            }
+        // if (Math.abs(hoodTarget - getHoodEncoderPosition()) > 500.0) {
+        //     if (hoodTarget > 500.0) {
+        //         hoodMotor.set(ControlMode.PercentOutput, ((hoodTarget - 1024.0) - getHoodEncoderPosition()) * HOOD_KP);
+        //     } else if (getHoodEncoderPosition() > 500.0) {
+        //         hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - (getHoodEncoderPosition() - 1024.0)) * HOOD_KP);
+        //     }
             
-        } else {
-            hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP);
-        }
+        // } else {
+        //     hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP);
+        // }
+        setHoodMotorPosition(hoodTarget);
         
     }
 
@@ -269,7 +271,7 @@ public class Shooter implements Subsystem {
             shooterMasterMotor.selectProfileSlot(0, 0);
         } 
         if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
-            hoodManualOverride = !hoodManualOverride;
+            //hoodManualOverride = !hoodManualOverride;
         } else if (source == hoodManualAdjustment) {
             if (hoodManualOverride == true) {
                 hoodMotorOutput = hoodManualAdjustment.getValue();
@@ -324,6 +326,7 @@ public class Shooter implements Subsystem {
 
         hoodManualOverride = false;
         hoodMotorOutput = 0.0;
+        minimumHoodAdjustment = 0.0;
         isPointBlank = false;
 
         trailingHorizontalAngleOffsets = new ArrayList<Double>();
@@ -419,20 +422,14 @@ public class Shooter implements Subsystem {
         }
     }
 
-    public void setHoodPosition(double position){ // Fix name
-        if (hoodManualOverride == false) {
-            setHoodMotorPosition(position); // TODO: Merge into setHoodMotorPosition(), remove this func and rename other one
-        }
-    }
-
     //Usable for auto
     public void setAim(boolean aiming){
         aimModeEnabled = aiming;
     }
 
     public void resetHoodEncoder() {
-        hoodEncoderOffset = hoodMotor.getSensorCollection().getAnalogInRaw();
-        setHoodMotorPosition(0.0);
+        //hoodEncoderOffset = hoodMotor.getSensorCollection().getAnalogInRaw();
+        //setHoodMotorPosition(0.0); this doesn't seem to be needed since the absolute encoder hasn't failed yet
     }
 
     public double getHoodEncoderPosition() {
@@ -444,7 +441,20 @@ public class Shooter implements Subsystem {
     public void setHoodMotorPosition(double position) {
         hoodTarget = position;
 
-        // hoodMotor.set(ControlMode.Position, (position + hoodEncoderOffset + 1024) % 1024);
+        if (Math.abs(hoodTarget-getHoodEncoderPosition())<=1){
+            minimumHoodAdjustment = 0.0;
+        } else if (hoodTarget > getHoodEncoderPosition()){
+            minimumHoodAdjustment = 0.05;
+        } else {
+            minimumHoodAdjustment = -0.05;
+        }
+        if (hoodTarget>1000){//if it flashes from 0 to 1023, for instance
+            hoodMotor.set(ControlMode.PercentOutput, (0 - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
+        } else if (getHoodEncoderPosition()>1000){//if it flashes from 0 to 1023, for instance
+            hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - 0) * -HOOD_KP + minimumHoodAdjustment);
+        } else{
+            hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
+        }
     }
 
     //usable for auto
