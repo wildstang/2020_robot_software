@@ -48,7 +48,8 @@ public class Turret implements Subsystem {
 
     public static final double TURRET_BASE_CIRCUMFERENCE = 8.0;
 
-    public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360; 
+    // public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360;
+    public static final double TICK_PER_DEGREE = 108.89;
 
     // Logic
     private boolean aimModeEnabled;
@@ -201,10 +202,10 @@ public class Turret implements Subsystem {
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 
-            if (rotationalAdjustment > 0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 285) {
+            if (rotationalAdjustment > 0 && -turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 288) {
                 rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", false);
-            } else if (rotationalAdjustment < 0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
+            } else if (rotationalAdjustment < 0 && -turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
                 rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", false);
             } else {
