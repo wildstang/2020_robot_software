@@ -27,8 +27,8 @@ public class Turret implements Subsystem {
     private DigitalInput frontPositionButton;
     private DigitalInput faceWall; 
     private AnalogInput manualTurret;
-    private static AHRS gyroSensor;
-    private static I2C.Port gyroPort;
+    // private static AHRS gyroSensor;
+    // private static I2C.Port gyroPort;
     private DigitalInput turretEncoderResetButton;
 
     // Outputs
@@ -56,7 +56,7 @@ public class Turret implements Subsystem {
     private boolean turretAimed;
     private double lastSetpoint;
     private double manualSpeed;
-    private double wallDirection; 
+    // private double wallDirection; 
     private double turretTarget;
 
     private boolean turretEncoderResetPressed;
@@ -201,27 +201,22 @@ public class Turret implements Subsystem {
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 
-            SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
-
-            if(rotationalAdjustment > 0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 290) {
-                rotationalAdjustment = 0; 
+            if (rotationalAdjustment > 0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 285) {
+                rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", false);
-            }
-            else if (rotationalAdjustment < 0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
-                rotationalAdjustment = 0;
+            } else if (rotationalAdjustment < 0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
+                rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", false);
-            }
-            else {
+            } else {
                 SmartDashboard.putBoolean("Deadzone Warning", true);
             }
+
+            SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
 
 
-        } //end of aim mode 
-
-
-        // else if(wallTracking && !aimModeEnabled) {
+        } // else if (wallTracking && !aimModeEnabled) { // End of aim mode; start of wall tracking
         //     if (gyroSensor.getAngle() < 180) {
         //          wallDirection = 90 + gyroSensor.getAngle();    
         //     }
@@ -230,24 +225,18 @@ public class Turret implements Subsystem {
         //     }
             
         //     turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
-        // }  //end of wall tracking
-        
-        
-        
-        else {   
-            if (Math.abs(manualSpeed) > 0.25){
-                turretTarget += TICKS_PER_INCH * manualSpeed * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
-            } 
+        // }  // End of wall tracking; start of manual control
+        else {
+            turretTarget += TICKS_PER_INCH * manualSpeed * TURRET_BASE_CIRCUMFERENCE / 20.0;
 
-            if (turretTarget < 290 * TICK_PER_DEGREE && turretTarget > 0) {
+            if (turretTarget > 290 * TICK_PER_DEGREE || turretTarget < 0) {
+                turretMotor.set(ControlMode.PercentOutput, 0.0);
+                SmartDashboard.putBoolean("Deadzone Warning", false);
+            } else {
                 turretMotor.set(ControlMode.Position, turretTarget);
                 SmartDashboard.putBoolean("Deadzone Warning", true);
             }
-            else {
-                SmartDashboard.putBoolean("Deadzone Warning", false);
-            }
-            
-        } //end of manuel aim 
+        } // End of manual control
 
 
         SmartDashboard.putNumber("Turret PID target", turretTarget);
