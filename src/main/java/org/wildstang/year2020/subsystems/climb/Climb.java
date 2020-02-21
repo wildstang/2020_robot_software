@@ -33,6 +33,7 @@ public class Climb implements Subsystem {
     private boolean climbActiveStatus; // For Shuffleboard
     private boolean climbCompleteStatus;
     private boolean downPressed;
+    private boolean hasClimbed;
 
     @Override
     public void inputUpdate(Input source) {
@@ -64,10 +65,10 @@ public class Climb implements Subsystem {
     @Override
     public void update() {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
-        if (climbInputStatus) {
+        if (climbInputStatus && !hasClimbed) {
             climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(MOTOR_SPEED);
-            climbMotor2.set(MOTOR_SPEED);
+            climbMotor1.set(0.5*MOTOR_SPEED);
+            climbMotor2.set(0.5*MOTOR_SPEED);
         }
 
         if (climbActiveStatus && !climbCompleteStatus && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
@@ -95,8 +96,13 @@ public class Climb implements Subsystem {
         climbActiveStatus = false;
         climbCompleteStatus = false;
         climbMotor1.getEncoder().setPosition(0.0);
+        hasClimbed = false;
         //climbMotor1.restoreFactoryDefaults();
+        climbMotor1.setSmartCurrentLimit(80);
+        climbMotor1.burnFlash();
         //climbMotor2.restoreFactoryDefaults();
+        climbMotor2.setSmartCurrentLimit(80);
+        climbMotor2.burnFlash();
     }
 
     @Override
