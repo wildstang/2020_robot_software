@@ -8,6 +8,7 @@ import org.wildstang.hardware.crio.outputs.WsI2COutput;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.year2020.robot.WSSubsystems;
+import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.launching.Shooter; //referenced Shooter subsystem here remove if wrong
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,7 +22,7 @@ public class LED implements Subsystem
     private String name;
     WsI2COutput ledOutput;
     // TODO properly reference launcher subsystem class here
-    private Shooter launcher;
+    private Shooter shooter; //changed launcher to shooter
 
     // Pattern IDs
     private static final int OFF_ID = 1;
@@ -73,7 +74,7 @@ public class LED implements Subsystem
     public void init() {
         resetState();
         ledOutput = (WsI2COutput) Core.getOutputManager().getOutput(WSOutputs.LED.getName());
-        launcher = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.LAUNCHER.getName()); //changed launcher to shooter
+        shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName()); //changed launcher to shooter
         // TODO Add listeners for launching, control panel. and climb subsystem inputs
         //Core.getInputManager().getInput(WSInputs.FLYWHEEL.getName()).addInputListener(this);
     }
@@ -125,12 +126,13 @@ public class LED implements Subsystem
 
     @Override
     public void inputUpdate(Input source) {
-        // TODO properly update all mechanism states with their corresponding inputs
-        if (source.getName().equals(WSInputs.FLYWHEEL.getName())) {
-            launcherReady = launcher.isFlywheelOn();
+        // TODO properly update all mechanism states with their corresponding input
+        //launcherReady is intakeReady?
+        if (source.getName().equals(WSInputs.MANIPULATOR_FACE_DOWN.getName())) {
+            launcherReady = true; //changed launcher to shooter also changed "shooter.isFlywheelOn()" to "true" ---- "true" needs to be changed to a function
         // Launcher
-        } else if (source.getName().equals(WSInputs.FEEDER_LEFT.getName())) {
-            launcherShooting = launcher.isLaunching();
+        } else if (source.getName().equals(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName())) {
+            launcherShooting = true; //changed launcher to shooter also changed "shooter.isLaunching();" to "true" ---- "true" needs to be changed to a function
         // Control Panel
         } else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName())) {
             cpSpinning = ((DigitalInput)source).getValue();
