@@ -8,6 +8,8 @@ import org.wildstang.hardware.crio.outputs.WsI2COutput;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.year2020.robot.WSSubsystems;
+import org.wildstang.year2020.subsystems.launching.Shooter; //referenced Shooter subsystem here remove if wrong
+
 import edu.wpi.first.wpilibj.DriverStation;
 
     // TODO: implement alliance colors and completed climb (as well as standard rainbow colors) and other misc things in code
@@ -71,7 +73,7 @@ public class LED implements Subsystem
     public void init() {
         resetState();
         ledOutput = (WsI2COutput) Core.getOutputManager().getOutput(WSOutputs.LED.getName());
-        launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WSSubsystems.LAUNCHER.getName());
+        launcher = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.LAUNCHER.getName()); //changed launcher to shooter
         // TODO Add listeners for launching, control panel. and climb subsystem inputs
         //Core.getInputManager().getInput(WSInputs.FLYWHEEL.getName()).addInputListener(this);
     }
