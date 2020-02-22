@@ -182,11 +182,11 @@ public class Turret implements Subsystem {
 
         if (aimModeEnabled == true) {
             double txValue = 0.0;
-            if (shooterSubsystem.willAimToInnerGoal() == true) { // Do we need to adjust the turret aiming angle?
-                txValue = Math.toDegrees(Math.atan(limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToInnerGoal())) - 0.8;
-            } else {
+            // if (shooterSubsystem.willAimToInnerGoal() == true) { // Do we need to adjust the turret aiming angle?
+            //     txValue = Math.toDegrees(Math.atan(limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToInnerGoal())) - 0.8;
+            // } else {
                 txValue = limelightSubsystem.getTXValue() - 0.8;
-            }
+            // }
 
             double headingError = -txValue;
             // if (shooterSubsystem.willAimToInnerGoal()){
@@ -210,15 +210,7 @@ public class Turret implements Subsystem {
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 
-            if (rotationalAdjustment > 0 && -turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 288) {
-                rotationalAdjustment = 0.0;
-                SmartDashboard.putBoolean("Deadzone Warning", false);
-            } else if (rotationalAdjustment < 0 && -turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
-                rotationalAdjustment = 0.0;
-                SmartDashboard.putBoolean("Deadzone Warning", false);
-            } else {
-                SmartDashboard.putBoolean("Deadzone Warning", true);
-            }
+            
 
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
@@ -238,18 +230,17 @@ public class Turret implements Subsystem {
         else {
             turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
 
-            if (turretTarget > 290 * TICK_PER_DEGREE || turretTarget < 0) {
-                turretMotor.set(ControlMode.PercentOutput, 0.0);
-                SmartDashboard.putBoolean("Deadzone Warning", false);
-            } else {
-                turretMotor.set(ControlMode.Position, turretTarget);
-                SmartDashboard.putBoolean("Deadzone Warning", true);
-            }
+          
+            turretMotor.set(ControlMode.Position, turretTarget);
+            SmartDashboard.putBoolean("Deadzone Warning", true);
+            
         } // End of manual control
 
 
         SmartDashboard.putNumber("Turret PID target", turretTarget);
         SmartDashboard.putNumber("Turret encoder", turretMotor.getSensorCollection().getQuadraturePosition());
+        
+        SmartDashboard.putNumber("turret raw", turretMotor.getMotorOutputPercent());
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
         boolean shooterMotorSpeedSet = shooterSubsystem.isShooterMotorSpeedSetForAimMode();
@@ -263,7 +254,7 @@ public class Turret implements Subsystem {
         if (turretEncoderResetPressed == true && System.currentTimeMillis() >= turretEncoderResetTimestamp + 1000L) {
             turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
             turretTarget = 0.0;
-            turretMotor.set(ControlMode.Position, turretTarget);
+            //turretMotor.set(ControlMode.Position, turretTarget);
         }  //end of encoder reset
     }
 
