@@ -95,11 +95,9 @@ public class Ballpath implements Subsystem{
 
     @Override
     public void update() {
-        try {
-            hopperSlow = maxDriveInputEntry.getDouble(1.0);
-        } catch (Exception e){
-            hopperSlow = 1.0;
-        }
+        
+        hopperSlow = maxDriveInputEntry.getDouble(1.0);
+        
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         hopperMotor.set(ControlMode.PercentOutput, feedMotorSpeed * hopperSlow);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);

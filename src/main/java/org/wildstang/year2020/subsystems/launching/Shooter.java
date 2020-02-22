@@ -87,7 +87,7 @@ public class Shooter implements Subsystem {
 
     private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 5;
 
-    public static final double HOOD_KP = -0.015;
+    public static final double HOOD_KP = -0.0015;//.015
 
     public static final double INNER_GOAL_MIN_DISTANCE = 10.00;
     // Ratio of horizontal length of target to distance from target (should be constant if robot is straight on target)
