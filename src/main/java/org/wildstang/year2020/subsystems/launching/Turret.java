@@ -2,6 +2,8 @@ package org.wildstang.year2020.subsystems.launching;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.kauailabs.navx.*;
+import com.kauailabs.navx.frc.AHRS;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
@@ -14,6 +16,7 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.interfaces.*; 
 
 public class Turret implements Subsystem {
@@ -22,16 +25,19 @@ public class Turret implements Subsystem {
     private AnalogInput aimModeTrigger;
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
+    private DigitalInput sidePositionButton;
     private DigitalInput faceWall; 
     private AnalogInput manualTurret;
-    private Gyro gyroSensor; //no gyro currently on the robot; will need to be initialized when we have a gyro
+    private static AHRS gyroSensor;
+    private static I2C.Port gyroPort;
     private DigitalInput turretEncoderResetButton;
 
     // Outputs
     private TalonSRX turretMotor;
     private Limelight limelightSubsystem;
     private Shooter shooterSubsystem;
-    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.3, 0.0, 0.1); // 0.0 0.3 0.0 0.1
+    public static final PIDConstants TURRET_PID_CONSTANTS = new PIDConstants(0.0, 0.15, 0.0, 0.1); // 0.0 0.3 0.0 0.1
+
 
     // Constants
     public static final double kP = -0.05; // -.07
@@ -43,11 +49,12 @@ public class Turret implements Subsystem {
 
     public static final double TURRET_BASE_CIRCUMFERENCE = 8.0;
 
-    public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360; 
+    // public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360;
+    public static final double TICK_PER_DEGREE = 108.89;
 
     // Logic
     private boolean aimModeEnabled;
-    private boolean wallTracking;  
+     private boolean wallTracking;  
     private boolean turretAimed;
     private double lastSetpoint;
     private double manualSpeed;
@@ -69,16 +76,20 @@ public class Turret implements Subsystem {
     private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
-        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT);
+        backPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_DOWN);
         backPositionButton.addInputListener(this);
-        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
+        frontPositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_UP);
         frontPositionButton.addInputListener(this);
+        sidePositionButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_RIGHT);
+        sidePositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
         faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
         faceWall.addInputListener(this);
         turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
         turretEncoderResetButton.addInputListener(this);
+
+        gyroSensor = new AHRS(gyroPort  );
     }
 
     // Initializes outputs
@@ -98,6 +109,7 @@ public class Turret implements Subsystem {
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
         shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
+
     }
 
     @Override
@@ -119,6 +131,11 @@ public class Turret implements Subsystem {
         if (source == backPositionButton) {
             if (backPositionButton.getValue()) {
                 turretTarget = -29400;
+            }
+        }
+        if (source == sidePositionButton){
+            if (sidePositionButton.getValue()){
+                turretTarget = -19600;
             }
         }
 
@@ -162,10 +179,14 @@ public class Turret implements Subsystem {
     public void update() {
         SmartDashboard.putNumber("Adjusted TX", limelightSubsystem.getTXValue() - 0.8);
         SmartDashboard.putBoolean("Aim Mode Enabled", aimModeEnabled);
-        if (aimModeEnabled == true) {
-            double txValue = limelightSubsystem.getTXValue() - 0.8;
 
-            
+        if (aimModeEnabled == true) {
+            double txValue = 0.0;
+            if (shooterSubsystem.willAimToInnerGoal() == true) { // Do we need to adjust the turret aiming angle?
+                txValue = Math.toDegrees(Math.atan(limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToInnerGoal())) - 0.8;
+            } else {
+                txValue = limelightSubsystem.getTXValue() - 0.8;
+            }
 
             double headingError = -txValue;
             // if (shooterSubsystem.willAimToInnerGoal()){
@@ -189,30 +210,50 @@ public class Turret implements Subsystem {
                 rotationalAdjustment = kP * headingError - minimumAdjustmentCommand;
             }
 
+            if (rotationalAdjustment > 0 && -turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 288) {
+                rotationalAdjustment = 0.0;
+                SmartDashboard.putBoolean("Deadzone Warning", false);
+            } else if (rotationalAdjustment < 0 && -turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
+                rotationalAdjustment = 0.0;
+                SmartDashboard.putBoolean("Deadzone Warning", false);
+            } else {
+                SmartDashboard.putBoolean("Deadzone Warning", true);
+            }
+
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
-        } 
-        else if(wallTracking && !aimModeEnabled) {
+
+
+        } else if (wallTracking && !aimModeEnabled) { // End of aim mode; start of wall tracking
             if (gyroSensor.getAngle() < 180) {
-                wallDirection = 90 + gyroSensor.getAngle();    
+                 wallDirection = 90 + gyroSensor.getAngle();    
             }
             if(gyroSensor.getAngle() > 270) {
-                wallDirection = gyroSensor.getAngle() - 270;
+                 wallDirection = gyroSensor.getAngle() - 270;
             }
             
             turretMotor.set(ControlMode.Position, wallDirection*TICK_PER_DEGREE);
-        } else {   
-            if (Math.abs(manualSpeed) > 0.25){
-                turretTarget += TICKS_PER_INCH * manualSpeed * TURRET_BASE_CIRCUMFERENCE/20;//approx 1 rotation/second
-            } 
-            turretMotor.set(ControlMode.Position, turretTarget);
-        }
+        }  // End of wall tracking; start of manual control
+        else {
+            turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
+
+            if (turretTarget > 290 * TICK_PER_DEGREE || turretTarget < 0) {
+                turretMotor.set(ControlMode.PercentOutput, 0.0);
+                SmartDashboard.putBoolean("Deadzone Warning", false);
+            } else {
+                turretMotor.set(ControlMode.Position, turretTarget);
+                SmartDashboard.putBoolean("Deadzone Warning", true);
+            }
+        } // End of manual control
+
+
         SmartDashboard.putNumber("Turret PID target", turretTarget);
         SmartDashboard.putNumber("Turret encoder", turretMotor.getSensorCollection().getQuadraturePosition());
 
         boolean hoodAimed = shooterSubsystem.isHoodAimed();
         boolean shooterMotorSpeedSet = shooterSubsystem.isShooterMotorSpeedSetForAimMode();
+
         if (hoodAimed && shooterMotorSpeedSet && turretAimed) {
             SmartDashboard.putBoolean("Shooter Ready", true);
         } else {
@@ -223,7 +264,7 @@ public class Turret implements Subsystem {
             turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
             turretTarget = 0.0;
             turretMotor.set(ControlMode.Position, turretTarget);
-        }
+        }  //end of encoder reset
     }
 
     @Override
