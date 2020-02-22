@@ -26,7 +26,7 @@ public class Climb implements Subsystem {
     // Variables
     private final double MOTOR_SPEED = 1.0;
     private final double LIFT_HEIGHT = 55;
-    private final double LIFT_BOTTOM = 109.5;
+    private final double LIFT_BOTTOM = 90.5;
 
     // Statuses
     private boolean climbInputStatus;
@@ -79,8 +79,8 @@ public class Climb implements Subsystem {
         SmartDashboard.putBoolean("Climb started",climbInputStatus);
         if (climbCompleteStatus == true && downPressed == true && climbMotor1.getEncoder().getPosition() <= LIFT_BOTTOM) {
             climbActiveStatus = true;
-            climbMotor1.set(MOTOR_SPEED);
-            climbMotor2.set(MOTOR_SPEED);
+            climbMotor1.set(0.8*MOTOR_SPEED);
+            climbMotor2.set(0.8*MOTOR_SPEED);
         } else if (climbCompleteStatus == true) {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
