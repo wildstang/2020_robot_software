@@ -344,7 +344,7 @@ public class Shooter implements Subsystem {
         running = false;
         shooterOn = true;
         timer.start();
-        autoMode = true;
+        autoMode = false;
     }
 
     @Override
