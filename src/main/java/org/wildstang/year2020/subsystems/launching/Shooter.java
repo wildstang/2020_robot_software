@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import org.wildstang.framework.core.Core;
@@ -182,6 +183,7 @@ public class Shooter implements Subsystem {
         hoodMotor.config_kP(0, HOOD_PID_CONSTANTS.p);
         hoodMotor.config_kI(0, HOOD_PID_CONSTANTS.i);
         hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
+        hoodMotor.setNeutralMode(NeutralMode.Coast);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
     }
@@ -207,19 +209,22 @@ public class Shooter implements Subsystem {
 
         if (!shooterOn){
             shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+            hoodMotor.setNeutralMode(NeutralMode.Coast);
         } else if (aimModeEnabled){
             shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
             aimToGoal();
-        } else {
-            if (autoMode){
+            hoodMotor.setNeutralMode(NeutralMode.Brake);
+        } else if (autoMode){
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-            } else {
-                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-                if (!hoodManualOverride){
-                    setHoodMotorPosition(0.0);
-                }
+                hoodMotor.setNeutralMode(NeutralMode.Brake);
+        } else {
+            shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+            hoodMotor.setNeutralMode(NeutralMode.Coast);
+            if (!hoodManualOverride){
+                setHoodMotorPosition(0.0);
             }
         }
+        
         double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
         SmartDashboard.putNumber("Shooter Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
         SmartDashboard.putNumber("Shooter Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());

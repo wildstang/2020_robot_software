@@ -1,6 +1,7 @@
 package org.wildstang.year2020.subsystems.launching;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.*;
 import com.kauailabs.navx.frc.AHRS;
@@ -106,6 +107,7 @@ public class Turret implements Subsystem {
         turretMotor.config_kP(0, TURRET_PID_CONSTANTS.p);
         turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);
         turretMotor.config_kD(0, TURRET_PID_CONSTANTS.d);
+        turretMotor.setNeutralMode( NeutralMode.Coast);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
         shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
@@ -119,8 +121,10 @@ public class Turret implements Subsystem {
             if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
                 turretTarget = turretMotor.getSelectedSensorPosition();
                 aimModeEnabled = true;
+                turretMotor.setNeutralMode(NeutralMode.Brake);
             } else { // Exiting aim mode
                 aimModeEnabled = false;
+                turretMotor.setNeutralMode(NeutralMode.Coast);
                 turretAimed = false;
                 // if (!wallTracking) {
                     turretMotor.set(ControlMode.Position, lastSetpoint);
