@@ -24,15 +24,16 @@ public class Climb implements Subsystem {
     private CANSparkMax climbMotor2;
 
     // Variables
-    private final double MOTOR_SPEED = 1.0;
+    private final double MOTOR_SPEED = 0.8;
     private final double LIFT_HEIGHT = 55;
-    private final double LIFT_BOTTOM = 109.5;
+    private final double LIFT_BOTTOM = 90.5;
 
     // Statuses
     private boolean climbInputStatus;
     private boolean climbActiveStatus; // For Shuffleboard
     private boolean climbCompleteStatus;
     private boolean downPressed;
+    private boolean hasClimbed;
 
     enum commands {
             INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LIFEDMAX;
@@ -74,8 +75,8 @@ public class Climb implements Subsystem {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
         if (currentCommand == commands.RAISING) {
             climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(MOTOR_SPEED);
-            climbMotor2.set(MOTOR_SPEED);
+            climbMotor1.set(0.5*MOTOR_SPEED);
+            climbMotor2.set(0.5*MOTOR_SPEED);
         }
 
         if (currentCommand == commands.RAISING && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
@@ -115,8 +116,13 @@ public class Climb implements Subsystem {
         climbActiveStatus = false;
         climbCompleteStatus = false;
         climbMotor1.getEncoder().setPosition(0.0);
+        hasClimbed = false;
         //climbMotor1.restoreFactoryDefaults();
+        climbMotor1.setSmartCurrentLimit(80);
+        climbMotor1.burnFlash();
         //climbMotor2.restoreFactoryDefaults();
+        climbMotor2.setSmartCurrentLimit(80);
+        climbMotor2.burnFlash();
     }
 
     @Override
