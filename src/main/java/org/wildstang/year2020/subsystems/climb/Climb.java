@@ -34,19 +34,27 @@ public class Climb implements Subsystem {
     private boolean climbCompleteStatus;
     private boolean downPressed;
 
+    enum commands {
+            INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LIFEDMAX;
+    }
+    private commands currentCommand; // 0 = INACTIVE x
+                                // 1 = RAISING x
+                                // 2 = RAISED /
+                                // 3 = LOWERING /
+                                // 4 = PAUSED /
+                                // 5 = LIFEDMAX x
+
+
     @Override
     public void inputUpdate(Input source) {
-        if (selectButton.getValue() && startButton.getValue()) {
-            climbInputStatus = true;
-        }
-        else {
-            climbInputStatus = false;
+        if (selectButton.getValue() && startButton.getValue() && currentCommand == commands.INACTIVE) {
+            currentCommand = commands.RAISING;
         }
 
-        if (downButton.getValue()) {
-            downPressed = true;
-        } else {
-            downPressed = false;
+        if (downButton.getValue() && currentCommand != commands.INACTIVE && currentCommand != commands.RAISING && currentCommand != commands.LIFEDMAX) {
+            currentCommand = commands.LOWERING;
+        } else if (currentCommand == commands.LOWERING) {
+            currentCommand = commands.PAUSED;
         }
     }
 
@@ -64,23 +72,35 @@ public class Climb implements Subsystem {
     @Override
     public void update() {
          // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
-        if (climbInputStatus) {
+        if (currentCommand == commands.RAISING) {
             climbActiveStatus = true; // For Shuffleboard
             climbMotor1.set(MOTOR_SPEED);
             climbMotor2.set(MOTOR_SPEED);
         }
 
-        if (climbActiveStatus && !climbCompleteStatus && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
+        if (currentCommand == commands.RAISING && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
             climbActiveStatus = false;
             climbCompleteStatus = true;
+            currentCommand = commands.RAISED;
+        }
+        if (currentCommand == commands.RAISED) {
+            climbActiveStatus = true; // For Shuffleboard
+            climbMotor1.set(0);
+            climbMotor2.set(0);
         }
 
         SmartDashboard.putBoolean("Climb started",climbInputStatus);
-        if (climbCompleteStatus == true && downPressed == true && climbMotor1.getEncoder().getPosition() <= LIFT_BOTTOM) {
+
+        if (currentCommand == commands.LOWERING && climbMotor1.getEncoder().getPosition() < LIFT_BOTTOM) {
             climbActiveStatus = true;
+            currentCommand = commands.LOWERING;
             climbMotor1.set(MOTOR_SPEED);
             climbMotor2.set(MOTOR_SPEED);
-        } else if (climbCompleteStatus == true) {
+        } else if (climbMotor1.getEncoder().getPosition() < LIFT_BOTTOM) {
+            currentCommand = commands.LIFEDMAX;
+            climbMotor1.set(0);
+            climbMotor2.set(0);
+        } else if (currentCommand == commands.PAUSED) {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
             climbMotor2.set(0);
