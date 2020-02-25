@@ -9,7 +9,8 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
-import org.wildstang.year2020.subsystems.launching.Shooter; //referenced Shooter subsystem here remove if wrong
+import org.wildstang.year2020.subsystems.climb.Climb;
+import org.wildstang.year2020.subsystems.launching.Shooter;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -21,8 +22,9 @@ public class LED implements Subsystem
     // Miscellaneous definitions
     private String name;
     WsI2COutput ledOutput;
-    // TODO properly reference launcher subsystem class here
-    private Shooter shooter; //changed launcher to shooter
+    private Climb climb;
+    private Ballpath ballpath;
+    private Shooter shooter;
 
     // Pattern IDs
     private static final int OFF_ID = 1;
@@ -74,7 +76,8 @@ public class LED implements Subsystem
     public void init() {
         resetState();
         ledOutput = (WsI2COutput) Core.getOutputManager().getOutput(WSOutputs.LED.getName());
-        shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName()); //changed launcher to shooter
+        climb = (Climb) Core.getSubsystemManager().getSubsystem(WSSubsystems.CLIMB.getName());
+        shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
         // TODO Add listeners for launching, control panel. and climb subsystem inputs
         //Core.getInputManager().getInput(WSInputs.FLYWHEEL.getName()).addInputListener(this);
     }
