@@ -26,7 +26,7 @@ public class Trench10 extends AutoProgram {
 
         //make this step aim when it's nearly done
         AutoParallelStepGroup second = new AutoParallelStepGroup();
-        second.addStep(new PathFollowerStep(PathNameConstants.TRENCH10A,true,false));
+        second.addStep(new PathFollowerStep(PathNameConstants.TRENCH10AA,true,false));
         AutoSerialStepGroup secondA = new AutoSerialStepGroup();
         secondA.addStep(new DelayStep(1.0));
         secondA.addStep(new AutoAimStep(true));

@@ -1,5 +1,7 @@
 package org.wildstang.year2020.robot;
 
+
+
 public final class CANConstants {
     public static final int LEFT_DRIVE_TALON = 31;
     public static final int RIGHT_DRIVE_TALON = 33;
@@ -23,4 +25,5 @@ public final class CANConstants {
     public static final int HOOD_MOTOR = 13;
     public static final int BALLPATH_HOPPER = 14;
     public static final int CPDEPLOY_TALON = 15;
+    
 }
