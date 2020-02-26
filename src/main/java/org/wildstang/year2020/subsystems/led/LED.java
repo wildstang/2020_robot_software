@@ -11,7 +11,6 @@ import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.climb.Climb;
 import org.wildstang.year2020.subsystems.launching.Shooter;
-
 import edu.wpi.first.wpilibj.DriverStation;
 
     // TODO: implement alliance colors and completed climb (as well as standard rainbow colors) and other misc things in code
@@ -68,18 +67,17 @@ public class LED implements Subsystem
     public static LedCmd launcherAimingCmd = new LedCmd(LAUNCHER_ID, 0, 0, 0);   // When limelight is detecting target and turret is lining up shot
     public static LedCmd launcherReadyCmd = new LedCmd(LAUNCHER_ID, 0, 255, 0);  // When limelight has finished detecting target and flywheel is ready to get to speed
     public static LedCmd launcherShootingCmd = new LedCmd(LAUNCHER_ID, 0, 0, 0); // When flywheel is getting to speed and shooting at target
-    public static LedCmd climbRunningCmd = new LedCmd(CLIMB_ID, 0, 0, 0);
-    public static LedCmd climbCompleteCmd = new LedCmd(CLIMB_ID, 255, 255, 255); // White (static)
+    public static LedCmd climbRunningCmd = new LedCmd(CLIMB_ID, 255, 255, 0); // Yellow (static)
+    public static LedCmd climbCompleteCmd = new LedCmd(CLIMB_ID, 0, 255, 0); // Green (static)
     public static LedCmd feederJammedCmd = new LedCmd(FEEDER_JAM_ID, 0, 0, 255);
 
     @Override
     public void init() {
         resetState();
+        // TODO Add listeners for control panel subsystem input
         ledOutput = (WsI2COutput) Core.getOutputManager().getOutput(WSOutputs.LED.getName());
         climb = (Climb) Core.getSubsystemManager().getSubsystem(WSSubsystems.CLIMB.getName());
         shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
-        // TODO Add listeners for launching, control panel. and climb subsystem inputs
-        //Core.getInputManager().getInput(WSInputs.FLYWHEEL.getName()).addInputListener(this);
     }
 
     @Override
