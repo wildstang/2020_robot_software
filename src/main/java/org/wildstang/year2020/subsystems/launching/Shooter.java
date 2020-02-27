@@ -72,7 +72,7 @@ public class Shooter implements Subsystem {
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 24, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.0012, 0.08, 0.0, 0.0);//same here // 0.02 0.032
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.016, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = -1.9325;
@@ -219,7 +219,7 @@ public class Shooter implements Subsystem {
         //         shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
         //         hoodMotor.setNeutralMode(NeutralMode.Brake);
         } else {
-            shooterMasterMotor.set(ControlMode.PercentOutput, 0.3);
+            shooterMasterMotor.set(ControlMode.PercentOutput, 0.4);
 
             hoodMotor.setNeutralMode(NeutralMode.Coast);
             if (!hoodManualOverride){
