@@ -29,21 +29,18 @@ public class Climb implements Subsystem {
     private final double LIFT_BOTTOM = 90.5;
 
     // Statuses
-    private boolean climbInputStatus;
     private boolean climbActiveStatus; // For Shuffleboard
-    private boolean climbCompleteStatus;
-    private boolean downPressed;
-    private boolean hasClimbed;
+    private boolean climbCompleteStatus; // For Shuffleboard
 
     enum commands {
             INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LIFEDMAX;
     }
     private commands currentCommand; // 0 = INACTIVE x
-                                // 1 = RAISING x
-                                // 2 = RAISED /
-                                // 3 = LOWERING /
-                                // 4 = PAUSED /
-                                // 5 = LIFEDMAX x
+                                     // 1 = RAISING x
+                                     // 2 = RAISED /
+                                     // 3 = LOWERING /
+                                     // 4 = PAUSED /
+                                     // 5 = LIFEDMAX x
 
 
     @Override
@@ -52,10 +49,12 @@ public class Climb implements Subsystem {
             currentCommand = commands.RAISING;
         }
 
-        if (downButton.getValue() && currentCommand != commands.INACTIVE && currentCommand != commands.RAISING && currentCommand != commands.LIFEDMAX) {
-            currentCommand = commands.LOWERING;
-        } else if (currentCommand == commands.LOWERING) {
-            currentCommand = commands.PAUSED;
+        if (downButton.getValue()) {
+            if (currentCommand == commands.RAISED || currentCommand == commands.PAUSED) {
+                currentCommand = commands.LOWERING;
+            } else if (currentCommand == commands.LOWERING) {
+                currentCommand = commands.PAUSED;
+            }
         }
     }
 
@@ -72,51 +71,50 @@ public class Climb implements Subsystem {
 
     @Override
     public void update() {
-         // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
+        // If button is pressed, set the motorspeed to the defined value in the inputUpdate method
         if (currentCommand == commands.RAISING) {
-            climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(0.5*MOTOR_SPEED);
-            climbMotor2.set(0.5*MOTOR_SPEED);
+            if (climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
+                climbActiveStatus = false; // For Shuffleboard
+                climbMotor1.set(0);
+                climbMotor2.set(0);
+                currentCommand = commands.RAISED;
+            } else {
+                climbActiveStatus = true; // For Shuffleboard
+                climbMotor1.set(0.5 * MOTOR_SPEED);
+                climbMotor2.set(0.5 * MOTOR_SPEED);
+            }
         }
-
-        if (currentCommand == commands.RAISING && climbMotor1.getEncoder().getPosition() >= LIFT_HEIGHT) {
-            climbActiveStatus = false;
-            climbCompleteStatus = true;
-            currentCommand = commands.RAISED;
+        
+        if (currentCommand == commands.LOWERING) {
+            if (climbMotor1.getEncoder().getPosition() >= LIFT_BOTTOM) {
+                climbActiveStatus = false; // For Shuffleboard
+                climbCompleteStatus = true; // For Shuffleboard
+                climbMotor1.set(0);
+                climbMotor2.set(0);
+                currentCommand = commands.LIFEDMAX;
+            } else {
+                climbActiveStatus = true;
+                climbMotor1.set(MOTOR_SPEED);
+                climbMotor2.set(MOTOR_SPEED);
+            }
         }
-        if (currentCommand == commands.RAISED) {
-            climbActiveStatus = true; // For Shuffleboard
-            climbMotor1.set(0);
-            climbMotor2.set(0);
-        }
-
-        SmartDashboard.putBoolean("Climb started",climbInputStatus);
-
-        if (currentCommand == commands.LOWERING && climbMotor1.getEncoder().getPosition() < LIFT_BOTTOM) {
-            climbActiveStatus = true;
-            currentCommand = commands.LOWERING;
-            climbMotor1.set(MOTOR_SPEED);
-            climbMotor2.set(MOTOR_SPEED);
-        } else if (climbMotor1.getEncoder().getPosition() < LIFT_BOTTOM) {
-            currentCommand = commands.LIFEDMAX;
-            climbMotor1.set(0);
-            climbMotor2.set(0);
-        } else if (currentCommand == commands.PAUSED) {
+        
+        if (currentCommand == commands.PAUSED) {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
             climbMotor2.set(0);
         }
         
-        SmartDashboard.putNumber("Climb Motor 1 Encoder",climbMotor1.getEncoder().getPosition());
+        SmartDashboard.putNumber("Climb Motor 1 Encoder", climbMotor1.getEncoder().getPosition());
+        SmartDashboard.putBoolean("Climb Active", climbActiveStatus);
+        SmartDashboard.putBoolean("Climb Complete", climbCompleteStatus);
     }
 
     @Override
     public void resetState() {
-        climbInputStatus = false;
         climbActiveStatus = false;
         climbCompleteStatus = false;
         climbMotor1.getEncoder().setPosition(0.0);
-        hasClimbed = false;
         //climbMotor1.restoreFactoryDefaults();
         climbMotor1.setSmartCurrentLimit(80);
         climbMotor1.burnFlash();
@@ -131,8 +129,8 @@ public class Climb implements Subsystem {
     }
 
     private void initOutputs() {
-        climbMotor1 = new CANSparkMax(CANConstants.CLIMB_VICTOR_1,MotorType.kBrushless);
-        climbMotor2 = new CANSparkMax(CANConstants.CLIMB_VICTOR_2,MotorType.kBrushless);
+        climbMotor1 = new CANSparkMax(CANConstants.CLIMB_VICTOR_1, MotorType.kBrushless);
+        climbMotor2 = new CANSparkMax(CANConstants.CLIMB_VICTOR_2, MotorType.kBrushless);
     }
 
     private void initInputs() {
