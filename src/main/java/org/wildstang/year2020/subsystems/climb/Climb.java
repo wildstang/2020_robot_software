@@ -17,6 +17,8 @@ public class Climb implements Subsystem {
     // Inputs
     private DigitalInput selectButton;
     private DigitalInput startButton;
+    private DigitalInput driverStartButton;
+    private DigitalInput driverSelectButton;
     private DigitalInput downButton;
     private DigitalInput upButton;
 
@@ -26,6 +28,7 @@ public class Climb implements Subsystem {
 
     // Variables
     private final double MOTOR_SPEED = 0.8;
+    private final double RESET_SPEED = -0.2;
     private final double LIFT_HEIGHT = 55;
     private final double LIFT_LOCKED = 65;
     private final double LIFT_BOTTOM = 90.5;
@@ -35,7 +38,7 @@ public class Climb implements Subsystem {
     private boolean climbCompleteStatus; // For Shuffleboard
 
     enum commands {
-            INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LOCKED, LIFEDMAX;
+            INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LOCKED, LIFTEDMAX, RESET;
     }
     private commands currentCommand; // 0 = INACTIVE x
                                      // 1 = RAISING x
@@ -43,13 +46,21 @@ public class Climb implements Subsystem {
                                      // 3 = LOWERING /
                                      // 4 = PAUSED /
                                      // 5 = LOCKED /
-                                     // 6 = LIFEDMAX x
+                                     // 6 = LIFTEDMAX x
+                                     // 7 = RESET
 
 
     @Override
     public void inputUpdate(Input source) {
         if (selectButton.getValue() && startButton.getValue() && currentCommand == commands.INACTIVE) {
             currentCommand = commands.RAISING;
+        }
+        if (driverStartButton.getValue() && driverSelectButton.getValue()){
+            if (currentCommand == commands.INACTIVE || currentCommand == commands.LIFTEDMAX){
+                if (climbMotor1.getEncoder().getPosition() >= 45) {
+                    currentCommand = commands.RESET;
+                }
+            }
         }
 
         if (downButton.getValue()) {
@@ -111,7 +122,7 @@ public class Climb implements Subsystem {
                 climbCompleteStatus = true; // For Shuffleboard
                 climbMotor1.set(0);
                 climbMotor2.set(0);
-                currentCommand = commands.LIFEDMAX;
+                currentCommand = commands.LIFTEDMAX;
             } else {
                 climbActiveStatus = true;
                 climbMotor1.set(MOTOR_SPEED);
@@ -123,6 +134,16 @@ public class Climb implements Subsystem {
             climbActiveStatus = false; // For Shuffleboard
             climbMotor1.set(0);
             climbMotor2.set(0);
+        }
+        if (currentCommand == commands.RESET){
+            if (climbMotor1.getEncoder().getPosition() < 5){
+                climbMotor1.set(0);
+                climbMotor2.set(0);
+                currentCommand = commands.INACTIVE;
+            } else {
+                climbMotor1.set(RESET_SPEED);
+                climbMotor2.set(RESET_SPEED);
+            }
         }
         
         SmartDashboard.putNumber("Climb Motor 1 Encoder", climbMotor1.getEncoder().getPosition());
@@ -160,6 +181,10 @@ public class Climb implements Subsystem {
         selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_START.getName());
         startButton.addInputListener(this);
+        driverSelectButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_SELECT.getName());
+        driverSelectButton.addInputListener(this);
+        driverStartButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
+        driverStartButton.addInputListener(this);
         downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
         downButton.addInputListener(this);
         upButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_UP.getName());
