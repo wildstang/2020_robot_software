@@ -191,6 +191,8 @@ public class Drive implements Subsystem {
         case PATH:
             SmartDashboard.putNumber("master left",masters[LEFT].getMotorOutputPercent());
             SmartDashboard.putNumber("master right",masters[RIGHT].getMotorOutputPercent());
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
             break;
         case CHEESY:
             double effectiveThrottle = commandThrottle;
@@ -202,6 +204,8 @@ public class Drive implements Subsystem {
             SmartDashboard.putNumber("driveSignal.left", driveSignal.leftMotor);
             SmartDashboard.putNumber("driveSignal.right", driveSignal.rightMotor);
             setMotorSpeeds(driveSignal, 1.0);
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
             // if (commandAntiTurbo) setMotorSpeeds(driveSignal, DriveConstants.ANTI_TURBO_FACTOR);
             // else setMotorSpeeds(driveSignal, (1-DriveConstants.TURBO_FACTOR) + turboPower*DriveConstants.TURBO_FACTOR);
             break;
