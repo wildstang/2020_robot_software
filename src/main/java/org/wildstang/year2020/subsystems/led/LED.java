@@ -14,6 +14,7 @@ import org.wildstang.year2020.subsystems.climb.Climb;
 import org.wildstang.year2020.subsystems.launching.Shooter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -151,7 +152,7 @@ public class LED implements Subsystem
                     }
                     //ledOutput.setValue(command.getBytes());
                     serialPort.writeString(command);
-                    //SmartDashboard.putNumber("LedCmd", command.command);
+                    SmartDashboard.putString("LedCmd", command);
                 }
                 newDataAvailable = false;
             } else if (isRobotAuton) {
