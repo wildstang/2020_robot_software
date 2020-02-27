@@ -18,6 +18,7 @@ public class Climb implements Subsystem {
     private DigitalInput selectButton;
     private DigitalInput startButton;
     private DigitalInput downButton;
+    private DigitalInput upButton;
 
     // Outputs
     private CANSparkMax climbMotor1;
@@ -26,6 +27,7 @@ public class Climb implements Subsystem {
     // Variables
     private final double MOTOR_SPEED = 0.8;
     private final double LIFT_HEIGHT = 55;
+    private final double LIFT_LOCKED = 65;
     private final double LIFT_BOTTOM = 90.5;
 
     // Statuses
@@ -33,14 +35,15 @@ public class Climb implements Subsystem {
     private boolean climbCompleteStatus; // For Shuffleboard
 
     enum commands {
-            INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LIFEDMAX;
+            INACTIVE, RAISING, RAISED, LOWERING, PAUSED, LOCKED, LIFEDMAX;
     }
     private commands currentCommand; // 0 = INACTIVE x
                                      // 1 = RAISING x
                                      // 2 = RAISED /
                                      // 3 = LOWERING /
                                      // 4 = PAUSED /
-                                     // 5 = LIFEDMAX x
+                                     // 5 = LOCKED /
+                                     // 6 = LIFEDMAX x
 
 
     @Override
@@ -50,11 +53,16 @@ public class Climb implements Subsystem {
         }
 
         if (downButton.getValue()) {
-            if (currentCommand == commands.RAISED || currentCommand == commands.PAUSED) {
+            if (currentCommand == commands.RAISED || currentCommand == commands.PAUSED || currentCommand == commands.LOCKED) {
                 currentCommand = commands.LOWERING;
             } 
         } else if (currentCommand == commands.LOWERING) {
             currentCommand = commands.PAUSED;
+        }
+        if (upButton.getValue()){
+            if (currentCommand == commands.RAISED){
+                currentCommand = commands.LOCKED;
+            }
         }
     }
 
@@ -80,6 +88,18 @@ public class Climb implements Subsystem {
                 currentCommand = commands.RAISED;
             } else {
                 climbActiveStatus = true; // For Shuffleboard
+                climbMotor1.set(0.5 * MOTOR_SPEED);
+                climbMotor2.set(0.5 * MOTOR_SPEED);
+            }
+        }
+        if (currentCommand == commands.LOCKED){
+            if (climbMotor1.getEncoder().getPosition() >= LIFT_LOCKED){
+                climbActiveStatus = false;
+                climbMotor1.set(0);
+                climbMotor2.set(0);
+                currentCommand = commands.PAUSED;
+            } else {
+                climbActiveStatus = true;
                 climbMotor1.set(0.5 * MOTOR_SPEED);
                 climbMotor2.set(0.5 * MOTOR_SPEED);
             }
@@ -142,6 +162,8 @@ public class Climb implements Subsystem {
         startButton.addInputListener(this);
         downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
         downButton.addInputListener(this);
+        upButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_UP.getName());
+        upButton.addInputListener(this);
     }
 
 }
