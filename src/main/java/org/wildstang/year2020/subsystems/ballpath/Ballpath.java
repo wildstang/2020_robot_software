@@ -9,6 +9,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.Map;
 
 import org.wildstang.year2020.robot.CANConstants;
@@ -98,6 +100,7 @@ public class Ballpath implements Subsystem{
         
         hopperSlow = maxDriveInputEntry.getDouble(1.0);
         
+        SmartDashboard.putNumber("intake speedd", intakeMotorSpeed);
         feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
         hopperMotor.set(ControlMode.PercentOutput, feedMotorSpeed * hopperSlow);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);

@@ -44,8 +44,8 @@ public class PathReader {
             dataPoints[i] = new double[3];
 
             dataPoints[i][0] = Double.parseDouble(record.get("Delta Time"));
-            dataPoints[i][1] = modifier * Double.parseDouble(record.get("Position")) * DriveConstants.TICKS_PER_INCH_MOD*8.923;
-            dataPoints[i][2] = modifier * Double.parseDouble(record.get("Velocity")) * DriveConstants.TICKS_PER_INCH_MOD/10*8.923;
+            dataPoints[i][1] = modifier * Double.parseDouble(record.get("Position")) * DriveConstants.TICKS_PER_INCH_MOD;//*8.923;
+            dataPoints[i][2] = modifier * Double.parseDouble(record.get("Velocity")) * DriveConstants.TICKS_PER_INCH_MOD/10;//*8.923;
 
             mpPoint.timeDur = (int) dataPoints[i][0];
             mpPoint.position = dataPoints[i][1];

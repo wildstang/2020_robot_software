@@ -189,6 +189,8 @@ public class Drive implements Subsystem {
         }
         switch (driveMode) {
         case PATH:
+            SmartDashboard.putNumber("master left",masters[LEFT].getMotorOutputPercent());
+            SmartDashboard.putNumber("master right",masters[RIGHT].getMotorOutputPercent());
             break;
         case CHEESY:
             double effectiveThrottle = commandThrottle;
@@ -211,9 +213,9 @@ public class Drive implements Subsystem {
             break;
         }
         //SensorCollection leftEncoder = masters[LEFT].getSensorCollection();
-        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSelectedSensorPosition());  //leftEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSensorCollection().getQuadraturePosition());  //leftEncoder.getQuadraturePosition()
         //SensorCollection rightEncoder = masters[RIGHT].getSensorCollection();
-        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSelectedSensorPosition());  //rightEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSensorCollection().getQuadraturePosition());  //rightEncoder.getQuadraturePosition()
 
         updateCounter += 1;
     }
@@ -226,7 +228,7 @@ public class Drive implements Subsystem {
     /** Reset drive encoders back to zero */
     public void resetEncoders() {
         for (TalonSRX master : masters) {
-            master.getSensorCollection().setQuadraturePosition(0, 10);
+            master.setSelectedSensorPosition(0, 0,10);
         }
     }
 

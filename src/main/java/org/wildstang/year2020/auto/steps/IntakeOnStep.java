@@ -1,6 +1,8 @@
 package org.wildstang.year2020.auto.steps;
 
+import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.framework.auto.steps.AutoStep;
+import org.wildstang.framework.core.Core;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.launching.Shooter;
 
@@ -19,7 +21,7 @@ public class IntakeOnStep extends AutoStep{
         return "Intake On";
     }
     public void initialize(){
-        intake = new Ballpath();
+        intake = (Ballpath) Core.getSubsystemManager().getSubsystem(WSSubsystems.BALLPATH.getName());
         flywheel = new Shooter();
     }
 }
