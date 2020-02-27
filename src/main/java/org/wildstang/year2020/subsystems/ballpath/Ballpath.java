@@ -60,6 +60,8 @@ public class Ballpath implements Subsystem{
         //set intake motor speed
         if (xButton.getValue()){
             intakeMotorSpeed = FULL_SPEED;
+        } else if (Math.abs(rightTrigger.getValue()) >0.75) {
+            intakeMotorSpeed = 0.5*FULL_SPEED;
         } else {
             intakeMotorSpeed = 0;
         }

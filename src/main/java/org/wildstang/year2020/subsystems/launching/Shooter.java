@@ -67,11 +67,12 @@ public class Shooter implements Subsystem {
 
     // Motor velocities in ticks per decisecond
     public static final double SAFE_SHOOTER_SPEED = 0*(3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
-    //public static final double SAFE_SHOOTER_SPEED = 8000;
+    public static final double POINT_BLANK_SHOOTER_SPEED = 20000;
     public static final double AIM_MODE_SHOOTER_SPEED = 4*(6750 * TICKS_PER_REV) / 600.0;//51200
+    public static final double IDLE_SPEED = 0.4;//idle percent output
 
     // PID constants go in order of F, P, I, D
-    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.0, 24, 0.0, 0.0);//might push these P values way up
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.008, 0, 0.0, 0.0);//might push these P values way up
     public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.016, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
@@ -179,7 +180,7 @@ public class Shooter implements Subsystem {
         shooterFollowerMotor.follow(shooterMasterMotor);
         shooterFollowerMotor.setInverted(true);
 
-        shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+        shooterMasterMotor.set(ControlMode.PercentOutput, IDLE_SPEED);
 
         hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
         hoodMotor.setNeutralMode(NeutralMode.Coast);
@@ -208,18 +209,19 @@ public class Shooter implements Subsystem {
         SmartDashboard.putNumber("Hood moving", hoodMotorOutput * HOOD_OUTPUT_SCALE);
         SmartDashboard.putBoolean("hood aiming", aimModeEnabled);
 
+        setFlywheel();
         if (!shooterOn){
-            shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+            //shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
             hoodMotor.setNeutralMode(NeutralMode.Coast);
         } else if (aimModeEnabled){
-            shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            //shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
             aimToGoal();
             hoodMotor.setNeutralMode(NeutralMode.Brake);
         // } else if (autoMode){
         //         shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
         //         hoodMotor.setNeutralMode(NeutralMode.Brake);
         } else {
-            shooterMasterMotor.set(ControlMode.PercentOutput, 0.4);
+            //shooterMasterMotor.set(ControlMode.PercentOutput, 0.4);
 
             hoodMotor.setNeutralMode(NeutralMode.Coast);
             if (!hoodManualOverride){
@@ -272,15 +274,15 @@ public class Shooter implements Subsystem {
     public void inputUpdate(Input source) {
         if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
             aimModeEnabled = true;
-            shooterMasterMotor.selectProfileSlot(1, 0);
+            //shooterMasterMotor.selectProfileSlot(1, 0);
             isPointBlank=false;
         } else if (pointBlankShot.getValue()){
             isPointBlank = true;
             aimModeEnabled = true;
-            shooterMasterMotor.selectProfileSlot(1, 0);
+            //shooterMasterMotor.selectProfileSlot(1, 0);
         } else { // Exiting aim mode
             aimModeEnabled = false;
-            shooterMasterMotor.selectProfileSlot(0, 0);
+            //shooterMasterMotor.selectProfileSlot(0, 0);
             isPointBlank = false;
         } 
         if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
@@ -364,6 +366,28 @@ public class Shooter implements Subsystem {
     // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
 
+    //Sets the flywheel to the correct speed based upon the current shooting mode
+    private void setFlywheel(){
+        if (!shooterOn){
+            shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+        } else if (isPointBlank){
+            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(POINT_BLANK_SHOOTER_SPEED)){
+                shooterMasterMotor.selectProfileSlot(0,0);
+                shooterMasterMotor.set(ControlMode.Velocity, POINT_BLANK_SHOOTER_SPEED);
+            } else {
+                shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
+            }
+        } else if (aimModeEnabled || autoMode){
+            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(AIM_MODE_SHOOTER_SPEED)){
+                shooterMasterMotor.selectProfileSlot(0, 0);
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            } else {
+                shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
+            }
+        } else {
+            shooterMasterMotor.set(ControlMode.PercentOutput, IDLE_SPEED);
+        } 
+    }
     // Returns whether the shooter motor's speed is right for being in aim mode
     public boolean isShooterMotorSpeedSetForAimMode() {
         return shooterMotorSpeedSetForAimMode;
@@ -432,6 +456,11 @@ public class Shooter implements Subsystem {
     //Usable for auto
     public void setAim(boolean aiming){
         aimModeEnabled = aiming;
+        if (aiming) {
+            limelightSubsystem.enableLEDs();
+        } else {
+            limelightSubsystem.disableLEDs();
+        }
     }
 
     public void resetHoodEncoder() {

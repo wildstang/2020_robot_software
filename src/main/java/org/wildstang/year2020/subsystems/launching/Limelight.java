@@ -201,5 +201,6 @@ public class Limelight implements Subsystem {
     public void resetState() {
         trailingVerticalAngleOffsets = new ArrayList<Double>();
         lastValueAddedTimestamp = 0L;
+        disableLEDs();
     }
 }
