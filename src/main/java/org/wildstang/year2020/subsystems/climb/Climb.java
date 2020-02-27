@@ -52,9 +52,9 @@ public class Climb implements Subsystem {
         if (downButton.getValue()) {
             if (currentCommand == commands.RAISED || currentCommand == commands.PAUSED) {
                 currentCommand = commands.LOWERING;
-            } else if (currentCommand == commands.LOWERING) {
-                currentCommand = commands.PAUSED;
-            }
+            } 
+        } else if (currentCommand == commands.LOWERING) {
+            currentCommand = commands.PAUSED;
         }
     }
 
@@ -114,6 +114,7 @@ public class Climb implements Subsystem {
     public void resetState() {
         climbActiveStatus = false;
         climbCompleteStatus = false;
+        currentCommand = commands.INACTIVE;
         climbMotor1.getEncoder().setPosition(0.0);
         //climbMotor1.restoreFactoryDefaults();
         climbMotor1.setSmartCurrentLimit(80);
