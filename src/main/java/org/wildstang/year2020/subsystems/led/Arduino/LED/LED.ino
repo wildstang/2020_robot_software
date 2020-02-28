@@ -37,7 +37,16 @@ void setup() {
 }
 
 void loop() {
-    String currentPattern = receiveData(); // receiveData() has a while statement and will hang, pausing the loop until data is received from serial
+    //String currentPattern = receiveData(); // receiveData() has a while statement and will hang, pausing the loop until data is received from serial
+    String currentPattern = "";
+    if(Serial.available() > 0) {
+        currentPattern = Serial.readString();
+        //currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
+        //Serial.println(currentPattern); // For debugging
+    }
+    if(currentPattern != "") {
+    Serial.println(currentPattern); // For debugging
+    }
 
     if(currentPattern == "DISABLED_ID") {
         disabled();
@@ -65,9 +74,10 @@ void loop() {
         feederJammed();
     } else if(currentPattern == "OFF_ID") {
         allOff();
-    } else {
-        allOff();
-    }
+    }// else {
+    //    allOff();
+    //}
+    //when allianceRainbow() is in the final else statement, serial gets a seizure for some reason
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -179,10 +189,10 @@ void fillLower(unsigned int red, unsigned int green, unsigned int blue) {
     lower.show();
 }
 
-String receiveData() {
-    while(Serial.available() == 0);
-        String currentPattern = Serial.readString();
-        currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
-        Serial.println(currentPattern); // For debugging
-    return currentPattern;
-}
+//String receiveData() {
+//    while(Serial.available() == 0);
+//        String currentPattern = Serial.readString();
+//        currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
+//        Serial.println(currentPattern); // For debugging
+//    return currentPattern;
+//}
