@@ -66,7 +66,6 @@ public class Drive implements Subsystem {
     /** Button to control anti-turbo mode */
     private DigitalInput antiTurboInput;
     // private AnalogInput turboInput;
-    private AnalogInput intake;
 
     /**
      * Keeps track of what kind of drive we're doing (e.g. cheesy drive vs path vs
@@ -366,8 +365,6 @@ public class Drive implements Subsystem {
         antiTurboInput.addInputListener(this);
         baseLockInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_FACE_UP.getName());
         baseLockInput.addInputListener(this);
-        intake = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
-        intake.addInputListener(this);
         // turboInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
         // turboInput.addInputListener(this);
     }
