@@ -9,7 +9,7 @@ public class DriveConstants {
     public static final double ENCODER_CPR = 4096;
     /** # of ticks in one surface inch of wheel movement */
     public static final double TICKS_PER_INCH = ENCODER_CPR / (WHEEL_DIAMETER_INCHES * Math.PI);
-    public static final double TICKS_PER_INCH_MOD = 230.5 * 9.3;
+    public static final double TICKS_PER_INCH_MOD = 140;//230.5*8.932;
 
     /** PID deadband in base lock mode */
     public static final int BRAKE_MODE_ALLOWABLE_ERROR = 20;
@@ -22,6 +22,6 @@ public class DriveConstants {
     public static final boolean LEFT_DRIVE_INVERTED = true;
     public static final boolean RIGHT_DRIVE_INVERTED = false;
 
-    public static final boolean LEFT_DRIVE_SENSOR_PHASE = true;
+    public static final boolean LEFT_DRIVE_SENSOR_PHASE = false;
     public static final boolean RIGHT_DRIVE_SENSOR_PHASE = true;
 }

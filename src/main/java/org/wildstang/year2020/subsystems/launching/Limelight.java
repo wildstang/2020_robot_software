@@ -152,7 +152,7 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
+        ledModeEntry.setNumber(1); // FOR TESTING PURPOSES: LEDs should always be on
     }
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
@@ -201,5 +201,6 @@ public class Limelight implements Subsystem {
     public void resetState() {
         trailingVerticalAngleOffsets = new ArrayList<Double>();
         lastValueAddedTimestamp = 0L;
+        disableLEDs();
     }
 }

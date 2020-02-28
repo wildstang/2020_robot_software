@@ -24,8 +24,8 @@ import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.lang.management.GarbageCollectorMXBean;
 
-import org.wildstang.year2020.auto.programs.Ball10;
 import org.wildstang.year2020.auto.programs.TrenchCentered;
+import org.wildstang.year2020.auto.programs.TheDrake;
 import org.wildstang.year2020.auto.programs.Prog120;
 import org.wildstang.year2020.auto.programs.Prog144;
 import org.wildstang.year2020.auto.programs.Prog168;
@@ -59,8 +59,8 @@ public class Robot extends TimedRobot {
         core.createOutputs(WSOutputs.values());
         core.createSubsystems(WSSubsystems.values());
 
-        AutoManager.getInstance().addProgram(new Ball10());
         AutoManager.getInstance().addProgram(new TrenchCentered());
+        AutoManager.getInstance().addProgram(new TheDrake());
         AutoManager.getInstance().addProgram(new Trench10());
         AutoManager.getInstance().addProgram(new Prog120());
         AutoManager.getInstance().addProgram(new Prog144());
