@@ -67,13 +67,13 @@ public class Shooter implements Subsystem {
 
     // Motor velocities in ticks per decisecond
     public static final double SAFE_SHOOTER_SPEED = 0*(3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
-    public static final double POINT_BLANK_SHOOTER_SPEED = 20000;
-    public static final double AIM_MODE_SHOOTER_SPEED = 4*(6750 * TICKS_PER_REV) / 600.0;//51200
+    public static final double POINT_BLANK_SHOOTER_SPEED = 26000;
+    public static final double AIM_MODE_SHOOTER_SPEED = 41000;//4*(6750 * TICKS_PER_REV) / 600.0;//51200
     public static final double IDLE_SPEED = 0.4;//idle percent output
 
     // PID constants go in order of F, P, I, D
-    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.008, 0, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.016, 0.0, 0.0, 0.0);//same here // 0.02 0.032
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.0012, 0, 0.0, 0.0);//might push these P values way up
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.018, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = -1.9325;
