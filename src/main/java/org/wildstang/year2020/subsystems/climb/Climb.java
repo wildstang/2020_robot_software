@@ -17,8 +17,8 @@ public class Climb implements Subsystem {
     // Inputs
     private DigitalInput selectButton;
     private DigitalInput startButton;
-    private DigitalInput driverStartButton;
-    private DigitalInput driverSelectButton;
+    // private DigitalInput driverStartButton;
+    // private DigitalInput driverSelectButton;
     private DigitalInput downButton;
     private DigitalInput upButton;
 
@@ -55,13 +55,13 @@ public class Climb implements Subsystem {
         if (selectButton.getValue() && startButton.getValue() && currentCommand == commands.INACTIVE) {
             currentCommand = commands.RAISING;
         }
-        if (driverStartButton.getValue() && driverSelectButton.getValue()){
-            if (currentCommand == commands.INACTIVE || currentCommand == commands.LIFTEDMAX){
-                if (climbMotor1.getEncoder().getPosition() >= 45) {
-                    currentCommand = commands.RESET;
-                }
-            }
-        }
+        // if (driverStartButton.getValue() && driverSelectButton.getValue()){
+        //     if (currentCommand == commands.INACTIVE || currentCommand == commands.LIFTEDMAX){
+        //         if (climbMotor1.getEncoder().getPosition() >= 45) {
+        //             currentCommand = commands.RESET;
+        //         }
+        //     }
+        // }
 
         if (downButton.getValue()) {
             if (currentCommand == commands.RAISED || currentCommand == commands.PAUSED || currentCommand == commands.LOCKED) {
@@ -181,10 +181,10 @@ public class Climb implements Subsystem {
         selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_START.getName());
         startButton.addInputListener(this);
-        driverSelectButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_SELECT.getName());
-        driverSelectButton.addInputListener(this);
-        driverStartButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
-        driverStartButton.addInputListener(this);
+        // driverSelectButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_SELECT.getName());
+        // driverSelectButton.addInputListener(this);
+        // driverStartButton = (DigitalInput) inputManager.getInput(WSInputs.DRIVER_START.getName());
+        // driverStartButton.addInputListener(this);
         downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
         downButton.addInputListener(this);
         upButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_UP.getName());
