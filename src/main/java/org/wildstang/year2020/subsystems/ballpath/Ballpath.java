@@ -44,6 +44,7 @@ public class Ballpath implements Subsystem{
 
     //Inputs
     private AnalogInput rightTrigger;
+    private AnalogInput driverLeftTrigger;
     private DigitalInput dpadRight;
     private DigitalInput xButton;
 
@@ -58,7 +59,7 @@ public class Ballpath implements Subsystem{
             feedMotorSpeed = 0;
         }
         //set intake motor speed
-        if (xButton.getValue()){
+        if (xButton.getValue() || Math.abs(driverLeftTrigger.getValue()) > 0.75){
             intakeMotorSpeed = FULL_SPEED;
         } else if (Math.abs(rightTrigger.getValue()) >0.75) {
             intakeMotorSpeed = 0.5*FULL_SPEED;
@@ -76,6 +77,8 @@ public class Ballpath implements Subsystem{
     private void initInputs(){
         rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         rightTrigger.addInputListener(this);
+        driverLeftTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
+        driverLeftTrigger.addInputListener(this);
         dpadRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_RIGHT.getName());
         dpadRight.addInputListener(this);
         xButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT.getName());
