@@ -10,7 +10,7 @@
       as this code or under the libraries folder on the local machine.
 */
 
-// TODO Add lower updates for rainbow()
+// TODO Add lower updates for allianceRainbow() and fix limited allianceRainbow() due to hanging receiveData()
 
 // Length of LEDs
 #define UPPER_LENGTH 8 //16
@@ -47,8 +47,8 @@ void loop() {
         allianceBlue();
     } else if(currentPattern == "ALLIANCE_RED_ID") {
         allianceRed();
-    } else if(currentPattern == "ALLIANCE_PURPLE_ID") {
-        alliancePurple();
+    } else if(currentPattern == "ALLIANCE_RAINBOW_ID") {
+        allianceRainbow(15);
     } else if(currentPattern == "CONTROL_PANEL_ID") {
         controlPanel();
     } else if(currentPattern == "LAUNCHER_AIMING_ID") {
@@ -65,15 +65,13 @@ void loop() {
         feederJammed();
     } else if(currentPattern == "OFF_ID") {
         allOff();
-    } else if(currentPattern == "RAINBOW_ID") {
-        rainbow(30);
     } else {
         allOff();
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void rainbow(uint8_t wait) {
+void allianceRainbow(uint8_t wait) {
     uint16_t i, j;
 
     for(j=0; j<256; j++) {
@@ -84,7 +82,6 @@ void rainbow(uint8_t wait) {
         delay(wait);
     }
 }
-
 
 // Input a value 0 to 255 to get a color value
 // The colors are transition r - g - b - back to r
@@ -121,11 +118,6 @@ void allianceBlue() {
 void allianceRed() {
     fillUpper(255, 0, 0);
     fillLower(255, 0, 0);
-}
-
-void alliancePurple() {
-    fillUpper(255, 0, 255);
-    fillLower(255, 0, 255);
 }
 
 void controlPanel() {
@@ -190,34 +182,7 @@ void fillLower(unsigned int red, unsigned int green, unsigned int blue) {
 String receiveData() {
     while(Serial.available() == 0);
         String currentPattern = Serial.readString();
-        currentPattern.remove(currentPattern.length()-1); //To get rid of the newline character
+        currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
         Serial.println(currentPattern); // For debugging
     return currentPattern;
 }
-
-// This gets called every time new data is received over the I2C bus
-//void receiveData(int byteCount)
-//{
-//    Serial.println("Got message");
-//    // Check the byte count to ensure that a 4 byte packet is received
-//    if (byteCount == 4) {
-//        dataByte1 = (0x000000FF & Wire.read()); // Pattern ID
-//        dataByte2 = (0x000000FF & Wire.read()); // Red
-//        dataByte3 = (0x000000FF & Wire.read()); // Green
-//        dataByte4 = (0x000000FF & Wire.read()); // Blue
-//
-//        // Set the variables to the value of the data
-//        currentPattern = dataByte1;
-//        redValue       = dataByte2;
-//        greenValue     = dataByte3;
-//        blueValue      = dataByte4;
-//
-//        // Set the flag to state that new data is ready
-//        dataUpdateReady = true;
-//    } else if (byteCount > 4) {
-//        // Keep on reading the bytes from the buffer until they're gone since they aren't used
-//        while (Wire.available() > 0) {
-//            Wire.read();
-//        }
-//    }
-//}

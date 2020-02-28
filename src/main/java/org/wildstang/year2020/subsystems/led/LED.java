@@ -1,5 +1,8 @@
 package org.wildstang.year2020.subsystems.led;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
@@ -12,13 +15,10 @@ import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.climb.Climb;
 import org.wildstang.year2020.subsystems.launching.Shooter;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SerialPort;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-    // TODO: switch everything to strings and work on colors in arduino code
+    // TODO: display control panel colors
 
 
 public class LED implements Subsystem
@@ -34,16 +34,6 @@ public class LED implements Subsystem
     DigitalInput downButton;
 
     private SerialPort serialPort;
-
-    // Pattern IDs
-    //private static final int OFF_ID = 1;
-    //private static final int DISABLED_ID = 2;
-    //private static final int AUTO_ID = 3;
-    //private static final int ALLIANCE_ID = 4;
-    //private static final int CONTROL_PANEL_ID = 5;
-    //private static final int LAUNCHER_ID = 6;
-    //private static final int CLIMB_ID = 7;
-    //private static final int FEEDER_JAM_ID = 8;
 
     // Data states
     boolean autoDataSent = false; // For auto, one time send
@@ -64,29 +54,12 @@ public class LED implements Subsystem
     boolean climbComplete = false;
     boolean feederJammed = false;
 
-    // Color definitions
-    // TODO Update colors
-    //public static LedCmd offCmd = new LedCmd(OFF_ID, 0, 0, 0);
-    //public static LedCmd disabledCmd = new LedCmd(DISABLED_ID, 255, 255, 255); // White (static)
-    //public static LedCmd autoCmd = new LedCmd(AUTO_ID, 255, 255, 0); // Yellow (static)
-    //public static LedCmd redAllianceCmd = new LedCmd(ALLIANCE_ID, 255, 0, 0); // Red (static)
-    //public static LedCmd blueAllianceCmd = new LedCmd(ALLIANCE_ID, 0, 0, 255); // Blue (static)
-    //public static LedCmd purpleAllianceCmd = new LedCmd(ALLIANCE_ID, 255, 0, 255); // Purple (static)
-
-    //public static LedCmd cpSpinningCmd = new LedCmd(CONTROL_PANEL_ID, 0, 0, 0);
-    //public static LedCmd launcherAimingCmd = new LedCmd(LAUNCHER_ID, 0, 0, 0);   // When limelight is detecting target and turret is lining up shot
-    //public static LedCmd launcherReadyCmd = new LedCmd(LAUNCHER_ID, 0, 255, 0);  // When limelight has finished detecting target and flywheel is ready to get to speed
-    //public static LedCmd launcherShootingCmd = new LedCmd(LAUNCHER_ID, 0, 0, 0); // When flywheel is getting to speed and shooting at target
-    //public static LedCmd climbRunningCmd = new LedCmd(CLIMB_ID, 255, 255, 0); // Yellow
-    //public static LedCmd climbCompleteCmd = new LedCmd(CLIMB_ID, 0, 255, 0); // Green (static)
-    //public static LedCmd feederJammedCmd = new LedCmd(FEEDER_JAM_ID, 0, 0, 255);
-
     public static String offCmd = "OFF_ID";
     public static String disabledCmd = "DISABLED_ID";
     public static String autoCmd = "AUTO_ID";
-    public static String blueAllianceCmd = "ALLIANCE_BLUE_ID";
-    public static String redAllianceCmd = "ALLIANCE_RED_ID";
-    public static String purpleAllianceCmd = "ALLIANCE_PURPLE_ID";
+    public static String allianceBlueCmd = "ALLIANCE_BLUE_ID";
+    public static String allianceRedCmd = "ALLIANCE_RED_ID";
+    public static String allianceRainbowCmd = "ALLIANCE_RAINBOW_ID";
 
     public static String cpSpinningCmd = "CONTROL_PANEL_ID";
     public static String launcherAimingCmd = "LAUNCHER_AIMING_ID";   // When limelight is detecting target and turret is lining up shot
@@ -122,11 +95,11 @@ public class LED implements Subsystem
         boolean isRobotEnabled = DriverStation.getInstance().isEnabled();
         boolean isRobotTeleop = DriverStation.getInstance().isOperatorControl();
         boolean isRobotAuton = DriverStation.getInstance().isAutonomous();
+        String alliance = DriverStation.getInstance().getAlliance().name();
 
         if (isRobotEnabled) {
             if (isRobotTeleop) {
-                //LedCmd command = offCmd; // Turns off LEDs everytime before updating
-                String command = offCmd; // Turns off LEDs everytime before updating
+                String command = offCmd; // What should the LEDs do every time once the robot is enabled?
                 if (newDataAvailable) {
                     // The lower the logic gate in the list is, the higher priority it has
                     if (cpSpinning) {
@@ -150,14 +123,12 @@ public class LED implements Subsystem
                     if (climbComplete) {
                         command = climbCompleteCmd;
                     }
-                    //ledOutput.setValue(command.getBytes());
-                    serialPort.writeString(command);
+                    serialPort.writeString(command + "\n");
                     SmartDashboard.putString("LedCmd", command);
+                    newDataAvailable = false;
                 }
-                newDataAvailable = false;
             } else if (isRobotAuton) {
                 if (!autoDataSent) {
-                    //ledOutput.setValue(autoCmd.getBytes());
                     autoDataSent = true;
                 }
             }
@@ -186,32 +157,11 @@ public class LED implements Subsystem
         }
         newDataAvailable = true;
     }
-    
-    //public void sendCommand(LedCmd p_command) {
-    //    currentCmd = p_command;
-    //    newDataAvailable = true;
-    //}
 
     public void sendFeederJammed() {
         feederJammed = true;
         newDataAvailable = true;
     }
-
-//    public static class LedCmd {
-//        byte[] dataBytes = new byte[4];
-//        public int command;
-//        public LedCmd(int command, int red, int green, int blue) {
-//            dataBytes[0] = (byte) command;
-//            dataBytes[1] = (byte) red;
-//            dataBytes[2] = (byte) green;
-//            dataBytes[3] = (byte) blue;
-//
-//            this.command = command;
-//        }
-//        public byte[] getBytes() {
-//            return dataBytes;
-//        }
-//    }
 
     @Override
     public void resetState() {
