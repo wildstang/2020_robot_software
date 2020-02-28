@@ -24,6 +24,7 @@
 #define LED_TYPE WS2811
 
 String currentPattern;
+//char newline = '\n';
 
 Adafruit_NeoPixel upper = Adafruit_NeoPixel(UPPER_LENGTH, UPPER_DATAPIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel lower = Adafruit_NeoPixel(LOWER_LENGTH, LOWER_DATAPIN, NEO_GRB + NEO_KHZ800);
@@ -40,7 +41,7 @@ void loop() {
     //String currentPattern = receiveData(); // receiveData() has a while statement and will hang, pausing the loop until data is received from serial
     String currentPattern = "";
     if(Serial.available() > 0) {
-        currentPattern = Serial.readString();
+        currentPattern = Serial.readStringUntil('\n');
         //currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
         //Serial.println(currentPattern); // For debugging
     }
