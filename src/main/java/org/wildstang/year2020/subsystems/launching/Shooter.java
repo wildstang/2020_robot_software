@@ -100,6 +100,7 @@ public class Shooter implements Subsystem {
 
     // Logic
     private boolean aimModeEnabled;
+    private boolean kfSet;
 
     private boolean shooterMotorSpeedSetForAimMode;
     private boolean hoodAimed;
@@ -330,6 +331,7 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.selectProfileSlot(0, 0);
         shooterMotorSpeedSetForAimMode = false;
         hoodAimed = false;
+        kfSet = false;
 
         hoodManualOverride = false;
         hoodMotorOutput = 0.0;
@@ -378,11 +380,17 @@ public class Shooter implements Subsystem {
                 shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
             }
         } else if (aimModeEnabled || autoMode){
-            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(AIM_MODE_SHOOTER_SPEED)){
-                shooterMasterMotor.selectProfileSlot(0, 0);
+            if (!kfSet) {
+                if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(AIM_MODE_SHOOTER_SPEED)){
+                    shooterMasterMotor.config_kF(1, 1023*shooterMasterMotor.getMotorOutputPercent()/shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
+                    kfSet = true;
+                } else {
+                    shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);        
+                }
+            } 
+            if (kfSet) {
+                shooterMasterMotor.selectProfileSlot(1, 0);
                 shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-            } else {
-                shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
             }
         } else {
             shooterMasterMotor.set(ControlMode.PercentOutput, IDLE_SPEED);
