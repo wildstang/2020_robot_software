@@ -189,7 +189,7 @@ public class Turret implements Subsystem {
             // if (shooterSubsystem.willAimToInnerGoal() == true) { // Do we need to adjust the turret aiming angle?
             //     txValue = Math.toDegrees(Math.atan(limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToInnerGoal())) - 0.8;
             // } else {
-                txValue = limelightSubsystem.getTXValue() - 0.8;
+                txValue = limelightSubsystem.getTXValue() - 1.8;
             // }
 
             double headingError = -txValue;

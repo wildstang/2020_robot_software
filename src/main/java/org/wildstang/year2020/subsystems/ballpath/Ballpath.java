@@ -106,8 +106,8 @@ public class Ballpath implements Subsystem{
         hopperSlow = maxDriveInputEntry.getDouble(1.0);
         
         SmartDashboard.putNumber("intake speedd", intakeMotorSpeed);
-        feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
-        hopperMotor.set(ControlMode.PercentOutput, feedMotorSpeed * hopperSlow);
+        feedMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed);
+        hopperMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed * hopperSlow);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, feedMotorSpeed * KICKER_MOTOR_CONSTANT);   
     }

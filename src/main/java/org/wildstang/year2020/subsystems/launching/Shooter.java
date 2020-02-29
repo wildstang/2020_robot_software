@@ -76,12 +76,12 @@ public class Shooter implements Subsystem {
     public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.018, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
-    public static final double AIMING_INNER_REGRESSION_A = -1.9325;
-    public static final double AIMING_INNER_REGRESSION_B = 74.177;
-    public static final double AIMING_INNER_REGRESSION_C = -69.84;
-    public static final double AIMING_OUTER_REGRESSION_A = -1.9325;
-    public static final double AIMING_OUTER_REGRESSION_B = 74.177;
-    public static final double AIMING_OUTER_REGRESSION_C = -69.84;
+    public static final double AIMING_INNER_REGRESSION_A = -2.418037;//-1.9325;
+    public static final double AIMING_INNER_REGRESSION_B = 77.979872;//74.177;
+    public static final double AIMING_INNER_REGRESSION_C = -83.373173;//-69.84;
+    public static final double AIMING_OUTER_REGRESSION_A = -2.418037;//-1.9325;
+    public static final double AIMING_OUTER_REGRESSION_B = 77.979872;//74.177;
+    public static final double AIMING_OUTER_REGRESSION_C = -83.373173;//-69.84;
     
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
