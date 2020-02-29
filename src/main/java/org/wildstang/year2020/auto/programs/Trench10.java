@@ -31,6 +31,7 @@ public class Trench10 extends AutoProgram {
         second.addStep(secondA);
         addStep(second);
 
+        addStep(new DelayStep(1.0));
         addStep(new FeedOnStep());
         addStep(new DelayStep(2.0));
         addStep(new FeedOffStep());

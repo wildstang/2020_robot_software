@@ -15,18 +15,18 @@ public class TrenchCentered extends AutoProgram {
     @Override
     protected void defineSteps() {
         addStep(new IntakeOnStep());
-        addStep(new SetTurretStep(-9800));
+        //addStep(new SetTurretStep(-9800));
         addStep(new DelayStep(1));
-        addStep(new AutoAimStep(true));
+        //addStep(new AutoAimStep(true));
         addStep(new DelayStep(3));
-        addStep(new FeedOnStep());
+        //addStep(new FeedOnStep());
         addStep(new DelayStep(2));
-        addStep(new FeedOffStep());
-        addStep(new AutoAimStep(false));
+        //addStep(new FeedOffStep());
+        //addStep(new AutoAimStep(false));
         addStep(new PathFollowerStep(PathNameConstants.TRENCH_CENTERED, true, true));
-        addStep(new PathFollowerStep(PathNameConstants.TRENCH10C, true, true));
-        addStep(new AutoAimStep(true));
-        addStep(new FeedOnStep());
+        addStep(new PathFollowerStep(PathNameConstants.TRENCH10C, true, false));
+        //addStep(new AutoAimStep(true));
+        //addStep(new FeedOnStep());
 
     }
 

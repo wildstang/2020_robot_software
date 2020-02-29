@@ -85,6 +85,7 @@ public class Ballpath implements Subsystem{
         xButton.addInputListener(this);
         driveTab = Shuffleboard.getTab("Drive");
         maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        hopperSlow = 1.0;
     }
 
     private void initOutputs(){
@@ -116,7 +117,7 @@ public class Ballpath implements Subsystem{
     public void resetState() {
         feedMotorSpeed = 0.0;
         intakeMotorSpeed = 0.0;
-        hopperSlow=1.0;
+        hopperSlow=0.6;
     }
 
     @Override
