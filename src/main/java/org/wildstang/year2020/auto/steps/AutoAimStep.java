@@ -21,7 +21,7 @@ public class AutoAimStep extends AutoStep{
 
     public void update() {
         shooter.setAim(activity);
-        //turret.autoAim(activity);
+        turret.autoAim(activity);
         if (activity){
             limelight.enableLEDs();
         } else {
@@ -35,7 +35,7 @@ public class AutoAimStep extends AutoStep{
     }
     public void initialize(){
         shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
-        //turret = (Turret) Core.getSubsystemManager().getSubsystem(WSSubsystems.TURRET.getName());
+        turret = (Turret) Core.getSubsystemManager().getSubsystem(WSSubsystems.TURRET.getName());
         limelight = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
     }
 }
