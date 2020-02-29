@@ -64,7 +64,7 @@ public class Drive implements Subsystem {
     /** Button to control quick turn mode */
     private AnalogInput quickTurnInput;
     /** Button to control anti-turbo mode */
-    // private DigitalInput antiTurboInput;
+    private DigitalInput antiTurboInput;
     // private AnalogInput turboInput;
     private AnalogInput intake;
 
@@ -161,8 +161,8 @@ public class Drive implements Subsystem {
         else if (Math.abs(quickTurnInput.getValue())>0.75) {
             commandQuickTurn = quickTurnInput.getValue();
             isQuick = true;
-        // } else if (source == antiTurboInput) {
-        //     commandAntiTurbo = antiTurboInput.getValue();
+        } else if (source == antiTurboInput) {
+            commandAntiTurbo = antiTurboInput.getValue();
         // } else if (source == turboInput){
         //     turboPower = Math.abs(turboInput.getValue());
         } else if (source == baseLockInput) {
@@ -197,9 +197,9 @@ public class Drive implements Subsystem {
             break;
         case CHEESY:
             double effectiveThrottle = commandThrottle;
-            // if (commandAntiTurbo) {
-            //     effectiveThrottle = commandThrottle * DriveConstants.ANTI_TURBO_FACTOR;
-            // }
+            if (commandAntiTurbo) {
+                effectiveThrottle = commandThrottle * DriveConstants.ANTI_TURBO_FACTOR;
+            }
             SmartDashboard.putNumber("Quick Turn", commandQuickTurn);
             driveSignal = cheesyHelper.cheesyDrive(effectiveThrottle, commandHeading, isQuick);
             SmartDashboard.putNumber("driveSignal.left", driveSignal.leftMotor);
@@ -362,12 +362,10 @@ public class Drive implements Subsystem {
         throttleInput.addInputListener(this);
         quickTurnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
         quickTurnInput.addInputListener(this);
-        // antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_RIGHT.getName());
-        // antiTurboInput.addInputListener(this);
+        antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_RIGHT.getName());
+        antiTurboInput.addInputListener(this);
         baseLockInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_FACE_UP.getName());
         baseLockInput.addInputListener(this);
-        intake = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
-        intake.addInputListener(this);
         // turboInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
         // turboInput.addInputListener(this);
     }

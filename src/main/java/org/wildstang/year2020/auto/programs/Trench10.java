@@ -41,7 +41,7 @@ public class Trench10 extends AutoProgram {
         addStep(third);
 
         AutoParallelStepGroup fourth = new AutoParallelStepGroup();
-        fourth.addStep(new PathFollowerStep(PathNameConstants.TRENCH10C,true,true));
+        fourth.addStep(new PathFollowerStep(PathNameConstants.TRENCH10C,true,false));
         AutoSerialStepGroup fourthA = new AutoSerialStepGroup();
         fourthA.addStep(new DelayStep(2.0));
         fourthA.addStep(new AutoAimStep(true));
