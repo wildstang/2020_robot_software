@@ -110,7 +110,7 @@ public class Ballpath implements Subsystem{
         feedMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed);
         hopperMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed * hopperSlow);
         intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
-        kickerMotor.set(ControlMode.PercentOutput, feedMotorSpeed * KICKER_MOTOR_CONSTANT);   
+        kickerMotor.set(ControlMode.PercentOutput, FULL_SPEED * KICKER_MOTOR_CONSTANT);   
     }
 
     @Override
@@ -126,6 +126,9 @@ public class Ballpath implements Subsystem{
     }
     public void turnOnIntake(){
         intakeMotorSpeed = FULL_SPEED;
+    }
+    public void turnOffIntake(){
+        intakeMotorSpeed = 0;
     }
     public void turnOnFeed(){
         feedMotorSpeed = FULL_SPEED;

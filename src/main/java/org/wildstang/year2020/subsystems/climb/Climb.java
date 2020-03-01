@@ -31,7 +31,7 @@ public class Climb implements Subsystem {
     private final double RESET_SPEED = -0.2;
     private final double LIFT_HEIGHT = 55;
     private final double LIFT_LOCKED = 65;
-    private final double LIFT_BOTTOM = 90.5;
+    private final double LIFT_BOTTOM = 105;
 
     // Statuses
     private boolean climbActiveStatus; // For Shuffleboard

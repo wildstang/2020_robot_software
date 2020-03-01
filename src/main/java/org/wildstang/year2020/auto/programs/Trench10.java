@@ -17,7 +17,7 @@ public class Trench10 extends AutoProgram {
     @Override
     protected void defineSteps() {
         AutoParallelStepGroup initial = new AutoParallelStepGroup();
-        initial.addStep(new IntakeOnStep());
+        initial.addStep(new IntakeOnStep(true));
         initial.addStep(new PathFollowerStep(PathNameConstants.TRENCH10A,true,true));
         initial.addStep(new SetTurretStep(-29400));
         addStep(initial);

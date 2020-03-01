@@ -14,7 +14,7 @@ public class TrenchCentered extends AutoProgram {
 
     @Override
     protected void defineSteps() {
-        addStep(new IntakeOnStep());
+        addStep(new IntakeOnStep(true));
         //addStep(new SetTurretStep(-9800));
         addStep(new DelayStep(1));
         //addStep(new AutoAimStep(true));
