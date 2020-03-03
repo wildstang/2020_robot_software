@@ -3,6 +3,7 @@ package org.wildstang.year2020.subsystems.led;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
@@ -16,16 +17,13 @@ import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.climb.Climb;
 import org.wildstang.year2020.subsystems.launching.Shooter;
 
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-    // TODO: display control panel colors
-
+// TODO: display control panel colors
 
 public class LED implements Subsystem
 {
-    // Miscellaneous definitions
+    // General definitions
     private String name;
-    WsI2COutput ledOutput;
+    private SerialPort serialPort;
     private Climb climb;
     private Ballpath ballpath;
     private Shooter shooter;
@@ -33,27 +31,29 @@ public class LED implements Subsystem
     DigitalInput startButton;
     DigitalInput downButton;
 
-    private SerialPort serialPort;
-
     // Data states
-    boolean autoDataSent = false; // For auto, one time send
-    boolean newDataAvailable = false; // For teleop, constant updates
-    boolean disableDataSent = false; // For debugging purposes
+    boolean autoDataSent = false;
+    boolean newDataAvailable = false;
+    boolean disableDataSent = false;
 
     // Robot states
     boolean isRobotEnabled = false;
     boolean isRobotTeleop = false;
     boolean isRobotAuton = false;
+    String alliance;
+    String gameData;
 
-    // Mechanism states
-    boolean cpSpinning = false;
+    // Mechanism data
+    int cpColor;
     boolean launcherReady = false;
     boolean launcherAiming = false;
     boolean launcherShooting = false;
+    boolean innerPortAim = false;
     boolean climbRunning = false;
     boolean climbComplete = false;
     boolean feederJammed = false;
 
+    // LED commands
     public static String offCmd = "OFF_ID";
     public static String disabledCmd = "DISABLED_ID";
     public static String idleCmd = "IDLE_ID";
@@ -61,15 +61,14 @@ public class LED implements Subsystem
     public static String allianceBlueCmd = "ALLIANCE_BLUE_ID";
     public static String allianceRedCmd = "ALLIANCE_RED_ID";
     public static String allianceRainbowCmd = "ALLIANCE_RAINBOW_ID";
-
     public static String cpRedCmd = "CONTROL_PANEL_RED_ID";
     public static String cpYellowCmd = "CONTROL_PANEL_YELLOW_ID";
     public static String cpGreenCmd = "CONTROL_PANEL_GREEN_ID";
     public static String cpBlueCmd = "CONTROL_PANEL_BLUE_ID";
-
-    public static String launcherAimingCmd = "LAUNCHER_AIMING_ID";   // When limelight is detecting target and turret is lining up shot
-    public static String launcherReadyCmd = "LAUNCHER_READY_ID";  // When limelight has finished detecting target and flywheel is ready to get to speed
-    public static String launcherShootingCmd = "LAUNCHER_SHOOTING_ID"; // When flywheel is getting to speed and shooting at target
+    public static String launcherAimingCmd = "LAUNCHER_AIMING_ID";   // When hood is aiming
+    public static String launcherReadyCmd = "LAUNCHER_READY_ID";  // When hood is aimed
+    public static String launcherShootingCmd = "LAUNCHER_SHOOTING_ID"; // When flywheel is shooting at target
+    public static String innerPortCmd = "INNER_PORT_ID"; // When aim allows for inner port shots
     public static String climbRunningCmd = "CLIMB_RUNNING_ID";
     public static String climbCompleteCmd = "CLIMB_COMPLETE_ID";
     public static String feederJammedCmd = "FEEDER_JAM_ID";
@@ -77,51 +76,83 @@ public class LED implements Subsystem
     @Override
     public void init() {
         resetState();
-        ledOutput = (WsI2COutput) Core.getOutputManager().getOutput(WSOutputs.LED.getName());
+
+        // Initialize new virtual serial port over USB with baud rate of 9600
         serialPort = new SerialPort(9600, SerialPort.Port.kUSB);
 
-        climb = (Climb) Core.getSubsystemManager().getSubsystem(WSSubsystems.CLIMB.getName());
+        // Initialize subsystems
         shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
+        climb = (Climb) Core.getSubsystemManager().getSubsystem(WSSubsystems.CLIMB.getName());
 
+        // Initialize inputs
         IInputManager inputManager = Core.getInputManager();
-        // Climb buttons
+        // Launcher
+        rightTrigger = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
+        // Climb
         selectButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_SELECT.getName());
         selectButton.addInputListener(this);
         startButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_START.getName());
         startButton.addInputListener(this);
         downButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_DOWN.getName());
         downButton.addInputListener(this);
-        // TODO Add listeners for launcher and control panel subsystem inputs
     }
 
     @Override
     public void update() {
         // Change robot state booleans to the current robot state
-        boolean isRobotEnabled = DriverStation.getInstance().isEnabled();
-        boolean isRobotTeleop = DriverStation.getInstance().isOperatorControl();
-        boolean isRobotAuton = DriverStation.getInstance().isAutonomous();
-        String alliance = DriverStation.getInstance().getAlliance().name();
-        // TODO Add FMS control panel position color
+        isRobotEnabled = DriverStation.getInstance().isEnabled();
+        isRobotTeleop = DriverStation.getInstance().isOperatorControl();
+        isRobotAuton = DriverStation.getInstance().isAutonomous();
+        //alliance = DriverStation.getInstance().getAlliance().name();
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
+        
+        // Change mechanism data to current mechanism state
+        launcherReady = shooter.isHoodAimed();
+        innerPortAim = shooter.willAimToInnerGoal();
+
+        // Identify control panel position color from FMS and store it in a variable
+        if (gameData.length() > 0) {
+            switch (gameData.charAt(0)) {
+                case 'R' :
+                    cpColor = 0;
+                    break;
+                case 'Y' :
+                    cpColor = 1;
+                    break;
+                case 'G' :
+                    cpColor = 2;
+                    break;
+                case 'B' :
+                    cpColor = 3;
+                    break;
+                default :
+                    // This is corrupt data
+                    break;
+            }
+        }
 
         if (isRobotEnabled) {
             if (isRobotTeleop) {
-                String command = idleCmd; // What should the LEDs do every time once the robot is enabled?
+                String command = idleCmd; // What command should the LEDs run every time the robot is enabled?
                 if (newDataAvailable) {
                     // The lower the logic gate in the list is, the higher priority it has
-                    if (cpRed) {
+                    if (cpColor == 0) {
                         command = cpRedCmd;
                     }
-                    if (cpYellow) {
+                    if (cpColor == 1) {
                         command = cpYellowCmd;
                     }
-                    if (cpGreen) {
+                    if (cpColor == 2) {
                         command = cpGreenCmd;
                     }
-                    if (cpBlue) {
+                    if (cpColor == 3) {
                         command = cpBlueCmd;
                     }
                     if (launcherReady) {
                         command = launcherReadyCmd;
+                        if (innerPortAim) {
+                            command = innerPortCmd;
+                        }
                     }
                     if (launcherAiming) {
                         command = launcherAimingCmd;
@@ -152,24 +183,17 @@ public class LED implements Subsystem
 
     @Override
     public void inputUpdate(Input source) {
-        // TODO properly update all mechanism states with their corresponding input
-        //launcherReady is intakeReady?
-        if (source.getName().equals(WSInputs.MANIPULATOR_FACE_DOWN.getName())) {
-            launcherReady = true;
-        // TODO Launcher
-        } else if (source.getName().equals(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName())) {
-            launcherShooting = true;
-        // TODO DO NOT USE CONTROL PANEL CONTROLS, SET THE COLOR BASED ON THE FMS
-        //} else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName())) {
-            //cpSpinning = ((DigitalInput)source).getValue();
-        //} else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X.getName())) {
-            //cpSpinning = ((DigitalInput)source).getValue();
-        // Climb
-        } else if (source == selectButton) {
-            climbRunning = ((DigitalInput)source).getValue();
-        } else if (source == startButton) {
-            climbRunning = ((DigitalInput)source).getValue();
+        // Launcher
+        if (source == rightTrigger) {
+            launcherShooting = ((DigitalInput)source).getValue();
         }
+        // Climb
+        if (selectButton.getValue() && startButton.getValue()) {
+            climbRunning = true;
+        } else {
+            climbRunning = false;
+        }
+
         newDataAvailable = true;
     }
 
