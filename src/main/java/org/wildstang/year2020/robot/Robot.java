@@ -161,6 +161,11 @@ public class Robot extends TimedRobot {
         driveBase.purgePaths();
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         //falconDrive.purgePaths();
+
+        Limelight limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
+        limelightSubsystem.disableLEDs();
+        limelightSubsystem.switchToDriverCameraMode();
+
     }
     
     private void resetRobotState() {
