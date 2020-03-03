@@ -27,6 +27,7 @@ public class LED implements Subsystem
     private Climb climb;
     private Ballpath ballpath;
     private Shooter shooter;
+    DigitalInput rightTrigger;
     DigitalInput selectButton;
     DigitalInput startButton;
     DigitalInput downButton;
