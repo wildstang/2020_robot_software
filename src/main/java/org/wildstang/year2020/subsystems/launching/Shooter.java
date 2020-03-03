@@ -490,9 +490,11 @@ public class Shooter implements Subsystem {
             hoodMotor.set(ControlMode.PercentOutput, (0 - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
         } else if (getHoodEncoderPosition()>1000){//if it flashes from 0 to 1023, for instance
             hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - 0) * -HOOD_KP + minimumHoodAdjustment);
-        } else{
+        } else if (hoodTarget==0 && getHoodEncoderPosition() < 10.0){
+            hoodMotor.set(ControlMode.PercentOutput, 0.0);
+        }else{
             hoodMotor.set(ControlMode.PercentOutput, ((hoodTarget - getHoodEncoderPosition()) * -HOOD_KP 
-                + minimumHoodAdjustment + HOOD_KD*(error-lastError)));
+                + minimumHoodAdjustment));// + HOOD_KD*(error-lastError)));
         }
         SmartDashboard.putNumber("hood pid factor1", ((hoodTarget - getHoodEncoderPosition()) * -HOOD_KP 
             + minimumHoodAdjustment - HOOD_KD*(error-lastError)));
