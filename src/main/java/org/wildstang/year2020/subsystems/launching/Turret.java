@@ -171,13 +171,7 @@ public class Turret implements Subsystem {
         }
 
         if (source == turretEncoderResetButton) {
-            if (turretEncoderResetButton.getValue() == true) {
-                turretEncoderResetPressed = true;
-                turretEncoderResetTimestamp = System.currentTimeMillis();
-            } else {
-                turretEncoderResetPressed = false;
-                turretEncoderResetTimestamp = Long.MAX_VALUE;
-            }
+            turretEncoderResetPressed = turretEncoderResetButton.getValue();
         }
     }
 
@@ -271,7 +265,7 @@ public class Turret implements Subsystem {
             SmartDashboard.putBoolean("Shooter Ready", false);
         }
 
-        if (turretEncoderResetPressed == true && System.currentTimeMillis() >= turretEncoderResetTimestamp + 1000L) {
+        if (turretEncoderResetPressed) {
             if(deadstopsEnabled) {
                 deadStopped = false;
                 deadstopsEnabled = false;  
@@ -281,7 +275,7 @@ public class Turret implements Subsystem {
                 turretMotor.getSensorCollection().setQuadraturePosition(0, -1);
                 turretTarget = 0.0;
             }
-            
+            turretEncoderResetPressed = false;
             //turretMotor.set(ControlMode.Position, turretTarget);
         }  //end of encoder reset
     }

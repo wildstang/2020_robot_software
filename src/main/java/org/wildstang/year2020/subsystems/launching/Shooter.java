@@ -69,7 +69,7 @@ public class Shooter implements Subsystem {
     public static final double SAFE_SHOOTER_SPEED = 0*(3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
     public static final double POINT_BLANK_SHOOTER_SPEED = 26000;
     public static final double AIM_MODE_SHOOTER_SPEED = 45000;//4*(6750 * TICKS_PER_REV) / 600.0;//51200
-    public static final double IDLE_SPEED = 0.5;//idle percent output
+    public static final double IDLE_SPEED = 0.6;//idle percent output
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.012, 0, 0.0, 0.0);//might push these P values way up
@@ -497,7 +497,7 @@ public class Shooter implements Subsystem {
                 + minimumHoodAdjustment));// + HOOD_KD*(error-lastError)));
         }
         SmartDashboard.putNumber("hood pid factor1", ((hoodTarget - getHoodEncoderPosition()) * -HOOD_KP 
-            + minimumHoodAdjustment - HOOD_KD*(error-lastError)));
+            + minimumHoodAdjustment));
     }
 
     //usable for auto
