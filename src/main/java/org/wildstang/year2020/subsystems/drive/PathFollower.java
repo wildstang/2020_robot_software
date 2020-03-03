@@ -29,8 +29,8 @@ public class PathFollower {
 
     public PathFollower(Path p_path, boolean isForwards, TalonSRX p_left, TalonSRX p_right) {
         m_path = p_path;
-        m_left = p_left;
-        m_right = p_right;
+        m_left = p_right;
+        m_right = p_left;
         this.isForwards = isForwards;
 
         m_left.changeMotionControlFramePeriod(20);

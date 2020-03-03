@@ -17,7 +17,7 @@ public class Trench10 extends AutoProgram {
     @Override
     protected void defineSteps() {
         AutoParallelStepGroup initial = new AutoParallelStepGroup();
-        initial.addStep(new IntakeOnStep());
+        initial.addStep(new IntakeOnStep(true));
         initial.addStep(new PathFollowerStep(PathNameConstants.TRENCH10A,true,true));
         initial.addStep(new SetTurretStep(-29400));
         addStep(initial);
@@ -31,6 +31,7 @@ public class Trench10 extends AutoProgram {
         second.addStep(secondA);
         addStep(second);
 
+        addStep(new DelayStep(1.0));
         addStep(new FeedOnStep());
         addStep(new DelayStep(2.0));
         addStep(new FeedOffStep());
@@ -41,7 +42,7 @@ public class Trench10 extends AutoProgram {
         addStep(third);
 
         AutoParallelStepGroup fourth = new AutoParallelStepGroup();
-        fourth.addStep(new PathFollowerStep(PathNameConstants.TRENCH10C,true,true));
+        fourth.addStep(new PathFollowerStep(PathNameConstants.TRENCH10C,true,false));
         AutoSerialStepGroup fourthA = new AutoSerialStepGroup();
         fourthA.addStep(new DelayStep(2.0));
         fourthA.addStep(new AutoAimStep(true));

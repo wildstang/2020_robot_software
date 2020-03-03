@@ -179,7 +179,7 @@ public class Limelight implements Subsystem {
         // double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
         // double distanceToTarget = targetHeightAboveCamera / Math.tan(netVerticalAngleOffset);
 
-        double distance = (75.5 / Math.sin(Math.toRadians(33.25 + getTYValue()))) / 12.0;
+        double distance = (75.5 / Math.sin(Math.toRadians(20 + getTYValue()))) / 12.0;
 
         return distance;
     }

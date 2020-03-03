@@ -14,8 +14,8 @@ public class TheDrake extends AutoProgram {
 
     @Override
     protected void defineSteps() {
-        addStep(new IntakeOnStep());
-        addStep(new SetTurretStep(-9800));
+        addStep(new IntakeOnStep(true));
+        addStep(new SetTurretStep(-29000));
         addStep(new DelayStep(1));
         addStep(new AutoAimStep(true));
         addStep(new DelayStep(4));
@@ -23,7 +23,7 @@ public class TheDrake extends AutoProgram {
         addStep(new DelayStep(2.5));
         addStep(new FeedOffStep());
         addStep(new AutoAimStep(false));
-        addStep(new PathFollowerStep(PathNameConstants.TEST120, true, false));
+        addStep(new PathFollowerStep(PathNameConstants.TEST120, true, true));
 
     }
 

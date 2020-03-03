@@ -10,9 +10,14 @@ public class IntakeOnStep extends AutoStep{
 
     private Ballpath intake;
     private Shooter flywheel;
+    private boolean modifier;
 
+    public IntakeOnStep(boolean isOn){
+        this.modifier = isOn;
+    }
     public void update() {
-        intake.turnOnIntake();
+        if (modifier) intake.turnOnIntake();
+        else intake.turnOffIntake();
         flywheel.autoOn();
         this.setFinished(true);
     }
