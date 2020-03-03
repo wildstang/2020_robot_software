@@ -94,6 +94,8 @@ public class Ballpath implements Subsystem{
         hopperMotor.setInverted(true);
         kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
         intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
+        intakeMotor.configContinuousCurrentLimit(30);
+        intakeMotor.configPeakCurrentLimit(50);
         kickerMotor.setInverted(true);
     }
 
