@@ -389,7 +389,8 @@ public class Drive implements Subsystem {
     private void initMaster(int side, TalonSRX master)  {
         master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, TIMEOUT);
         master.enableVoltageCompensation(true);
-        master.configPeakCurrentLimit(60);
+        master.configContinuousCurrentLimit(60);
+        master.configPeakCurrentLimit(100);
         if (side == LEFT) {
             master.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
             master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);
