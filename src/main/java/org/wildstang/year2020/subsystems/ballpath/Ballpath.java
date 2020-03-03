@@ -111,7 +111,7 @@ public class Ballpath implements Subsystem{
         SmartDashboard.putNumber("intake speedd", intakeMotorSpeed);
         feedMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed);
         hopperMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed * hopperSlow);
-        intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
+        intakeMotor.set(ControlMode.PercentOutput, -intakeMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, FULL_SPEED * KICKER_MOTOR_CONSTANT);   
     }
 

@@ -156,11 +156,11 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(1); // FOR TESTING PURPOSES: LEDs should always be on
+        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
     }
 
     public void switchToDriverCameraMode() {
-        limelightModeEntry.setNumber(1);
+        limelightModeEntry.setNumber(0);
     }
     
     public void switchToVisionTrackingMode() {

@@ -68,20 +68,20 @@ public class Shooter implements Subsystem {
     // Motor velocities in ticks per decisecond
     public static final double SAFE_SHOOTER_SPEED = 0*(3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
     public static final double POINT_BLANK_SHOOTER_SPEED = 26000;
-    public static final double AIM_MODE_SHOOTER_SPEED = 35000;//4*(6750 * TICKS_PER_REV) / 600.0;//51200
+    public static final double AIM_MODE_SHOOTER_SPEED = 45000;//4*(6750 * TICKS_PER_REV) / 600.0;//51200
     public static final double IDLE_SPEED = 0.5;//idle percent output
 
     // PID constants go in order of F, P, I, D
     public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.012, 0, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.018, 0.0, 0.0, 0.0);//same here // 0.02 0.032
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.020, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
-    public static final double AIMING_INNER_REGRESSION_A = -2.418037;//-1.9325;
-    public static final double AIMING_INNER_REGRESSION_B = 77.979872;//74.177;
-    public static final double AIMING_INNER_REGRESSION_C = -83.373173;//-69.84;
-    public static final double AIMING_OUTER_REGRESSION_A = -2.418037;//-1.9325;
-    public static final double AIMING_OUTER_REGRESSION_B = 77.979872;//74.177;
-    public static final double AIMING_OUTER_REGRESSION_C = -83.373173;//-69.84;
+    public static final double AIMING_INNER_REGRESSION_A = -1.9325; //-2.418037;
+    public static final double AIMING_INNER_REGRESSION_B = 74.177; //77.979872;
+    public static final double AIMING_INNER_REGRESSION_C = -79.84; //-83.373173;
+    public static final double AIMING_OUTER_REGRESSION_A = -1.9325; //-2.418037;
+    public static final double AIMING_OUTER_REGRESSION_B = 74.177; //77.979872;
+    public static final double AIMING_OUTER_REGRESSION_C = -79.84; //-83.373173;
     
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
@@ -480,11 +480,11 @@ public class Shooter implements Subsystem {
         if (Math.abs(hoodTarget-getHoodEncoderPosition())<=3){
             minimumHoodAdjustment = 0.0;
         } else if (hoodTarget > getHoodEncoderPosition()){
-            if (Math.abs(error)>15) minimumHoodAdjustment = 0.12;
-            else minimumHoodAdjustment = 0.10;
+            if (Math.abs(error)>15) minimumHoodAdjustment = 0.1;
+            else minimumHoodAdjustment = 0.08;
         } else {
-            if (Math.abs(error)>15) minimumHoodAdjustment = -0.12;
-            else minimumHoodAdjustment = -0.10;
+            if (Math.abs(error)>15) minimumHoodAdjustment = -0.1;
+            else minimumHoodAdjustment = -0.08;
         }
         if (hoodTarget>1000){//if it flashes from 0 to 1023, for instance
             hoodMotor.set(ControlMode.PercentOutput, (0 - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
