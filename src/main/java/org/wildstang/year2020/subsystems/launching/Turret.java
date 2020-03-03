@@ -51,7 +51,7 @@ public class Turret implements Subsystem {
     public static final double TURRET_BASE_CIRCUMFERENCE = 8.0;
 
     // public static final double TICK_PER_DEGREE = (TICKS_PER_INCH * TURRET_BASE_CIRCUMFERENCE) / 360;
-    public static final double TICK_PER_DEGREE = 108.89;
+    public static final double TICK_PER_DEGREE = -108.89;
 
     // Logic
     private boolean aimModeEnabled;
@@ -220,8 +220,8 @@ public class Turret implements Subsystem {
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             
-            if (rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 295 ||
-                rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
+            if (rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 295 ||
+                rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
                     SmartDashboard.putBoolean("Deadzone Warning", false);
                     deadStopped = true; 
                 }
@@ -244,7 +244,7 @@ public class Turret implements Subsystem {
         // }  // End of wall tracking; start of manual control
         else {            
             turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
-            if(turretTarget <= TICK_PER_DEGREE * 300 && turretTarget >= 0) {
+            if(turretTarget >= TICK_PER_DEGREE * 300 && turretTarget <= 0) {
                 deadStopped = false;
                 SmartDashboard.putBoolean("Deadzone Warning", true);
             }
