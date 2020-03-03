@@ -220,16 +220,14 @@ public class Turret implements Subsystem {
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             
-            if (rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 295 ||
-                rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 5) {
-                    SmartDashboard.putBoolean("Deadzone Warning", false);
-                    deadStopped = true; 
-                }
-            else {
+            if (rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 295 && deadstopsEnabled){
+                rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", true);
-                deadStopped = false; 
-            }
-            if(!deadstopsEnabled || !deadStopped) {
+            } else if (rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 5 && deadstopsEnabled) {
+                SmartDashboard.putBoolean("Deadzone Warning", true);
+                rotationalAdjustment = 0.0;
+            }else {
+                SmartDashboard.putBoolean("Deadzone Warning", false);
                 turretMotor.set(ControlMode.PercentOutput, rotationalAdjustment);
             }
         } // else if (wallTracking && !aimModeEnabled) { // End of aim mode; start of wall tracking
@@ -244,17 +242,15 @@ public class Turret implements Subsystem {
         // }  // End of wall tracking; start of manual control
         else {            
             turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
-            if(turretTarget >= TICK_PER_DEGREE * 300 && turretTarget <= 0) {
-                deadStopped = false;
+            if(turretTarget <= TICK_PER_DEGREE * 295 && turretTarget < turretMotor.getSelectedSensorPosition() && deadstopsEnabled) {
+                turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
                 SmartDashboard.putBoolean("Deadzone Warning", true);
-            }
-            else {
-                deadStopped = true; 
-                SmartDashboard.putBoolean("Deadzone Warning", false);
-            }
-
-            if(!deadstopsEnabled || !deadStopped) {
+            } else if (turretTarget >= TICK_PER_DEGREE * 5 && turretTarget > turretMotor.getSelectedSensorPosition() && deadstopsEnabled){
+                turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
+                SmartDashboard.putBoolean("Deadzone Warning", true);
+            } else {
                 turretMotor.set(ControlMode.Position, turretTarget);
+                SmartDashboard.putBoolean("Deadzone Warning", false);
             }
         } // End of manual control
 
