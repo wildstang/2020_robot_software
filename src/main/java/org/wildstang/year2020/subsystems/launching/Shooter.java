@@ -272,10 +272,10 @@ public class Shooter implements Subsystem {
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
-        if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
+        if (Math.abs(aimModeTrigger.getValue()) > 0.85) { // Entering aim mode
             aimModeEnabled = true;
             //shooterMasterMotor.selectProfileSlot(1, 0);
-            isPointBlank=false;
+            isPointBlank = false;
         } else if (pointBlankShot.getValue()){
             isPointBlank = true;
             aimModeEnabled = true;
