@@ -10,11 +10,11 @@
       as this code or under the libraries folder on the local machine.
 */
 
-// TODO Add lower updates for allianceRainbow() and fix limited allianceRainbow() due to hanging receiveData()
+// TODO Add lower updates for allianceRainbow()
 
 // Length of LEDs
 #define UPPER_LENGTH 8 //16
-#define LOWER_LENGTH 8 //60
+#define LOWER_LENGTH 8 //98
 
 // Pins where the LEDs are connected to the Arduino
 #define UPPER_DATAPIN 3
@@ -24,7 +24,6 @@
 #define LED_TYPE WS2811
 
 String currentPattern;
-//char newline = '\n';
 
 Adafruit_NeoPixel upper = Adafruit_NeoPixel(UPPER_LENGTH, UPPER_DATAPIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel lower = Adafruit_NeoPixel(LOWER_LENGTH, LOWER_DATAPIN, NEO_GRB + NEO_KHZ800);
@@ -35,68 +34,74 @@ void setup() {
     Serial.begin(9600);
     fillUpper(0, 0, 0);
     fillLower(0, 0, 0);
-    digitalWrite(13, HIGH);
+    currentPattern = "ALLIANCE_RAINBOW_ID";
+    //digitalWrite(13, HIGH);
 }
 
 void loop() {
-    //String currentPattern = receiveData(); // receiveData() has a while statement and will hang, pausing the loop until data is received from serial
-    String currentPattern = "";
+    patternCheck();
     if(Serial.available() > 0) {
         currentPattern = Serial.readStringUntil('\n');
-        //currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
-        //Serial.println(currentPattern); // For debugging
+        Serial.println(currentPattern);
     }
-    if(currentPattern != "") {
-        Serial.println(currentPattern); // For debugging
-    }
+}
 
+void patternCheck() {
     if(currentPattern == "DISABLED_ID") {
-        disabled();
+        white();
     } else if(currentPattern == "AUTO_ID") {
-        autonomous();
-    } else if(currentPattern == "ALLIANCE_BLUE_ID") {
-        allianceBlue();
-    } else if(currentPattern == "ALLIANCE_RED_ID") {
-        allianceRed();
+        yellow();
     } else if(currentPattern == "ALLIANCE_RAINBOW_ID") {
-        allianceRainbow(15);
-    } else if(currentPattern == "CONTROL_PANEL_ID") {
-        controlPanel();
+        allianceRainbow();
+    } else if(currentPattern == "ALLIANCE_BLUE_ID") {
+        blue();
+    } else if(currentPattern == "ALLIANCE_RED_ID") {
+        red();
+    } else if(currentPattern == "CONTROL_PANEL_RED_ID") {
+        red();
+    } else if(currentPattern == "CONTROL_PANEL_YELLOW_ID") {
+        yellow();
+    } else if(currentPattern == "CONTROL_PANEL_GREEN_ID") {
+        green();
+    } else if(currentPattern == "CONTROL_PANEL_BLUE_ID") {
+        blue();
     } else if(currentPattern == "LAUNCHER_AIMING_ID") {
-        launcherAiming();
+        yellow();
     } else if(currentPattern == "LAUNCHER_READY_ID") {
-        launcherReady();
+        green();
     } else if(currentPattern == "LAUNCHER_SHOOTING_ID") {
-        launcherShooting();
+        red();
     } else if(currentPattern == "CLIMB_RUNNING_ID") {
-        climbRunning();
+        yellow();
     } else if(currentPattern == "CLIMB_COMPLETE_ID") {
-        climbComplete();
+        green();
     } else if(currentPattern == "FEEDER_JAM_ID") {
         feederJammed();
+    } else if(currentPattern == "IDLE_ID") {
+        allianceRainbow();
     } else if(currentPattern == "OFF_ID") {
         allOff();
-    } else {
-        allianceRainbow(15);
     }
-    //when allianceRainbow() is in the final else statement, serial gets a seizure for some reason
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void allianceRainbow(uint8_t wait) {
+void allianceRainbow() {
     uint16_t i, j;
-
     for(j=0; j<256; j++) {
         for(i=0; i<upper.numPixels(); i++) {
             upper.setPixelColor(i, Wheel((i*1+j) & 255));
         }
         upper.show();
-        delay(wait);
+        delay(30);
+        if(Serial.available() > 0) {
+            currentPattern = Serial.readStringUntil('\n');
+            Serial.println(currentPattern);
+            allOff();
+            return;
+        }
     }
 }
 
-// Input a value 0 to 255 to get a color value
-// The colors are transition r - g - b - back to r
 uint32_t Wheel(byte WheelPos) {
     if(WheelPos < 85) {
         return upper.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
@@ -110,56 +115,34 @@ uint32_t Wheel(byte WheelPos) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// White
-void disabled() {
-    fillUpper(255, 255, 255);
-    fillLower(255, 255, 255);
-}
-
-// Yellow
-void autonomous() {
-    fillUpper(255, 255, 0);
-    fillLower(255, 255, 0);
-}
-
-void allianceBlue() {
-    fillUpper(0, 0, 255);
-    fillLower(0, 0, 255);
-}
-
-void allianceRed() {
-    fillUpper(255, 0, 0);
-    fillLower(255, 0, 0);
-}
-
-void controlPanel() {
+void allOff() {
     fillUpper(0, 0, 0);
     fillLower(0, 0, 0);
 }
 
-void launcherAiming() {
-    fillUpper(255, 255, 0);
-    fillLower(255, 255, 0);
+void white() {
+    fillUpper(255, 255, 255);
+    fillLower(255, 255, 255);
 }
 
-void launcherReady() {
-    fillUpper(0, 255, 0);
-    fillLower(0, 255, 0);
-}
-
-void launcherShooting() {
+void red() {
     fillUpper(255, 0, 0);
     fillLower(255, 0, 0);
 }
 
-void climbRunning() {
+void yellow() {
     fillUpper(255, 255, 0);
     fillLower(255, 255, 0);
 }
 
-void climbComplete() {
+void green() {
     fillUpper(0, 255, 0);
     fillLower(0, 255, 0);
+}
+
+void blue() {
+    fillUpper(0, 0, 255);
+    fillLower(0, 0, 255);
 }
 
 void feederJammed() {
@@ -167,21 +150,12 @@ void feederJammed() {
     fillLower(255, 0, 0);
 }
 
-void allOff() {
-    fillUpper(0, 0, 0);
-    fillLower(0, 0, 0);
-}
-
-void allOn() {
-  fillUpper(255, 255, 255);
-  fillLower(255, 255, 255);
-}
-
 void fillUpper(unsigned int red, unsigned int green, unsigned int blue) {
     for (unsigned int i = 0; i < upper.numPixels(); i++) {
         upper.setPixelColor(i, red, green, blue);
     }
     upper.show();
+    delay(1);
 }
 
 void fillLower(unsigned int red, unsigned int green, unsigned int blue) {
@@ -189,12 +163,5 @@ void fillLower(unsigned int red, unsigned int green, unsigned int blue) {
         lower.setPixelColor(i, red, green, blue);
     }
     lower.show();
+    delay(1);
 }
-
-//String receiveData() {
-//    while(Serial.available() == 0);
-//        String currentPattern = Serial.readString();
-//        currentPattern.remove(currentPattern.length()-1); //Get rid of the extra newline character
-//        Serial.println(currentPattern); // For debugging
-//    return currentPattern;
-//}

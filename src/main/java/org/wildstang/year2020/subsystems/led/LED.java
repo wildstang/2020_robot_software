@@ -56,12 +56,17 @@ public class LED implements Subsystem
 
     public static String offCmd = "OFF_ID";
     public static String disabledCmd = "DISABLED_ID";
+    public static String idleCmd = "IDLE_ID";
     public static String autoCmd = "AUTO_ID";
     public static String allianceBlueCmd = "ALLIANCE_BLUE_ID";
     public static String allianceRedCmd = "ALLIANCE_RED_ID";
     public static String allianceRainbowCmd = "ALLIANCE_RAINBOW_ID";
 
-    public static String cpSpinningCmd = "CONTROL_PANEL_ID";
+    public static String cpRedCmd = "CONTROL_PANEL_RED_ID";
+    public static String cpYellowCmd = "CONTROL_PANEL_YELLOW_ID";
+    public static String cpGreenCmd = "CONTROL_PANEL_GREEN_ID";
+    public static String cpBlueCmd = "CONTROL_PANEL_BLUE_ID";
+
     public static String launcherAimingCmd = "LAUNCHER_AIMING_ID";   // When limelight is detecting target and turret is lining up shot
     public static String launcherReadyCmd = "LAUNCHER_READY_ID";  // When limelight has finished detecting target and flywheel is ready to get to speed
     public static String launcherShootingCmd = "LAUNCHER_SHOOTING_ID"; // When flywheel is getting to speed and shooting at target
@@ -96,14 +101,24 @@ public class LED implements Subsystem
         boolean isRobotTeleop = DriverStation.getInstance().isOperatorControl();
         boolean isRobotAuton = DriverStation.getInstance().isAutonomous();
         String alliance = DriverStation.getInstance().getAlliance().name();
+        // TODO Add FMS control panel position color
 
         if (isRobotEnabled) {
             if (isRobotTeleop) {
-                String command = offCmd; // What should the LEDs do every time once the robot is enabled?
+                String command = idleCmd; // What should the LEDs do every time once the robot is enabled?
                 if (newDataAvailable) {
                     // The lower the logic gate in the list is, the higher priority it has
-                    if (cpSpinning) {
-                        command = cpSpinningCmd;
+                    if (cpRed) {
+                        command = cpRedCmd;
+                    }
+                    if (cpYellow) {
+                        command = cpYellowCmd;
+                    }
+                    if (cpGreen) {
+                        command = cpGreenCmd;
+                    }
+                    if (cpBlue) {
+                        command = cpBlueCmd;
                     }
                     if (launcherReady) {
                         command = launcherReadyCmd;
@@ -144,11 +159,11 @@ public class LED implements Subsystem
         // TODO Launcher
         } else if (source.getName().equals(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName())) {
             launcherShooting = true;
-        // TODO Control Panel
-        } else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName())) {
-            cpSpinning = ((DigitalInput)source).getValue();
-        } else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X.getName())) {
-            cpSpinning = ((DigitalInput)source).getValue();
+        // TODO DO NOT USE CONTROL PANEL CONTROLS, SET THE COLOR BASED ON THE FMS
+        //} else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_Y.getName())) {
+            //cpSpinning = ((DigitalInput)source).getValue();
+        //} else if (source.getName().equals(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X.getName())) {
+            //cpSpinning = ((DigitalInput)source).getValue();
         // Climb
         } else if (source == selectButton) {
             climbRunning = ((DigitalInput)source).getValue();
