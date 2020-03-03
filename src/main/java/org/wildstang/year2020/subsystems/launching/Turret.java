@@ -244,9 +244,11 @@ public class Turret implements Subsystem {
             turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
             if(turretTarget <= TICK_PER_DEGREE * 295 && turretTarget < turretMotor.getSelectedSensorPosition() && deadstopsEnabled) {
                 turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
+                turretTarget = turretMotor.getSelectedSensorPosition();
                 SmartDashboard.putBoolean("Deadzone Warning", true);
             } else if (turretTarget >= TICK_PER_DEGREE * 5 && turretTarget > turretMotor.getSelectedSensorPosition() && deadstopsEnabled){
                 turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
+                turretTarget = turretMotor.getSelectedSensorPosition();
                 SmartDashboard.putBoolean("Deadzone Warning", true);
             } else {
                 turretMotor.set(ControlMode.Position, turretTarget);
