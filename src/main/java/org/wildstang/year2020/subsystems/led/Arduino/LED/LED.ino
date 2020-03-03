@@ -17,8 +17,8 @@
 #define LOWER_LENGTH 8 //60
 
 // Pins where the LEDs are connected to the Arduino
-#define UPPER_DATAPIN 2
-#define LOWER_DATAPIN 3
+#define UPPER_DATAPIN 3
+#define LOWER_DATAPIN 4
 
 // WS2811 LED strip
 #define LED_TYPE WS2811
@@ -35,6 +35,7 @@ void setup() {
     Serial.begin(9600);
     fillUpper(0, 0, 0);
     fillLower(0, 0, 0);
+    digitalWrite(13, HIGH);
 }
 
 void loop() {
@@ -46,7 +47,7 @@ void loop() {
         //Serial.println(currentPattern); // For debugging
     }
     if(currentPattern != "") {
-    Serial.println(currentPattern); // For debugging
+        Serial.println(currentPattern); // For debugging
     }
 
     if(currentPattern == "DISABLED_ID") {
@@ -75,9 +76,9 @@ void loop() {
         feederJammed();
     } else if(currentPattern == "OFF_ID") {
         allOff();
-    }// else {
-    //    allOff();
-    //}
+    } else {
+        allianceRainbow(15);
+    }
     //when allianceRainbow() is in the final else statement, serial gets a seizure for some reason
 }
 
