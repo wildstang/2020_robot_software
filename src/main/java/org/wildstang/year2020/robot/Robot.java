@@ -13,6 +13,7 @@ import org.wildstang.hardware.crio.RoboRIOInputFactory;
 import org.wildstang.hardware.crio.RoboRIOOutputFactory;
 import org.wildstang.year2020.auto.programs.ExampleAutoProgram;
 import org.wildstang.year2020.subsystems.drive.Drive;
+import org.wildstang.year2020.subsystems.launching.Limelight;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -78,6 +79,9 @@ public class Robot extends TimedRobot {
         //FalconDrive falconDrive = ((FalconDrive) Core.getSubsystemManager().getSubsystem(WSSubsystems.FALCONDRIVE.getName()));
         driveBase.setBrakeMode(false);
         driveBase.purgePaths();
+        Limelight limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
+        limelightSubsystem.disableLEDs();
+        limelightSubsystem.switchToDriverCameraMode();
     }
 
     @Override
