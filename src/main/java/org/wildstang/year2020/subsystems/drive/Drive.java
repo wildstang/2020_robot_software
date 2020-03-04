@@ -65,7 +65,8 @@ public class Drive implements Subsystem {
     private AnalogInput quickTurnInput;
     /** Button to control anti-turbo mode */
     private DigitalInput antiTurboInput;
-    private AnalogInput turboInput;
+    // private AnalogInput turboInput;
+    private AnalogInput intake;
 
     /**
      * Keeps track of what kind of drive we're doing (e.g. cheesy drive vs path vs
@@ -102,7 +103,7 @@ public class Drive implements Subsystem {
     /** True iff antiturbo is currently commanded. */
     private boolean commandAntiTurbo = false;
 
-    private double turboPower;
+    //private double turboPower;
 
     private boolean isQuick = false;
 
@@ -162,8 +163,8 @@ public class Drive implements Subsystem {
             isQuick = true;
         } else if (source == antiTurboInput) {
             commandAntiTurbo = antiTurboInput.getValue();
-        } else if (source == turboInput){
-            turboPower = Math.abs(turboInput.getValue());
+        // } else if (source == turboInput){
+        //     turboPower = Math.abs(turboInput.getValue());
         } else if (source == baseLockInput) {
             commandRawMode = baseLockInput.getValue();
             if (commandRawMode) {
@@ -189,17 +190,23 @@ public class Drive implements Subsystem {
         }
         switch (driveMode) {
         case PATH:
+            SmartDashboard.putNumber("master left",masters[LEFT].getMotorOutputPercent());
+            SmartDashboard.putNumber("master right",masters[RIGHT].getMotorOutputPercent());
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
             break;
         case CHEESY:
             double effectiveThrottle = commandThrottle;
-            // if (commandAntiTurbo) {
-            //     effectiveThrottle = commandThrottle * DriveConstants.ANTI_TURBO_FACTOR;
-            // }
+            if (commandAntiTurbo) {
+                effectiveThrottle = commandThrottle * DriveConstants.ANTI_TURBO_FACTOR;
+            }
             SmartDashboard.putNumber("Quick Turn", commandQuickTurn);
             driveSignal = cheesyHelper.cheesyDrive(effectiveThrottle, commandHeading, isQuick);
             SmartDashboard.putNumber("driveSignal.left", driveSignal.leftMotor);
             SmartDashboard.putNumber("driveSignal.right", driveSignal.rightMotor);
             setMotorSpeeds(driveSignal, 1.0);
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
             // if (commandAntiTurbo) setMotorSpeeds(driveSignal, DriveConstants.ANTI_TURBO_FACTOR);
             // else setMotorSpeeds(driveSignal, (1-DriveConstants.TURBO_FACTOR) + turboPower*DriveConstants.TURBO_FACTOR);
             break;
@@ -211,9 +218,9 @@ public class Drive implements Subsystem {
             break;
         }
         //SensorCollection leftEncoder = masters[LEFT].getSensorCollection();
-        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSelectedSensorPosition());  //leftEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSensorCollection().getQuadraturePosition());  //leftEncoder.getQuadraturePosition()
         //SensorCollection rightEncoder = masters[RIGHT].getSensorCollection();
-        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSelectedSensorPosition());  //rightEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSensorCollection().getQuadraturePosition());  //rightEncoder.getQuadraturePosition()
 
         updateCounter += 1;
     }
@@ -226,7 +233,7 @@ public class Drive implements Subsystem {
     /** Reset drive encoders back to zero */
     public void resetEncoders() {
         for (TalonSRX master : masters) {
-            master.getSensorCollection().setQuadraturePosition(0, 10);
+            master.setSelectedSensorPosition(0, 0,10);
         }
     }
 
@@ -355,12 +362,12 @@ public class Drive implements Subsystem {
         throttleInput.addInputListener(this);
         quickTurnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
         quickTurnInput.addInputListener(this);
-        antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
+        antiTurboInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_RIGHT.getName());
         antiTurboInput.addInputListener(this);
         baseLockInput = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_FACE_UP.getName());
         baseLockInput.addInputListener(this);
-        turboInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
-        turboInput.addInputListener(this);
+        // turboInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
+        // turboInput.addInputListener(this);
     }
 
     /** Initialize all drive base motor controllers. */
@@ -382,7 +389,8 @@ public class Drive implements Subsystem {
     private void initMaster(int side, TalonSRX master)  {
         master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, TIMEOUT);
         master.enableVoltageCompensation(true);
-        master.configPeakCurrentLimit(60);
+        master.configContinuousCurrentLimit(60);
+        master.configPeakCurrentLimit(100);
         if (side == LEFT) {
             master.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
             master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);

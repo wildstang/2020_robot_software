@@ -1,6 +1,8 @@
 package org.wildstang.year2020.auto.steps;
 
 import org.wildstang.framework.auto.steps.AutoStep;
+import org.wildstang.framework.core.Core;
+import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 
 public class FeedOffStep extends AutoStep{
@@ -16,6 +18,6 @@ public class FeedOffStep extends AutoStep{
         return "Feed Off";
     }
     public void initialize(){
-        Feed = new Ballpath();
+        Feed = (Ballpath) Core.getSubsystemManager().getSubsystem(WSSubsystems.BALLPATH.getName());
     }
 }

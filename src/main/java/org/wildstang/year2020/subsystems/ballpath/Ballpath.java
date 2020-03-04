@@ -9,6 +9,8 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.Map;
 
 import org.wildstang.year2020.robot.CANConstants;
@@ -42,6 +44,7 @@ public class Ballpath implements Subsystem{
 
     //Inputs
     private AnalogInput rightTrigger;
+    private AnalogInput driverLeftTrigger;
     private DigitalInput dpadRight;
     private DigitalInput xButton;
 
@@ -56,8 +59,10 @@ public class Ballpath implements Subsystem{
             feedMotorSpeed = 0;
         }
         //set intake motor speed
-        if (xButton.getValue()){
+        if (xButton.getValue() || Math.abs(driverLeftTrigger.getValue()) > 0.75){
             intakeMotorSpeed = FULL_SPEED;
+        } else if (Math.abs(rightTrigger.getValue()) >0.75) {
+            intakeMotorSpeed = 0.5*FULL_SPEED;
         } else {
             intakeMotorSpeed = 0;
         }
@@ -72,12 +77,15 @@ public class Ballpath implements Subsystem{
     private void initInputs(){
         rightTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         rightTrigger.addInputListener(this);
+        driverLeftTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
+        driverLeftTrigger.addInputListener(this);
         dpadRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_RIGHT.getName());
         dpadRight.addInputListener(this);
         xButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_FACE_LEFT.getName());
         xButton.addInputListener(this);
         driveTab = Shuffleboard.getTab("Drive");
         maxDriveInputEntry = driveTab.add("Max Input", 1).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", 0, "max", 1)).getEntry();
+        hopperSlow = 1.0;
     }
 
     private void initOutputs(){
@@ -86,6 +94,8 @@ public class Ballpath implements Subsystem{
         hopperMotor.setInverted(true);
         kickerMotor = new TalonSRX(CANConstants.BALLPATH_KICKER);
         intakeMotor = new TalonSRX(CANConstants.BALLPATH_INTAKE);
+        intakeMotor.configContinuousCurrentLimit(30);
+        intakeMotor.configPeakCurrentLimit(50);
         kickerMotor.setInverted(true);
     }
 
@@ -98,17 +108,18 @@ public class Ballpath implements Subsystem{
         
         hopperSlow = maxDriveInputEntry.getDouble(1.0);
         
-        feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
-        hopperMotor.set(ControlMode.PercentOutput, feedMotorSpeed * hopperSlow);
-        intakeMotor.set(ControlMode.PercentOutput, intakeMotorSpeed);
-        kickerMotor.set(ControlMode.PercentOutput, feedMotorSpeed * KICKER_MOTOR_CONSTANT);   
+        SmartDashboard.putNumber("intake speedd", intakeMotorSpeed);
+        feedMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed);
+        hopperMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed * hopperSlow);
+        intakeMotor.set(ControlMode.PercentOutput, -intakeMotorSpeed);
+        kickerMotor.set(ControlMode.PercentOutput, FULL_SPEED * KICKER_MOTOR_CONSTANT);   
     }
 
     @Override
     public void resetState() {
         feedMotorSpeed = 0.0;
         intakeMotorSpeed = 0.0;
-        hopperSlow=1.0;
+        hopperSlow=0.6;
     }
 
     @Override
@@ -116,7 +127,10 @@ public class Ballpath implements Subsystem{
         return "Ballpath";
     }
     public void turnOnIntake(){
-        intakeMotorSpeed = FULL_SPEED;
+        intakeMotorSpeed = -FULL_SPEED;
+    }
+    public void turnOffIntake(){
+        intakeMotorSpeed = 0;
     }
     public void turnOnFeed(){
         feedMotorSpeed = FULL_SPEED;

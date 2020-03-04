@@ -38,6 +38,7 @@ public class Limelight implements Subsystem {
     private NetworkTableEntry thorEntry;
 
     private NetworkTableEntry ledModeEntry;
+    private NetworkTableEntry limelightModeEntry;
 
     private List<Double> trailingVerticalAngleOffsets;
     private long lastValueAddedTimestamp;
@@ -71,6 +72,7 @@ public class Limelight implements Subsystem {
     // Initializes outputs
     private void initOutputs() {
         ledModeEntry = netTable.getEntry("ledMode");
+        limelightModeEntry = netTable.getEntry("camMode");
 
         ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
     }
@@ -79,10 +81,12 @@ public class Limelight implements Subsystem {
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
         if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.75) {
+            if (aimModeTrigger.getValue() > 0.1) {
                 enableLEDs();
+                switchToVisionTrackingMode();
             } else {
                 disableLEDs();
+                switchToDriverCameraMode();
             }
         }
     }
@@ -152,7 +156,15 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(1); // FOR TESTING PURPOSES: LEDs should always be on
+        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
+    }
+
+    public void switchToDriverCameraMode() {
+        limelightModeEntry.setNumber(0);
+    }
+    
+    public void switchToVisionTrackingMode() {
+        limelightModeEntry.setNumber(0);
     }
 
     // Calculates horizontal distance to target using the ty value and robot and field constants
@@ -167,7 +179,7 @@ public class Limelight implements Subsystem {
         // double targetHeightAboveCamera = VISION_TARGET_HEIGHT - MOUNT_HEIGHT;
         // double distanceToTarget = targetHeightAboveCamera / Math.tan(netVerticalAngleOffset);
 
-        double distance = (75.5 / Math.sin(Math.toRadians(33.25 + getTYValue()))) / 12.0;
+        double distance = (75.5 / Math.sin(Math.toRadians(20 + getTYValue()))) / 12.0;
 
         return distance;
     }
@@ -201,5 +213,7 @@ public class Limelight implements Subsystem {
     public void resetState() {
         trailingVerticalAngleOffsets = new ArrayList<Double>();
         lastValueAddedTimestamp = 0L;
+        disableLEDs();
+        switchToDriverCameraMode();
     }
 }

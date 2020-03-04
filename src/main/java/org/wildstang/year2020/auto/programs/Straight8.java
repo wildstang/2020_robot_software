@@ -10,30 +10,34 @@ import org.wildstang.year2020.auto.steps.FeedOnStep;
 import org.wildstang.year2020.auto.steps.IntakeOnStep;
 import org.wildstang.year2020.auto.programs.PathNameConstants;
 
-public class TrenchCentered extends AutoProgram {
+public class Straight8 extends AutoProgram {
 
     @Override
     protected void defineSteps() {
         addStep(new IntakeOnStep(true));
-        //addStep(new SetTurretStep(-9800));
-        addStep(new DelayStep(1));
-        //addStep(new AutoAimStep(true));
+        addStep(new SetTurretStep(-31000));
+        addStep(new DelayStep(0.5));
+        addStep(new PathFollowerStep(PathNameConstants.STRAIGHT8A, true, true));
+        addStep(new AutoAimStep(true));
         addStep(new DelayStep(3));
-        //addStep(new FeedOnStep());
+        addStep(new FeedOnStep());
         addStep(new DelayStep(2));
-        //addStep(new FeedOffStep());
-        //addStep(new AutoAimStep(false));
-        addStep(new PathFollowerStep(PathNameConstants.TRENCH_CENTERED, true, true));
-        addStep(new PathFollowerStep(PathNameConstants.TRENCH10C, true, false));
-        //addStep(new AutoAimStep(true));
-        //addStep(new FeedOnStep());
+        addStep(new FeedOffStep());
+        addStep(new AutoAimStep(false));
+        addStep(new PathFollowerStep(PathNameConstants.STRAIGHT8B, true, true));
+        addStep(new IntakeOnStep(false));
+        addStep(new PathFollowerStep(PathNameConstants.STRAIGHT8C, true, false));
+        addStep(new AutoAimStep(true));
+        addStep(new IntakeOnStep(true));
+        addStep(new DelayStep(0.5));
+        addStep(new FeedOnStep());
 
     }
 
     @Override
     public String toString() {
         //give it a name
-        return "TrenchCentered";
+        return "Straight8";
     }
 
 }

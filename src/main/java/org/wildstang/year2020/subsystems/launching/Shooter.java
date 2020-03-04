@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import org.wildstang.framework.core.Core;
@@ -65,29 +66,32 @@ public class Shooter implements Subsystem {
     public static final double POINTBLANK_HOOD = 45; //hood angle for pointblank shot
 
     // Motor velocities in ticks per decisecond
-    public static final double SAFE_SHOOTER_SPEED = (3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
-    //public static final double SAFE_SHOOTER_SPEED = 8000;
-    public static final double AIM_MODE_SHOOTER_SPEED = (6750 * TICKS_PER_REV) / 600.0;//51200
+    public static final double SAFE_SHOOTER_SPEED = 0*(3750 * TICKS_PER_REV) / 600.0;//dropped to 25600 from 34133
+    public static final double POINT_BLANK_SHOOTER_SPEED = 26000;
+    public static final double AIM_MODE_SHOOTER_SPEED = 45000;//4*(6750 * TICKS_PER_REV) / 600.0;//51200
+    public static final double IDLE_SPEED = 0.6;//idle percent output
 
     // PID constants go in order of F, P, I, D
-    public static final PIDConstants HOOD_PID_CONSTANTS = new PIDConstants(0.0, 0.0, 0.0, 0.0);
-    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.015, 0.024, 0.0, 0.0);//might push these P values way up
-    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.025, 5.00, 0.0, 0.0);//same here // 0.02 0.032
+    public static final PIDConstants SAFE_SHOOTER_PID_CONSTANTS = new PIDConstants(0.012, 0, 0.0, 0.0);//might push these P values way up
+    public static final PIDConstants AIMING_SHOOTER_PID_CONSTANTS = new PIDConstants(0.020, 0.0, 0.0, 0.0);//same here // 0.02 0.032
     
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
-    public static final double AIMING_INNER_REGRESSION_A = -1.9325;
-    public static final double AIMING_INNER_REGRESSION_B = 74.177;
-    public static final double AIMING_INNER_REGRESSION_C = -69.84;
-    public static final double AIMING_OUTER_REGRESSION_A = -1.9325;
-    public static final double AIMING_OUTER_REGRESSION_B = 74.177;
-    public static final double AIMING_OUTER_REGRESSION_C = -69.84;
+    public static final double AIMING_INNER_REGRESSION_A = -1.9325; //-2.418037;
+    public static final double AIMING_INNER_REGRESSION_B = 74.177; //77.979872;
+    public static final double AIMING_INNER_REGRESSION_C = -79.84; //-83.373173;
+    public static final double AIMING_OUTER_REGRESSION_A = -1.9325; //-2.418037;
+    public static final double AIMING_OUTER_REGRESSION_B = 74.177; //77.979872;
+    public static final double AIMING_OUTER_REGRESSION_C = -79.84; //-83.373173;
     
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
 
     private static final double HOOD_REG_ADJUSTMENT_INCREMENT = 5;
 
-    public static final double HOOD_KP = -0.0015;//.015
+    public static final double HOOD_KP = -0.0014;//.015
+    public static final double HOOD_KD = 0.002;
+    public double lastError;
+    public double error;
 
     public static final double INNER_GOAL_MIN_DISTANCE = 10.00;
     // Ratio of horizontal length of target to distance from target (should be constant if robot is straight on target)
@@ -168,6 +172,7 @@ public class Shooter implements Subsystem {
         shooterMasterMotor.config_kP(1, AIMING_SHOOTER_PID_CONSTANTS.p);
         shooterMasterMotor.config_kI(1, AIMING_SHOOTER_PID_CONSTANTS.i);
         shooterMasterMotor.config_kD(1, AIMING_SHOOTER_PID_CONSTANTS.d);
+        shooterMasterMotor.setSensorPhase(false);
 
         shooterMasterMotor.setInverted(false);
 
@@ -175,13 +180,11 @@ public class Shooter implements Subsystem {
         shooterFollowerMotor.follow(shooterMasterMotor);
         shooterFollowerMotor.setInverted(true);
 
-        shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
+        shooterMasterMotor.set(ControlMode.PercentOutput, IDLE_SPEED);
 
         hoodMotor = new TalonSRX(CANConstants.HOOD_MOTOR);
-        hoodMotor.config_kF(0, HOOD_PID_CONSTANTS.f);
-        hoodMotor.config_kP(0, HOOD_PID_CONSTANTS.p);
-        hoodMotor.config_kI(0, HOOD_PID_CONSTANTS.i);
-        hoodMotor.config_kD(0, HOOD_PID_CONSTANTS.d);
+        hoodMotor.setNeutralMode(NeutralMode.Coast);
+    
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT);
     }
@@ -204,22 +207,28 @@ public class Shooter implements Subsystem {
             hoodMotor.set(ControlMode.PercentOutput, hoodMotorOutput * HOOD_OUTPUT_SCALE);
         }
         SmartDashboard.putNumber("Hood moving", hoodMotorOutput * HOOD_OUTPUT_SCALE);
+        SmartDashboard.putBoolean("hood aiming", aimModeEnabled);
 
+        setFlywheel();
         if (!shooterOn){
-            shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+            //shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+            hoodMotor.setNeutralMode(NeutralMode.Coast);
         } else if (aimModeEnabled){
-            shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+            //shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
             aimToGoal();
+            hoodMotor.setNeutralMode(NeutralMode.Brake);
+        // } else if (autoMode){
+        //         shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
+        //         hoodMotor.setNeutralMode(NeutralMode.Brake);
         } else {
-            if (autoMode){
-                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED);
-            } else {
-                shooterMasterMotor.set(ControlMode.Velocity, SAFE_SHOOTER_SPEED);
-                if (!hoodManualOverride){
-                    setHoodMotorPosition(0.0);
-                }
+            //shooterMasterMotor.set(ControlMode.PercentOutput, 0.4);
+
+            hoodMotor.setNeutralMode(NeutralMode.Coast);
+            if (!hoodManualOverride){
+                setHoodMotorPosition(0.0);
             }
         }
+        
         double currentShooterMotorSpeed = shooterMasterMotor.getSensorCollection().getQuadratureVelocity();
         SmartDashboard.putNumber("Shooter Position", shooterMasterMotor.getSensorCollection().getQuadraturePosition());
         SmartDashboard.putNumber("Shooter Velocity", shooterMasterMotor.getSensorCollection().getQuadratureVelocity());
@@ -256,19 +265,25 @@ public class Shooter implements Subsystem {
         // } else {
         //     hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP);
         // }
-        setHoodMotorPosition(hoodTarget);
+        //setHoodMotorPosition(hoodTarget);
         
     }
 
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
-        if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
+        if (Math.abs(aimModeTrigger.getValue()) > 0.85) { // Entering aim mode
             aimModeEnabled = true;
-            shooterMasterMotor.selectProfileSlot(1, 0);
+            //shooterMasterMotor.selectProfileSlot(1, 0);
+            isPointBlank = false;
+        } else if (pointBlankShot.getValue()){
+            isPointBlank = true;
+            aimModeEnabled = true;
+            //shooterMasterMotor.selectProfileSlot(1, 0);
         } else { // Exiting aim mode
             aimModeEnabled = false;
-            shooterMasterMotor.selectProfileSlot(0, 0);
+            //shooterMasterMotor.selectProfileSlot(0, 0);
+            isPointBlank = false;
         } 
         if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
             //hoodManualOverride = !hoodManualOverride;
@@ -291,14 +306,6 @@ public class Shooter implements Subsystem {
             } else {
                 hoodEncoderResetPressed = false;
                 hoodEncoderResetTimestamp = Long.MAX_VALUE;
-            }
-        } else if(source == pointBlankShot) {
-            if(pointBlankShot.getValue()) {
-                aimModeEnabled = true;
-                shooterMasterMotor.selectProfileSlot(1, 0);
-                isPointBlank = true;
-            } else {
-                isPointBlank = false;
             }
         } else if(source == startButton) {
             if(startButton.getValue()) {
@@ -328,6 +335,8 @@ public class Shooter implements Subsystem {
         hoodMotorOutput = 0.0;
         minimumHoodAdjustment = 0.0;
         isPointBlank = false;
+        lastError = 0.0;
+        error = 0.0;
 
         trailingHorizontalAngleOffsets = new ArrayList<Double>();
         lastValueAddedTimestamp = 0L;
@@ -357,6 +366,28 @@ public class Shooter implements Subsystem {
     // Tests the subsystem (unimplemented right now)
     public void selfTest() {}
 
+    //Sets the flywheel to the correct speed based upon the current shooting mode
+    private void setFlywheel(){
+        if (!shooterOn){
+            shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
+        } else if (isPointBlank){
+            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(POINT_BLANK_SHOOTER_SPEED)){
+                shooterMasterMotor.selectProfileSlot(0,0);
+                shooterMasterMotor.set(ControlMode.Velocity, POINT_BLANK_SHOOTER_SPEED);
+            } else {
+                shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
+            }
+        } else if (aimModeEnabled || autoMode){
+            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(AIM_MODE_SHOOTER_SPEED)){
+                shooterMasterMotor.selectProfileSlot(1, 0);
+                shooterMasterMotor.set(ControlMode.Velocity, AIM_MODE_SHOOTER_SPEED+2000);
+            } else {
+                shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
+            }
+        } else {
+            shooterMasterMotor.set(ControlMode.PercentOutput, IDLE_SPEED);
+        } 
+    }
     // Returns whether the shooter motor's speed is right for being in aim mode
     public boolean isShooterMotorSpeedSetForAimMode() {
         return shooterMotorSpeedSetForAimMode;
@@ -440,21 +471,33 @@ public class Shooter implements Subsystem {
     //Usable for auto
     public void setHoodMotorPosition(double position) {
         hoodTarget = position;
+        lastError = error;
+        if (getHoodEncoderPosition()>1000){
+            error = hoodTarget;
+        }
+        error = hoodTarget-getHoodEncoderPosition();
 
-        if (Math.abs(hoodTarget-getHoodEncoderPosition())<=1){
+        if (Math.abs(hoodTarget-getHoodEncoderPosition())<=3){
             minimumHoodAdjustment = 0.0;
         } else if (hoodTarget > getHoodEncoderPosition()){
-            minimumHoodAdjustment = 0.05;
+            if (Math.abs(error)>15) minimumHoodAdjustment = 0.1;
+            else minimumHoodAdjustment = 0.08;
         } else {
-            minimumHoodAdjustment = -0.05;
+            if (Math.abs(error)>15) minimumHoodAdjustment = -0.1;
+            else minimumHoodAdjustment = -0.08;
         }
         if (hoodTarget>1000){//if it flashes from 0 to 1023, for instance
             hoodMotor.set(ControlMode.PercentOutput, (0 - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
         } else if (getHoodEncoderPosition()>1000){//if it flashes from 0 to 1023, for instance
             hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - 0) * -HOOD_KP + minimumHoodAdjustment);
-        } else{
-            hoodMotor.set(ControlMode.PercentOutput, (hoodTarget - getHoodEncoderPosition()) * -HOOD_KP + minimumHoodAdjustment);
+        } else if (hoodTarget==0 && getHoodEncoderPosition() < 10.0){
+            hoodMotor.set(ControlMode.PercentOutput, 0.0);
+        }else{
+            hoodMotor.set(ControlMode.PercentOutput, ((hoodTarget - getHoodEncoderPosition()) * -HOOD_KP 
+                + minimumHoodAdjustment));// + HOOD_KD*(error-lastError)));
         }
+        SmartDashboard.putNumber("hood pid factor1", ((hoodTarget - getHoodEncoderPosition()) * -HOOD_KP 
+            + minimumHoodAdjustment));
     }
 
     //usable for auto

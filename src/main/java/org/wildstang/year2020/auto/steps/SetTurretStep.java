@@ -1,6 +1,8 @@
 package org.wildstang.year2020.auto.steps;
 
 import org.wildstang.framework.auto.steps.AutoStep;
+import org.wildstang.framework.core.Core;
+import org.wildstang.year2020.robot.WSSubsystems;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.launching.Turret;
 import org.wildstang.year2020.subsystems.launching.Shooter;
@@ -23,6 +25,6 @@ public class SetTurretStep extends AutoStep{
         return "Set Turret Rotation";
     }
     public void initialize(){
-        turret = new Turret();
+        turret = (Turret) Core.getSubsystemManager().getSubsystem(WSSubsystems.TURRET.getName());
     }
 }
