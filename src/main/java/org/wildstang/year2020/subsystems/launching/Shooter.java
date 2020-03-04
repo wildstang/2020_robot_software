@@ -78,10 +78,10 @@ public class Shooter implements Subsystem {
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = -1.9325; //-2.418037;
     public static final double AIMING_INNER_REGRESSION_B = 74.177; //77.979872;
-    public static final double AIMING_INNER_REGRESSION_C = -79.84; //-83.373173;
+    public static final double AIMING_INNER_REGRESSION_C = -99.84; //-83.373173;
     public static final double AIMING_OUTER_REGRESSION_A = -1.9325; //-2.418037;
     public static final double AIMING_OUTER_REGRESSION_B = 74.177; //77.979872;
-    public static final double AIMING_OUTER_REGRESSION_C = -79.84; //-83.373173;
+    public static final double AIMING_OUTER_REGRESSION_C = -99.84; //-83.373173;
     
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
@@ -276,9 +276,11 @@ public class Shooter implements Subsystem {
             aimModeEnabled = true;
             //shooterMasterMotor.selectProfileSlot(1, 0);
             isPointBlank = false;
+            autoMode = false;
         } else if (pointBlankShot.getValue()){
             isPointBlank = true;
             aimModeEnabled = true;
+            autoMode = false;
             //shooterMasterMotor.selectProfileSlot(1, 0);
         } else { // Exiting aim mode
             aimModeEnabled = false;
@@ -320,7 +322,7 @@ public class Shooter implements Subsystem {
         } 
         SmartDashboard.putBoolean("Hood Manual Override", hoodManualOverride);
         SmartDashboard.putNumber("Hood PID Adjust", hoodRegAdjustmentCount);
-        autoMode = false;
+        
     }
 
     @Override
@@ -353,7 +355,7 @@ public class Shooter implements Subsystem {
         running = false;
         shooterOn = true;
         timer.start();
-        autoMode = false;
+        //autoMode = false;
     }
 
     @Override
