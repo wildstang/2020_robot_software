@@ -27,6 +27,6 @@ public class IntakeOnStep extends AutoStep{
     }
     public void initialize(){
         intake = (Ballpath) Core.getSubsystemManager().getSubsystem(WSSubsystems.BALLPATH.getName());
-        flywheel = new Shooter();
+        flywheel = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
     }
 }
