@@ -8,8 +8,8 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.IInputManager;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.subsystems.Subsystem;
-import org.wildstang.hardware.crio.outputs.WsI2COutput;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 import org.wildstang.year2020.robot.WSSubsystems;
@@ -27,7 +27,7 @@ public class LED implements Subsystem
     private Climb climb;
     private Ballpath ballpath;
     private Shooter shooter;
-    DigitalInput rightTrigger;
+    AnalogInput rightTrigger;
     DigitalInput selectButton;
     DigitalInput startButton;
     DigitalInput downButton;
@@ -41,6 +41,7 @@ public class LED implements Subsystem
     boolean isRobotEnabled = false;
     boolean isRobotTeleop = false;
     boolean isRobotAuton = false;
+    boolean isArduinoConnected;
     String alliance;
     String gameData;
 
@@ -79,7 +80,9 @@ public class LED implements Subsystem
         resetState();
 
         // Initialize new virtual serial port over USB with baud rate of 9600
-        serialPort = new SerialPort(9600, SerialPort.Port.kUSB);
+        // If it fails, keep going
+        try {serialPort = new SerialPort(9600, SerialPort.Port.kUSB);}
+        catch (Exception e){};
 
         // Initialize subsystems
         shooter = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
@@ -88,7 +91,8 @@ public class LED implements Subsystem
         // Initialize inputs
         IInputManager inputManager = Core.getInputManager();
         // Launcher
-        rightTrigger = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
+        rightTrigger = (AnalogInput) inputManager.getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
+        rightTrigger.addInputListener(this);
         // Climb
         selectButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_SELECT.getName());
         selectButton.addInputListener(this);
@@ -170,7 +174,8 @@ public class LED implements Subsystem
                     if (climbComplete) {
                         command = climbCompleteCmd;
                     }
-                    serialPort.writeString(command + "\n");
+                    try {serialPort.writeString(command + "\n");}
+                    catch (Exception e){};
                     SmartDashboard.putString("LedCmd", command);
                     newDataAvailable = false;
                 }
@@ -186,7 +191,13 @@ public class LED implements Subsystem
     public void inputUpdate(Input source) {
         // Launcher
         if (source == rightTrigger) {
-            launcherShooting = ((DigitalInput)source).getValue();
+            if (rightTrigger.getValue() > 0.75) {
+                launcherShooting = true;
+            } else {
+                launcherShooting = false;
+            }
+        } else {
+            launcherShooting = false;
         }
         // Climb
         if (selectButton.getValue() && startButton.getValue()) {
