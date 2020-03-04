@@ -11,8 +11,8 @@
 // TODO Add lower updates for allianceRainbow()
 
 // Length of LEDs
-#define UPPER_LENGTH 8 //16
-#define LOWER_LENGTH 98
+#define UPPER_LENGTH 16 //16
+#define LOWER_LENGTH 100 //98 - 100
 
 // Data pins for the Arduino to communicate with LED strips
 #define UPPER_DATAPIN 3
@@ -22,6 +22,7 @@
 #define LED_TYPE WS2811
 
 String currentPattern;
+int index;
 
 Adafruit_NeoPixel upper = Adafruit_NeoPixel(UPPER_LENGTH, UPPER_DATAPIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel lower = Adafruit_NeoPixel(LOWER_LENGTH, LOWER_DATAPIN, NEO_GRB + NEO_KHZ800);
@@ -50,7 +51,7 @@ void patternCheck() {
     } else if (currentPattern == "AUTO_ID") {
         yellow();
     } else if (currentPattern == "ALLIANCE_RAINBOW_ID") {
-        allianceRainbow();
+        allianceRainbow(15);
     } else if (currentPattern == "ALLIANCE_BLUE_ID") {
         blue();
     } else if (currentPattern == "ALLIANCE_RED_ID") {
@@ -64,35 +65,39 @@ void patternCheck() {
     } else if (currentPattern == "CONTROL_PANEL_BLUE_ID") {
         blue();
     } else if (currentPattern == "LAUNCHER_AIMING_ID") {
-        yellow();
+        superchargedGreen();
     } else if (currentPattern == "LAUNCHER_READY_ID") {
-        green();
+        superchargedBlue();
     } else if (currentPattern == "INNER_PORT_ID") {
-        green(); // TODO supercharged green
+        superchargedPurple();
     } else if (currentPattern == "LAUNCHER_SHOOTING_ID") {
-        red();
-    } else if (currentPattern == "CLIMB_RUNNING_ID") {
-        yellow();
+        superchargedPurple();
     } else if (currentPattern == "CLIMB_COMPLETE_ID") {
-        green();
+        allianceRainbow(1);
+    } else if (currentPattern == "CLIMB_RUNNING_ID") {
+        superchargedYellow();
     } else if (currentPattern == "FEEDER_JAM_ID") {
         feederJammed();
     } else if (currentPattern == "IDLE_ID") {
-        allianceRainbow();
+        allianceRainbow(15);
     } else if (currentPattern == "OFF_ID") {
         allOff();
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void allianceRainbow() {
+void allianceRainbow(int time) {
     uint16_t i, j;
     for (j = 0; j < 256; j++) {
         for (i = 0; i < upper.numPixels(); i++) {
             upper.setPixelColor(i, Wheel((i*1+j) & 255));
         }
+        for (i = 0; i < lower.numPixels(); i++) {
+            lower.setPixelColor(i, Wheel((i*1+j) & 255));
+        }
         upper.show();
-        delay(30);
+        lower.show();
+        delay(time);
         if (Serial.available() > 0) {
             currentPattern = Serial.readStringUntil('\n');
             Serial.println(currentPattern);
@@ -105,13 +110,100 @@ void allianceRainbow() {
 uint32_t Wheel(byte WheelPos) {
     if (WheelPos < 85) {
         return upper.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+        return lower.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
     } else if (WheelPos < 170) {
         WheelPos -= 85;
         return upper.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+        return lower.Color(255 - WheelPos * 3, 0, WheelPos * 3);
     } else {
         WheelPos -= 170;
         return upper.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+        return lower.Color(0, WheelPos * 3, 255 - WheelPos * 3);
     }
+}
+
+void superchargedYellow() {
+    for (int i = 0; i < upper.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            upper.setPixelColor(i, 0, 0, 0);
+        } else {
+            upper.setPixelColor(i, 255, 255, 0);
+        }
+    }
+    for (int i = 0; i < lower.numPixels(); i++) {
+        if ((i + index) % 5 == 0) {
+            lower.setPixelColor(i, 0, 0, 0);
+        } else {
+            lower.setPixelColor(i, 255, 255, 0);
+        }
+    }
+    upper.show();
+    lower.show();
+    delay(100);
+    index = index + 1;
+}
+
+void superchargedGreen() {
+    for (int i = 0; i < upper.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            upper.setPixelColor(i, 0, 0, 0);
+        } else {
+            upper.setPixelColor(i, 0, 255, 0);
+        }
+    }
+    for (int i = 0; i < lower.numPixels(); i++) {
+        if ((i + index) % 5 == 0) {
+            lower.setPixelColor(i, 0, 0, 0);
+        } else {
+            lower.setPixelColor(i, 0, 255, 0);
+        }
+    }
+    upper.show();
+    lower.show();
+    delay(100);
+    index = index + 1;
+}
+
+void superchargedBlue() {
+    for (int i = 0; i < upper.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            upper.setPixelColor(i, 0, 0, 0);
+        } else {
+            upper.setPixelColor(i, 0, 223, 255);
+        }
+    }
+    for (int i = 0; i < lower.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            lower.setPixelColor(i, 0, 0, 0);
+        } else {
+            lower.setPixelColor(i, 0, 223, 255);
+        }
+    }
+    upper.show();
+    lower.show();
+    delay(100);
+    index = index + 1;
+}
+
+void superchargedPurple() {
+    for (int i = 0; i < upper.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            upper.setPixelColor(i, 0, 0, 0);
+        } else {
+            upper.setPixelColor(i, 153, 0, 204);
+        }
+    }
+    for (int i = 0; i < lower.numPixels(); i++) {
+        if ((i + index) % 3 == 0) {
+            lower.setPixelColor(i, 0, 0, 0);
+        } else {
+            lower.setPixelColor(i, 153, 0, 204);
+        }
+    }
+    upper.show();
+    lower.show();
+    delay(100);
+    index = index + 1;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

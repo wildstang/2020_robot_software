@@ -17,7 +17,7 @@ import org.wildstang.year2020.subsystems.ballpath.Ballpath;
 import org.wildstang.year2020.subsystems.climb.Climb;
 import org.wildstang.year2020.subsystems.launching.Shooter;
 
-// TODO: display control panel colors
+// TODO: implement better exception catcher when the arduino isn't detected
 
 public class LED implements Subsystem
 {
@@ -141,7 +141,7 @@ public class LED implements Subsystem
                 String command = idleCmd; // What command should the LEDs run every time the robot is enabled?
                 if (newDataAvailable) {
                     // The lower the logic gate in the list is, the higher priority it has
-                    if (cpColor == 0) {
+                    /*if (cpColor == 0) {
                         command = cpRedCmd;
                     }
                     if (cpColor == 1) {
@@ -152,12 +152,12 @@ public class LED implements Subsystem
                     }
                     if (cpColor == 3) {
                         command = cpBlueCmd;
-                    }
+                    }*/
                     if (launcherReady) {
                         command = launcherReadyCmd;
-                        if (innerPortAim) {
-                            command = innerPortCmd;
-                        }
+                        //if (innerPortAim) {
+                        //    command = innerPortCmd;
+                        //}
                     }
                     if (launcherAiming) {
                         command = launcherAimingCmd;
@@ -168,11 +168,11 @@ public class LED implements Subsystem
                     if (feederJammed) {
                         command = feederJammedCmd;
                     }
-                    if (climbRunning) {
-                        command = climbRunningCmd;
-                    }
                     if (climbComplete) {
                         command = climbCompleteCmd;
+                    }
+                    if (climbRunning) {
+                        command = climbRunningCmd;
                     }
                     try {serialPort.writeString(command + "\n");}
                     catch (Exception e){};
@@ -191,22 +191,26 @@ public class LED implements Subsystem
     public void inputUpdate(Input source) {
         // Launcher
         if (source == rightTrigger) {
-            if (rightTrigger.getValue() > 0.75) {
+            SmartDashboard.putBoolean("LauncherShooting", launcherShooting);
+            if (Math.abs(rightTrigger.getValue()) > 0.75) {
                 launcherShooting = true;
-            } else {
+                newDataAvailable = true;
+                
+            } else if (launcherShooting) {
                 launcherShooting = false;
+                newDataAvailable = true;
             }
-        } else {
-            launcherShooting = false;
         }
         // Climb
-        if (selectButton.getValue() && startButton.getValue()) {
-            climbRunning = true;
-        } else {
-            climbRunning = false;
+        if (source == selectButton || source == startButton) {
+            if (selectButton.getValue() && startButton.getValue()) {
+                climbRunning = true;
+                newDataAvailable = true;
+            } else {
+                climbRunning = false;
+                newDataAvailable = true;
+            }
         }
-
-        newDataAvailable = true;
     }
 
     public void sendFeederJammed() {
