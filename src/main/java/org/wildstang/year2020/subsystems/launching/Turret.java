@@ -111,6 +111,7 @@ public class Turret implements Subsystem {
         turretMotor.config_kI(0, TURRET_PID_CONSTANTS.i);
         turretMotor.config_kD(0, TURRET_PID_CONSTANTS.d);
         turretMotor.setNeutralMode( NeutralMode.Coast);
+        turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
 
         limelightSubsystem = (Limelight) Core.getSubsystemManager().getSubsystem(WSSubsystems.LIMELIGHT.getName());
         shooterSubsystem = (Shooter) Core.getSubsystemManager().getSubsystem(WSSubsystems.SHOOTER.getName());
@@ -214,10 +215,10 @@ public class Turret implements Subsystem {
             SmartDashboard.putNumber("Rotational Adjustment", rotationalAdjustment);
 
             
-            if (rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 295 && deadstopsEnabled){
+            if (rotationalAdjustment < 0.0 && turretMotor.getSelectedSensorPosition() < TICK_PER_DEGREE * 298 && deadstopsEnabled){
                 rotationalAdjustment = 0.0;
                 SmartDashboard.putBoolean("Deadzone Warning", true);
-            } else if (rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 5 && deadstopsEnabled) {
+            } else if (rotationalAdjustment > 0.0 && turretMotor.getSelectedSensorPosition() > TICK_PER_DEGREE * 2 && deadstopsEnabled) {
                 SmartDashboard.putBoolean("Deadzone Warning", true);
                 rotationalAdjustment = 0.0;
             }else {
@@ -236,11 +237,11 @@ public class Turret implements Subsystem {
         // }  // End of wall tracking; start of manual control
         else {            
             turretTarget += TICKS_PER_INCH * manualSpeed * 135 / 50.0;
-            if(turretTarget <= TICK_PER_DEGREE * 295 && turretTarget < turretMotor.getSelectedSensorPosition() && deadstopsEnabled) {
+            if(turretTarget <= TICK_PER_DEGREE * 298 && turretTarget < turretMotor.getSelectedSensorPosition() && deadstopsEnabled) {
                 turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
                 turretTarget = turretMotor.getSelectedSensorPosition();
                 SmartDashboard.putBoolean("Deadzone Warning", true);
-            } else if (turretTarget >= TICK_PER_DEGREE * 5 && turretTarget > turretMotor.getSelectedSensorPosition() && deadstopsEnabled){
+            } else if (turretTarget >= TICK_PER_DEGREE * 2 && turretTarget > turretMotor.getSelectedSensorPosition() && deadstopsEnabled){
                 turretMotor.set(ControlMode.Position, turretMotor.getSelectedSensorPosition());
                 turretTarget = turretMotor.getSelectedSensorPosition();
                 SmartDashboard.putBoolean("Deadzone Warning", true);
@@ -289,7 +290,6 @@ public class Turret implements Subsystem {
         manualSpeed = 0;
         //gyroSensor.reset();
         turretTarget = 0.0;
-        turretMotor.getSensorCollection().setQuadraturePosition(0,-1);
         turretEncoderResetPressed = false;
         turretEncoderResetTimestamp = Long.MAX_VALUE;
         deadStopped = false;

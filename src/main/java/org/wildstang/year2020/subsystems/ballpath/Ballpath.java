@@ -40,7 +40,7 @@ public class Ballpath implements Subsystem{
     //Constants
     private final double FULL_SPEED = 1.0;
     private final double KICKER_MOTOR_CONSTANT = 0.7;
-    private final double REVERSE_SPEED = -0.4;
+    private final double REVERSE_SPEED = -0.7;
 
     //Inputs
     private AnalogInput rightTrigger;
