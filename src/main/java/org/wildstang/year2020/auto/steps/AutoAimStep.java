@@ -15,7 +15,7 @@ public class AutoAimStep extends AutoStep{
     private boolean activity;
     private Limelight limelight;
 
-    public AutoAimStep(boolean active){
+    public AutoAimStep(boolean active) {
         this.activity = active;
     }
 
@@ -24,8 +24,10 @@ public class AutoAimStep extends AutoStep{
         turret.autoAim(activity);
         if (activity){
             limelight.enableLEDs();
+            limelight.switchToVisionTrackingMode();
         } else {
             limelight.disableLEDs();
+            limelight.switchToDriverCameraMode();
         }
         this.setFinished(true);
     }
