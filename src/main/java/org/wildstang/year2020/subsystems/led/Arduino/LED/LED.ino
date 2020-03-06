@@ -16,7 +16,7 @@
 
 // Data pins for the Arduino to communicate with LED strips
 #define UPPER_DATAPIN 3
-#define LOWER_DATAPIN 4
+#define LOWER_DATAPIN 5
 
 // WS2811 LED strip
 #define LED_TYPE WS2811
@@ -65,7 +65,7 @@ void patternCheck() {
     } else if (currentPattern == "CONTROL_PANEL_BLUE_ID") {
         blue();
     } else if (currentPattern == "LAUNCHER_AIMING_ID") {
-        superchargedGreen();
+        superchargedYellow();
     } else if (currentPattern == "LAUNCHER_READY_ID") {
         superchargedBlue();
     } else if (currentPattern == "INNER_PORT_ID") {
