@@ -51,7 +51,7 @@ void patternCheck() {
     } else if (currentPattern == "AUTO_ID") {
         yellow();
     } else if (currentPattern == "ALLIANCE_RAINBOW_ID") {
-        allianceRainbow(15);
+        alliancePurple(15);
     } else if (currentPattern == "ALLIANCE_BLUE_ID") {
         blue();
     } else if (currentPattern == "ALLIANCE_RED_ID") {
@@ -73,13 +73,13 @@ void patternCheck() {
     } else if (currentPattern == "LAUNCHER_SHOOTING_ID") {
         superchargedPurple();
     } else if (currentPattern == "CLIMB_COMPLETE_ID") {
-        allianceRainbow(1);
+        alliancePurple(1);
     } else if (currentPattern == "CLIMB_RUNNING_ID") {
         superchargedYellow();
     } else if (currentPattern == "FEEDER_JAM_ID") {
         feederJammed();
     } else if (currentPattern == "IDLE_ID") {
-        allianceRainbow(15);
+        alliancePurple(15);
     } else if (currentPattern == "OFF_ID") {
         allOff();
     }
@@ -120,6 +120,41 @@ uint32_t Wheel(byte WheelPos) {
         return upper.Color(0, WheelPos * 3, 255 - WheelPos * 3);
         return lower.Color(0, WheelPos * 3, 255 - WheelPos * 3);
     }
+}
+
+void alliancePurple(int time) {
+    uint16_t i, j;
+    for (j = 0; j < 171; j++) {
+        for (i = 0; i < upper.numPixels(); i++) {
+            upper.setPixelColor(i, PurpleWheel((i*1+j) & 255));
+        }
+        for (i = 0; i < lower.numPixels(); i++) {
+            lower.setPixelColor(i, PurpleWheel((i*1+j) & 255));
+        }
+        upper.show();
+        lower.show();
+        delay(time);
+        if (Serial.available() > 0) {
+            currentPattern = Serial.readStringUntil('\n');
+            Serial.println(currentPattern);
+            allOff();
+            return;
+        }
+    }
+}
+
+uint32_t PurpleWheel(byte WheelPos) {
+    if (WheelPos < 85) {
+        return upper.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+        return lower.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+    } else {//if (WheelPos < 170) {
+        WheelPos -= 85;
+        return upper.Color(WheelPos * 3, 0, 255 - WheelPos * 3);
+        return lower.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+    //} else {
+    //    WheelPos -= 170;
+    //    return upper.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+    //}
 }
 
 void superchargedYellow() {
