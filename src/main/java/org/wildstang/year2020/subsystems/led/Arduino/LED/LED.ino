@@ -33,6 +33,8 @@ void setup() {
     Serial.begin(9600);
     fillUpper(0, 0, 0);
     fillLower(0, 0, 0);
+    upper.setBrightness(127);
+    lower.setBrightness(127);
     currentPattern = "ALLIANCE_RAINBOW_ID";
     //digitalWrite(13, HIGH); // For debugging purposes
 }
@@ -154,7 +156,7 @@ uint32_t PurpleWheel(byte WheelPos) {
     //} else {
     //    WheelPos -= 170;
     //    return upper.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-    //}
+    }
 }
 
 void superchargedYellow() {
