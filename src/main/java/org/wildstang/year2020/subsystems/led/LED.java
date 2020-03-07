@@ -93,6 +93,9 @@ public class LED implements Subsystem
         // Launcher
         rightTrigger = (AnalogInput) inputManager.getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT.getName());
         rightTrigger.addInputListener(this);
+        // Ballpath
+        dpadRight = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_DPAD_RIGHT.getName());
+        dpadRight.addInputListener(this);
         // Climb
         selectButton = (DigitalInput) inputManager.getInput(WSInputs.MANIPULATOR_SELECT.getName());
         selectButton.addInputListener(this);
@@ -141,6 +144,7 @@ public class LED implements Subsystem
                 String command = idleCmd; // What command should the LEDs run every time the robot is enabled?
                 if (newDataAvailable) {
                     // The lower the logic gate in the list is, the higher priority it has
+                    // For control panel position color display
                     /*if (cpColor == 0) {
                         command = cpRedCmd;
                     }
@@ -191,7 +195,7 @@ public class LED implements Subsystem
     public void inputUpdate(Input source) {
         // Launcher
         if (source == rightTrigger) {
-            SmartDashboard.putBoolean("LauncherShooting", launcherShooting);
+            SmartDashboard.putBoolean("launcherShootingLED", launcherShooting);
             if (Math.abs(rightTrigger.getValue()) > 0.75) {
                 launcherShooting = true;
                 newDataAvailable = true;
@@ -200,16 +204,30 @@ public class LED implements Subsystem
                 launcherShooting = false;
                 newDataAvailable = true;
             }
+        } else if (launcherShooting) {
+            launcherShooting = false;
+            newDataAvailable = true;
+        }
+        // Ballpath
+        if (source == dpadRight) {
+            feederJammed = true;
+            newDataAvailable = true;
+        } else if (feederJammed) {
+            feederJammed = false;
+            newDataAvailable = true;
         }
         // Climb
         if (source == selectButton || source == startButton) {
             if (selectButton.getValue() && startButton.getValue()) {
                 climbRunning = true;
                 newDataAvailable = true;
-            } else {
+            } else if (climbRunning) {
                 climbRunning = false;
                 newDataAvailable = true;
             }
+        } else if (climbRunning) {
+            climbRunning = false;
+            newDataAvailable = true;
         }
     }
 
