@@ -6,6 +6,7 @@ import java.util.List;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.Input;
 import org.wildstang.framework.io.inputs.AnalogInput;
+import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.year2020.robot.WSInputs;
 
@@ -18,6 +19,8 @@ public class Limelight implements Subsystem {
 
     // Inputs
     private AnalogInput aimModeTrigger;
+
+    private DigitalInput trenchPresetButton;
 
     // Constants (angles in degrees; distances in inches)
     public static final double MOUNT_VERTICAL_ANGLE_OFFSET = 0.0;
@@ -55,6 +58,8 @@ public class Limelight implements Subsystem {
     private void initInputs() {
         aimModeTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_LEFT);
         aimModeTrigger.addInputListener(this);
+        trenchPresetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        trenchPresetButton.addInputListener(this);
 
         netTable = NetworkTableInstance.getDefault().getTable("limelight-stang");
 
@@ -80,8 +85,8 @@ public class Limelight implements Subsystem {
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
-        if (source == aimModeTrigger) {
-            if (aimModeTrigger.getValue() > 0.1) {
+        if (source == aimModeTrigger || source == trenchPresetButton) {
+            if (aimModeTrigger.getValue() > 0.1 || trenchPresetButton.getValue()) {
                 enableLEDs();
                 switchToVisionTrackingMode();
             } else {
@@ -89,6 +94,7 @@ public class Limelight implements Subsystem {
                 switchToDriverCameraMode();
             }
         }
+
     }
 
     @Override
@@ -156,13 +162,15 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(0); // FOR TESTING PURPOSES: LEDs should always be on
+        ledModeEntry.setNumber(1);
     }
 
+    // Switch Limelight to driver camera profile (mode 1)
     public void switchToDriverCameraMode() {
-        limelightModeEntry.setNumber(0);
+        limelightModeEntry.setNumber(1);
     }
     
+    // Switch Limelight to vision tracking profile (mode 0)
     public void switchToVisionTrackingMode() {
         limelightModeEntry.setNumber(0);
     }

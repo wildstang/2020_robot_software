@@ -32,7 +32,7 @@ public class Shooter implements Subsystem {
     // Inputs
     private AnalogInput aimModeTrigger;
     private AnalogInput fireTrigger;
-    private DigitalInput pointBlankShot; 
+    private DigitalInput trenchPresetButton; 
 
     private AnalogInput hoodManualAdjustment;
     private DigitalInput hoodManualOverrideButton;
@@ -78,11 +78,13 @@ public class Shooter implements Subsystem {
     // TODO: More regression coefficients may be needed based on what regression type we choose to use
     public static final double AIMING_INNER_REGRESSION_A = -1.9325; //-2.418037;
     public static final double AIMING_INNER_REGRESSION_B = 74.177; //77.979872;
-    public static final double AIMING_INNER_REGRESSION_C = -99.84; //-83.373173;
+    public static final double AIMING_INNER_REGRESSION_C = -119.84; //-83.373173;
     public static final double AIMING_OUTER_REGRESSION_A = -1.9325; //-2.418037;
     public static final double AIMING_OUTER_REGRESSION_B = 74.177; //77.979872;
-    public static final double AIMING_OUTER_REGRESSION_C = -99.84; //-83.373173;
+    public static final double AIMING_OUTER_REGRESSION_C = -119.84; //-83.373173;
     
+    public static final double TRENCH_HOOD_PRESET = 610.0;
+    public static final double TRENCH_SHOOTER_SPEED_PRESET = 35000;
 
     public static final double HOOD_OUTPUT_SCALE = 1.0;
 
@@ -111,7 +113,6 @@ public class Shooter implements Subsystem {
     private double hoodMotorOutput;
     private double minimumHoodAdjustment;
     private boolean hoodManualOverride;
-    private boolean isPointBlank;
 
     private boolean hoodEncoderResetPressed;
     private long hoodEncoderResetTimestamp;
@@ -128,6 +129,7 @@ public class Shooter implements Subsystem {
     private boolean running;
     private boolean shooterOn;
     private boolean autoMode;
+    private boolean isTrenchPresetOn;
 
     @Override
     // Initializes the subsystem (inputs, outputs and logical variables)
@@ -143,8 +145,8 @@ public class Shooter implements Subsystem {
         aimModeTrigger.addInputListener(this);
         fireTrigger = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_TRIGGER_RIGHT);
         fireTrigger.addInputListener(this);
-        pointBlankShot = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
-        pointBlankShot.addInputListener(this);
+        trenchPresetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        trenchPresetButton.addInputListener(this);
         hoodManualAdjustment = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_Y);
         hoodManualAdjustment.addInputListener(this);
         hoodManualOverrideButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_RIGHT_JOYSTICK_BUTTON);
@@ -197,7 +199,7 @@ public class Shooter implements Subsystem {
         SmartDashboard.putNumber("Dist to Target", limelightSubsystem.getDistanceToTarget());
         SmartDashboard.putNumber("THOR Value", limelightSubsystem.getTHorValue());
         SmartDashboard.putNumber("Magic Ratio", limelightSubsystem.getTHorValue() / limelightSubsystem.getDistanceToTarget());
-        
+
         if(running && timer.hasPeriodPassed(TIMEPASSED)) {
             timer.reset();
             running = false;
@@ -254,6 +256,7 @@ public class Shooter implements Subsystem {
         }
 
         SmartDashboard.putNumber("Hood Target", hoodTarget);
+        SmartDashboard.putNumber("Hood nudges", hoodRegAdjustmentCount);
 
         // if (Math.abs(hoodTarget - getHoodEncoderPosition()) > 500.0) {
         //     if (hoodTarget > 500.0) {
@@ -275,17 +278,17 @@ public class Shooter implements Subsystem {
         if (Math.abs(aimModeTrigger.getValue()) > 0.85) { // Entering aim mode
             aimModeEnabled = true;
             //shooterMasterMotor.selectProfileSlot(1, 0);
-            isPointBlank = false;
+            isTrenchPresetOn = false;
             autoMode = false;
-        } else if (pointBlankShot.getValue()){
-            isPointBlank = true;
+        } else if (trenchPresetButton.getValue()){
+            isTrenchPresetOn = true;
             aimModeEnabled = true;
             autoMode = false;
             //shooterMasterMotor.selectProfileSlot(1, 0);
         } else { // Exiting aim mode
             aimModeEnabled = false;
             //shooterMasterMotor.selectProfileSlot(0, 0);
-            isPointBlank = false;
+            isTrenchPresetOn = false;
         } 
         if (source == hoodManualOverrideButton && hoodManualOverrideButton.getValue()) {
             //hoodManualOverride = !hoodManualOverride;
@@ -336,7 +339,7 @@ public class Shooter implements Subsystem {
         hoodManualOverride = false;
         hoodMotorOutput = 0.0;
         minimumHoodAdjustment = 0.0;
-        isPointBlank = false;
+        isTrenchPresetOn = false;
         lastError = 0.0;
         error = 0.0;
 
@@ -372,13 +375,14 @@ public class Shooter implements Subsystem {
     private void setFlywheel(){
         if (!shooterOn){
             shooterMasterMotor.set(ControlMode.PercentOutput, 0.0);
-        } else if (isPointBlank){
-            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(POINT_BLANK_SHOOTER_SPEED)){
-                shooterMasterMotor.selectProfileSlot(0,0);
-                shooterMasterMotor.set(ControlMode.Velocity, POINT_BLANK_SHOOTER_SPEED);
+        } else if (isTrenchPresetOn) {
+            if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(TRENCH_SHOOTER_SPEED_PRESET)) {
+                shooterMasterMotor.selectProfileSlot(0, 0);
+                shooterMasterMotor.set(ControlMode.Velocity, TRENCH_SHOOTER_SPEED_PRESET+1000);
             } else {
                 shooterMasterMotor.set(ControlMode.PercentOutput, 1.0);
             }
+        
         } else if (aimModeEnabled || autoMode){
             if (Math.abs(shooterMasterMotor.getSensorCollection().getQuadratureVelocity()) > Math.abs(AIM_MODE_SHOOTER_SPEED)){
                 shooterMasterMotor.selectProfileSlot(1, 0);
@@ -433,8 +437,8 @@ public class Shooter implements Subsystem {
 
     // Aims to either the inner or outer goal
     private void aimToGoal() {
-        if (isPointBlank) {
-            setHoodMotorPosition(POINTBLANK_HOOD);
+        if (isTrenchPresetOn) {
+            setHoodMotorPosition(TRENCH_HOOD_PRESET);
         } else if (hoodManualOverride == false) {
             if (willAimToInnerGoal()) {
                 hoodTravelDistance = (AIMING_INNER_REGRESSION_A * (Math.pow(limelightSubsystem.getDistanceToTarget(), 2))) 

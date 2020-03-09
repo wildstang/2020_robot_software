@@ -30,7 +30,7 @@ public class Climb implements Subsystem {
     private final double MOTOR_SPEED = 0.8;
     private final double RESET_SPEED = -0.2;
     private final double LIFT_HEIGHT = 55;
-    private final double LIFT_LOCKED = 65;
+    private final double LIFT_LOCKED = 70;
     private final double LIFT_BOTTOM = 105;
 
     // Statuses
@@ -149,6 +149,7 @@ public class Climb implements Subsystem {
         SmartDashboard.putNumber("Climb Motor 1 Encoder", climbMotor1.getEncoder().getPosition());
         SmartDashboard.putBoolean("Climb Active", climbActiveStatus);
         SmartDashboard.putBoolean("Climb Complete", climbCompleteStatus);
+        SmartDashboard.putString("Climb state", currentCommand.toString());
     }
 
     @Override

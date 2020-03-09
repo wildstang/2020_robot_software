@@ -40,7 +40,7 @@ public class Ballpath implements Subsystem{
     //Constants
     private final double FULL_SPEED = 1.0;
     private final double KICKER_MOTOR_CONSTANT = 0.7;
-    private final double REVERSE_SPEED = -0.7;
+    private final double REVERSE_SPEED = -1.0;
 
     //Inputs
     private AnalogInput rightTrigger;
@@ -106,11 +106,11 @@ public class Ballpath implements Subsystem{
     @Override
     public void update() {
         
-        hopperSlow = maxDriveInputEntry.getDouble(1.0);
+        //hopperSlow = maxDriveInputEntry.getDouble(1.0);
         
         SmartDashboard.putNumber("intake speedd", intakeMotorSpeed);
-        feedMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed);
-        hopperMotor.set(ControlMode.PercentOutput, 0.8*feedMotorSpeed * hopperSlow);
+        feedMotor.set(ControlMode.PercentOutput, feedMotorSpeed);
+        hopperMotor.set(ControlMode.PercentOutput, 0.6*feedMotorSpeed);
         intakeMotor.set(ControlMode.PercentOutput, -intakeMotorSpeed);
         kickerMotor.set(ControlMode.PercentOutput, FULL_SPEED * KICKER_MOTOR_CONSTANT);   
     }
@@ -133,7 +133,7 @@ public class Ballpath implements Subsystem{
         intakeMotorSpeed = 0;
     }
     public void turnOnFeed(){
-        feedMotorSpeed = FULL_SPEED;
+        feedMotorSpeed = 0.8*FULL_SPEED;
     }
     public void turnOffFeed(){
         feedMotorSpeed = 0.0;

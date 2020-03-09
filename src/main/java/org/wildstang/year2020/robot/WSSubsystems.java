@@ -6,6 +6,7 @@ import org.wildstang.year2020.subsystems.launching.Shooter;
 import org.wildstang.year2020.subsystems.launching.Limelight;
 import org.wildstang.year2020.subsystems.launching.Turret;
 import org.wildstang.year2020.subsystems.ballpath.Ballpath;
+import org.wildstang.year2020.subsystems.led.LED;
 import org.wildstang.year2020.subsystems.TestSubsystem;
 import org.wildstang.framework.core.Subsystems;
 
@@ -21,6 +22,7 @@ public enum WSSubsystems implements Subsystems {
     LIMELIGHT("Limelight", Limelight.class),
     SHOOTER("Shooter", Shooter.class),
     TURRET("Turret", Turret.class);
+    // LED("LED", LED.class);
     
 
     private String name;

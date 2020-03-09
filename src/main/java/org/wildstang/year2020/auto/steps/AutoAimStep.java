@@ -24,8 +24,10 @@ public class AutoAimStep extends AutoStep{
         turret.autoAim(activity);
         if (activity){
             limelight.enableLEDs();
+            limelight.switchToVisionTrackingMode();
         } else {
             limelight.disableLEDs();
+            limelight.switchToDriverCameraMode();
         }
         this.setFinished(true);
     }

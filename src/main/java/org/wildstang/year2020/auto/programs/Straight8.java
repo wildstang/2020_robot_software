@@ -17,13 +17,13 @@ public class Straight8 extends AutoProgram {
     @Override
     protected void defineSteps() {
         addStep(new IntakeOnStep(true));
-        addStep(new SetTurretStep(-31000));
+        addStep(new SetTurretStep(-32000));
         addStep(new DelayStep(0.5));
         addStep(new PathFollowerStep(PathNameConstants.STRAIGHT8A, true, true));
         addStep(new AutoAimStep(true));
-        addStep(new DelayStep(2.5));
+        addStep(new DelayStep(2.25));
         addStep(new FeedOnStep());
-        addStep(new DelayStep(2));
+        addStep(new DelayStep(2.25));
         addStep(new FeedOffStep());
         addStep(new AutoAimStep(false));
         addStep(new IntakeOnStep(true));

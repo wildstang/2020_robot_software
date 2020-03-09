@@ -15,15 +15,17 @@ public class TheDrake extends AutoProgram {
     @Override
     protected void defineSteps() {
         addStep(new IntakeOnStep(true));
-        addStep(new SetTurretStep(-29000));
-        addStep(new DelayStep(1));
+        addStep(new SetTurretStep(-27000));
+        addStep(new DelayStep(3));
         addStep(new AutoAimStep(true));
-        addStep(new DelayStep(4));
+        addStep(new DelayStep(2));
         addStep(new FeedOnStep());
         addStep(new DelayStep(2.5));
         addStep(new FeedOffStep());
-        addStep(new AutoAimStep(false));
+        //addStep(new AutoAimStep(false));
         addStep(new PathFollowerStep(PathNameConstants.TEST120, true, true));
+        addStep(new PathFollowerStep(PathNameConstants.TEST120, true, false));
+        addStep(new FeedOnStep());
 
     }
 

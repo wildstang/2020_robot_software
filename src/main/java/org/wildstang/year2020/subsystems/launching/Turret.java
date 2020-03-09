@@ -27,6 +27,7 @@ public class Turret implements Subsystem {
     private DigitalInput backPositionButton;
     private DigitalInput frontPositionButton;
     private DigitalInput sidePositionButton;
+    private DigitalInput trenchPresetButton;
     // private DigitalInput faceWall; 
     private AnalogInput manualTurret;
     // private static AHRS gyroSensor;
@@ -88,6 +89,8 @@ public class Turret implements Subsystem {
         sidePositionButton.addInputListener(this);
         manualTurret = (AnalogInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_LEFT_JOYSTICK_X);
         manualTurret.addInputListener(this);
+        trenchPresetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_LEFT);
+        trenchPresetButton.addInputListener(this);
         // faceWall = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_SHOULDER_RIGHT);
         // faceWall.addInputListener(this);
         turretEncoderResetButton = (DigitalInput) Core.getInputManager().getInput(WSInputs.MANIPULATOR_DPAD_LEFT);
@@ -121,8 +124,8 @@ public class Turret implements Subsystem {
     @Override
     // Responds to updates from inputs
     public void inputUpdate(Input source) {
-        if (source == aimModeTrigger) {
-            if (Math.abs(aimModeTrigger.getValue()) > 0.75) { // Entering aim mode
+        if (source == aimModeTrigger || source == trenchPresetButton) {
+            if (Math.abs(aimModeTrigger.getValue()) > 0.75 || trenchPresetButton.getValue()) { // Entering aim mode
                 turretTarget = turretMotor.getSelectedSensorPosition();
                 aimModeEnabled = true;
                 turretMotor.setNeutralMode(NeutralMode.Brake);
@@ -266,6 +269,7 @@ public class Turret implements Subsystem {
             SmartDashboard.putBoolean("Shooter Ready", false);
         }
 
+        SmartDashboard.putBoolean("Turret hard stops", deadstopsEnabled);
         if (turretEncoderResetPressed) {
             if(deadstopsEnabled) {
                 deadStopped = false;
