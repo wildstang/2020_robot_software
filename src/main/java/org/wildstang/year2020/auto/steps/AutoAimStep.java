@@ -15,7 +15,7 @@ public class AutoAimStep extends AutoStep{
     private boolean activity;
     private Limelight limelight;
 
-    public AutoAimStep(boolean active){
+    public AutoAimStep(boolean active) {
         this.activity = active;
     }
 
