@@ -334,14 +334,14 @@ public class ControlPanel implements Subsystem{
         NetworkTable table = NetworkTableInstance.getDefault().getTable("Red");
 		NetworkTableEntry tv = table.getEntry("tv");
 		red = tv.getDouble(0.0);
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("Green");
-		NetworkTableEntry tv = table.getEntry("tv");
+      table = NetworkTableInstance.getDefault().getTable("Green");
+	tv = table.getEntry("tv");
 		green = tv.getDouble(0.0);
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("Blue");
-		NetworkTableEntry tv = table.getEntry("tv");
+        table = NetworkTableInstance.getDefault().getTable("Blue");
+		tv = table.getEntry("tv");
 		blue = tv.getDouble(0.0);
-        NetworkTable table = NetworkTableInstance.getDefault().getTable("Yellow");
-		NetworkTableEntry tv = table.getEntry("tv");
+        table = NetworkTableInstance.getDefault().getTable("Yellow");
+		tv = table.getEntry("tv");
 		yellow = tv.getDouble(0.0);
         //Color Int states: 0- none 1- red 2- yellow 3- green 4- blue
         if ((yellow==1) && (ColorInt !=2)){
