@@ -22,7 +22,6 @@ import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 
 /*
-
 Subsystem Controls: (for XBOX Controller)    
 DPAD Left - run the control panel wheel at full power
 DPAD Right - run the control panel wheel full reverse
@@ -30,15 +29,12 @@ DPAD up - (while button is held) run the control panel deploy upwards until it h
 DPAD down - (while button is held) run the control panel deploy downwards until it hits a limit switch
 Left Joystick Button - (press once) run the wheel for a set amount of encoder ticks equal to just over three revolutions of the control panel (aim for ~110 inches)
 A - runs the intake(control panel wheel) at full power // why not just intake?
-
 Outputs:
 intake/control panel wheel - talon
 control panel deploy - victor
-
 Sensors:
 1 encoder, attached to intake/control panel wheel talon
 2 limit switches, limiting the upwards and downwards motion of the control panel deploy
-
 */
 
 public class ControlPanel implements Subsystem{
@@ -85,7 +81,11 @@ public class ControlPanel implements Subsystem{
     private String currentColor;
     private double angle;
     private String color;
-    
+    private double red;
+    private double green;
+    private double blue;
+    private double yellow;
+    public int ColorInt = 0;
     private void getAngle(double x, double y){ 
         if (x != 0.0){
             half = Math.abs(x)/x; //-1 if on left side, 1 if on right
@@ -147,7 +147,7 @@ public class ControlPanel implements Subsystem{
                 deploySpeed = 1; //deploy goes up
             }
             else {
-                deploySpeed = -1; //deploy goes down
+                deploySpeed = 1; //deploy goes down, but it's actually the flywheel so it doesn't change direction
             }
         }
         //moving spinner to operator requested direction
@@ -209,9 +209,12 @@ public class ControlPanel implements Subsystem{
         deploy = new TalonSRX(CANConstants.deploy);
         spinner = new TalonSRX(CANConstants.spinner);
         resetState();
+        
     }
     @Override
     public void update(){
+        //get colors from limelight
+        
         //Initialize Motor Attachments
         isDown = deploy.getSensorCollection().isFwdLimitSwitchClosed();
         isUp = deploy.getSensorCollection().isRevLimitSwitchClosed();
@@ -221,22 +224,23 @@ public class ControlPanel implements Subsystem{
         if(gameData.length()>0){
             switch(gameData.charAt(0)){
                 case'B':
-                currentColor = "blue";
+                gotoColor = "blue";
                 break;
                 case'G':
-                currentColor = "green";
+                gotoColor = "green";
                 break;
                 case'R':
-                currentColor = "red";
+                gotoColor = "red";
                 break;
                 case'Y':
-                currentColor = "yellow";
+                gotoColor = "yellow";
                 break;
                 default:
-                currentColor = "default";
+                gotoColor = "default";
                 break;
             }
         }
+        
         //Move until color
         if ((colorSpin)&&(currentColor != gotoColor)){
             switch(gotoColor){
@@ -322,5 +326,68 @@ public class ControlPanel implements Subsystem{
     
     @Override
     public void selfTest(){
+    }
+    private void DoColorStuff(){
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Red");
+		NetworkTableEntry tv = table.getEntry("tv");
+		red = tv.getDouble(0.0);
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Green");
+		NetworkTableEntry tv = table.getEntry("tv");
+		green = tv.getDouble(0.0);
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Blue");
+		NetworkTableEntry tv = table.getEntry("tv");
+		blue = tv.getDouble(0.0);
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("Yellow");
+		NetworkTableEntry tv = table.getEntry("tv");
+		yellow = tv.getDouble(0.0);
+        //Color Int states: 0- none 1- red 2- yellow 3- green 4- blue
+        if ((yellow==1) && (ColorInt !=2)){
+            ColorInt = -1;
+        }else{
+            if ((yellow==1) && (ColorInt ==0)){
+                ColorInt = 2;
+            }
+        }
+        if ((red==1) && (ColorInt !=1)){
+            ColorInt = -1;
+        }else{
+            if ((red==1) && (ColorInt ==0)){
+                ColorInt = 1;
+            }
+        }
+        if ((green==1) && (ColorInt !=3)){
+            ColorInt = -1;
+        }else{
+            if ((green==1) && (ColorInt ==0)){
+                ColorInt = 3;
+            }
+        }
+        if ((blue==1) && (ColorInt != 4)){
+            ColorInt = -1;
+        } else{
+            if ((blue==1) && (ColorInt ==0)){
+                ColorInt = 4;
+            }
+        }
+        if (ColorInt == -1){
+            ColorInt = 0;
+        }
+        switch (ColorInt){
+            case(1):
+               currentColor = "red";
+                break; 
+                case(2):
+               currentColor = "yellow";
+                break; 
+                case(3):
+               currentColor = "green";
+                break; 
+                case(4):
+               currentColor = "blue";
+                break; 
+                case(0):
+                break;
+            
+        }
     }
 }   
