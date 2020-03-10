@@ -21,6 +21,9 @@ import org.wildstang.year2020.robot.Robot;
 import org.wildstang.year2020.robot.WSInputs;
 import org.wildstang.year2020.robot.WSOutputs;
 
+import edu.wpi.first.networktables.NetworkTable; //limelight stuff
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 /*
 Subsystem Controls: (for XBOX Controller)    
 DPAD Left - run the control panel wheel at full power
