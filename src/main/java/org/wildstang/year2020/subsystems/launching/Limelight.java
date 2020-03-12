@@ -162,12 +162,12 @@ public class Limelight implements Subsystem {
 
     // Switch LEDs to forced off mode (mode 1)
     public void disableLEDs() {
-        ledModeEntry.setNumber(0);
+        ledModeEntry.setNumber(1);
     }
 
     // Switch Limelight to driver camera profile (mode 1)
     public void switchToDriverCameraMode() {
-        limelightModeEntry.setNumber(0);
+        limelightModeEntry.setNumber(1);
     }
     
     // Switch Limelight to vision tracking profile (mode 0)

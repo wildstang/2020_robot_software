@@ -61,11 +61,11 @@ public class Robot extends TimedRobot {
         core.createOutputs(WSOutputs.values());
         core.createSubsystems(WSSubsystems.values());
 
-        // AutoManager.getInstance().addProgram(new TrenchCentered());
+        AutoManager.getInstance().addProgram(new TrenchCentered());
         AutoManager.getInstance().addProgram(new Straight8());
         AutoManager.getInstance().addProgram(new TheDrake());
-        // AutoManager.getInstance().addProgram(new Trench10());
-        // AutoManager.getInstance().addProgram(new Prog120());
+        AutoManager.getInstance().addProgram(new Trench10());
+        AutoManager.getInstance().addProgram(new Prog120());
         // AutoManager.getInstance().addProgram(new Prog144());
         // AutoManager.getInstance().addProgram(new Prog168());
         // AutoManager.getInstance().addProgram(new Prog192());

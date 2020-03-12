@@ -6,10 +6,10 @@ public class DriveConstants {
     /** Diameter of drive wheels */
     public static final double WHEEL_DIAMETER_INCHES = 6;
     /** Number of encoder ticks in one revolution of the wheel */
-    public static final double ENCODER_CPR = 4096;
+    public static final double ENCODER_CPR = 2048;
     /** # of ticks in one surface inch of wheel movement */
     public static final double TICKS_PER_INCH = ENCODER_CPR / (WHEEL_DIAMETER_INCHES * Math.PI);
-    public static final double TICKS_PER_INCH_MOD = 175;//230.5*8.932;
+    public static final double TICKS_PER_INCH_MOD = 970;//217.3;// 175;//230.5*8.932;
 
     /** PID deadband in base lock mode */
     public static final int BRAKE_MODE_ALLOWABLE_ERROR = 20;
