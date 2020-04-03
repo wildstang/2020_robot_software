@@ -19,6 +19,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SensorCollection;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -50,8 +54,8 @@ public class Drive implements Subsystem {
     private static final int[] MASTER_IDS = { CANConstants.LEFT_DRIVE_TALON, CANConstants.RIGHT_DRIVE_TALON };
     private static final int[][] FOLLOWER_IDS = { CANConstants.LEFT_DRIVE_TALON_FOLLOWER, CANConstants.RIGHT_DRIVE_TALON_FOLLOWER };
     /** Left and right Talon master controllers */
-    private TalonSRX[] masters = new TalonSRX[2];
-    private TalonSRX[][] followers = new TalonSRX[2][1];
+    private TalonFX[] masters = new TalonFX[2];
+    private TalonFX[][] followers = new TalonFX[2][1];
 
     public static boolean autoEStopActivated = false;
 
@@ -192,8 +196,8 @@ public class Drive implements Subsystem {
         case PATH:
             SmartDashboard.putNumber("master left",masters[LEFT].getMotorOutputPercent());
             SmartDashboard.putNumber("master right",masters[RIGHT].getMotorOutputPercent());
-            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
-            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getIntegratedSensorPosition());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getIntegratedSensorVelocity());
             break;
         case CHEESY:
             double effectiveThrottle = commandThrottle;
@@ -205,8 +209,8 @@ public class Drive implements Subsystem {
             SmartDashboard.putNumber("driveSignal.left", driveSignal.leftMotor);
             SmartDashboard.putNumber("driveSignal.right", driveSignal.rightMotor);
             setMotorSpeeds(driveSignal, 1.0);
-            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getQuadratureVelocity());
-            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getQuadratureVelocity());
+            SmartDashboard.putNumber("master left velocity",masters[LEFT].getSensorCollection().getIntegratedSensorVelocity());
+            SmartDashboard.putNumber("master right velocity",masters[RIGHT].getSensorCollection().getIntegratedSensorVelocity());
             // if (commandAntiTurbo) setMotorSpeeds(driveSignal, DriveConstants.ANTI_TURBO_FACTOR);
             // else setMotorSpeeds(driveSignal, (1-DriveConstants.TURBO_FACTOR) + turboPower*DriveConstants.TURBO_FACTOR);
             break;
@@ -218,9 +222,9 @@ public class Drive implements Subsystem {
             break;
         }
         //SensorCollection leftEncoder = masters[LEFT].getSensorCollection();
-        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSensorCollection().getQuadraturePosition());  //leftEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Left Encoder", masters[LEFT].getSensorCollection().getIntegratedSensorPosition());  //leftEncoder.getQuadraturePosition()
         //SensorCollection rightEncoder = masters[RIGHT].getSensorCollection();
-        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSensorCollection().getQuadraturePosition());  //rightEncoder.getQuadraturePosition()
+        SmartDashboard.putNumber("Right Encoder",  masters[RIGHT].getSensorCollection().getIntegratedSensorPosition());  //rightEncoder.getQuadraturePosition()
 
         updateCounter += 1;
     }
@@ -232,8 +236,9 @@ public class Drive implements Subsystem {
 
     /** Reset drive encoders back to zero */
     public void resetEncoders() {
-        for (TalonSRX master : masters) {
-            master.setSelectedSensorPosition(0, 0,10);
+        for (TalonFX master : masters) {
+            //master.setSelectedSensorPosition(0, 0,-1);
+            master.getSensorCollection().setIntegratedSensorPosition(0, -1);
         }
     }
 
@@ -245,7 +250,7 @@ public class Drive implements Subsystem {
         NeutralMode mode = brake ? NeutralMode.Brake : NeutralMode.Coast;
         for (int side : SIDES) {
             masters[side].setNeutralMode(mode);
-            for (TalonSRX follower : followers[side]) {
+            for (TalonFX follower : followers[side]) {
                 follower.setNeutralMode(mode);
             } 
         }
@@ -257,7 +262,7 @@ public class Drive implements Subsystem {
         // Set talons to hold their current position
         if (driveMode != DriveType.FULL_BRAKE) {
             // Set up Talons to hold their current position as close as possible
-            for (TalonSRX master : masters) {
+            for (TalonFX master : masters) {
                 master.selectProfileSlot(DrivePID.BASE_LOCK.slot, 0);
                 master.set(ControlMode.Position, master.getSelectedSensorPosition());
             }
@@ -328,7 +333,7 @@ public class Drive implements Subsystem {
      * TODO: Description of what this method should do goes here
      */
     public double getRightSensorValue() {
-        return masters[RIGHT].getSensorCollection().getQuadraturePosition();
+        return masters[RIGHT].getSensorCollection().getIntegratedSensorPosition();
     }
 
     /** Clears motion profile trajectories in talon buffers (to be done before auto and teleop) */
@@ -373,10 +378,10 @@ public class Drive implements Subsystem {
     /** Initialize all drive base motor controllers. */
     private void initMotorControllers() /* throws CoreUtils.CTREException */ {
         for (int side : SIDES) {
-            masters[side] = new TalonSRX(MASTER_IDS[side]);
+            masters[side] = new TalonFX(MASTER_IDS[side]);
             initMaster(side, masters[side]);
             for (int i = 0; i < FOLLOWER_IDS[side].length; i++){
-                followers[side][i] = new TalonSRX(FOLLOWER_IDS[side][i]);
+                followers[side][i] = new TalonFX(FOLLOWER_IDS[side][i]);
                 initFollower(side,followers[side][i]);
             }
         }
@@ -386,17 +391,17 @@ public class Drive implements Subsystem {
      * @param side   Which side (LEFT or RIGHT) this is master for
      * @param master The WSTalonSRX object to set up
      */
-    private void initMaster(int side, TalonSRX master)  {
-        master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, TIMEOUT);
+    private void initMaster(int side, TalonFX master)  {
+        master.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(), 0, TIMEOUT);
         master.enableVoltageCompensation(true);
-        master.configContinuousCurrentLimit(50);
-        master.configPeakCurrentLimit(100);
+        master.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true,60,50,1.0));
+        master.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,100,110,1.0));
         if (side == LEFT) {
             master.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
-            master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);
+            //master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);
         } else {
             master.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
-            master.setSensorPhase(DriveConstants.RIGHT_DRIVE_SENSOR_PHASE);
+            //master.setSensorPhase(DriveConstants.RIGHT_DRIVE_SENSOR_PHASE);
         }
         // Configure output to range from full-forward to full-reverse.
         /* CoreUtils.checkCTRE */master.configNominalOutputForward(0, TIMEOUT);
@@ -419,8 +424,8 @@ public class Drive implements Subsystem {
         master.getAllConfigs(master_config, TIMEOUT);
     }
 
-    private void initFollower(int side, TalonSRX follower) {
-        TalonSRX master = masters[side];
+    private void initFollower(int side, TalonFX follower) {
+        TalonFX master = masters[side];
         if (side == LEFT) {
             follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
         } else {
@@ -428,7 +433,7 @@ public class Drive implements Subsystem {
         }
         follower.follow(master);
         follower.setNeutralMode(NeutralMode.Coast);
-        follower.configPeakCurrentLimit(60);
+        follower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,60,65,1.0));
     }
 
     private void stopPathFollowing() {
