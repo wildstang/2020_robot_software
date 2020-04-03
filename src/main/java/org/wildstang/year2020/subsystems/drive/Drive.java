@@ -23,6 +23,7 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -394,8 +395,7 @@ public class Drive implements Subsystem {
     private void initMaster(int side, TalonFX master)  {
         master.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(), 0, TIMEOUT);
         master.enableVoltageCompensation(true);
-        master.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true,60,50,1.0));
-        master.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,100,110,1.0));
+        master.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true,50,100,1.0));
         if (side == LEFT) {
             master.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
             //master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);
@@ -420,7 +420,7 @@ public class Drive implements Subsystem {
                 DriveConstants.BRAKE_MODE_ALLOWABLE_ERROR);
         // Coast is a reasonable default neutral mode. TODO: is it really?
         master.setNeutralMode(NeutralMode.Coast);
-        TalonSRXConfiguration master_config = new TalonSRXConfiguration();
+        TalonFXConfiguration master_config = new TalonFXConfiguration();
         master.getAllConfigs(master_config, TIMEOUT);
     }
 
@@ -433,7 +433,7 @@ public class Drive implements Subsystem {
         }
         follower.follow(master);
         follower.setNeutralMode(NeutralMode.Coast);
-        follower.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true,60,65,1.0));
+        follower.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true,50,100,1.0));
     }
 
     private void stopPathFollowing() {
