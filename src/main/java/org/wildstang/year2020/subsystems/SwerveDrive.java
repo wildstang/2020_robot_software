@@ -28,7 +28,7 @@ import com.kauailabs.navx.frc.Quaternion;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Drive implements Subsystem {
+public class SwerveDrive implements Subsystem {
     private DigitalInput ResetYaw;
     private AnalogInput TurnThrottle;
     private AnalogInput VerticalInput;
@@ -41,6 +41,7 @@ public class Drive implements Subsystem {
     public double Throttle;
     public double Quick;
     public double GoToAngle;
+    public boolean ReYaw; //reset yaw
     public double Offset; //the offset in degrees of gyro in relation to 90 degrees clockwise of robot direction
     public double TuningA = 0.9; //  turn throttle multiplier
     public double TuningB = 1; //    banking throttle exponent
@@ -73,7 +74,7 @@ public class Drive implements Subsystem {
          DriveMotorLeft = new TalonSRX(CANConstants.LeftDrive);
          DriveMotorLeftSlave = new TalonSRX(CANConstants.LeftDriveSlave);
          DriveMotorRight = new TalonSRX(CANConstants.RightDrive);
-         DriveMotorRightSlave = new TalonSRX(CANConstants.RightDriveslave);
+         DriveMotorRightSlave = new TalonSRX(CANConstants.RightDriveSlave);
          SwerveMotor = new TalonSRX(CANConstants.SwerveMotor);
          SwerveMotorSlave = new TalonSRX(CANConstants.SwerveMotorSlave);
        AHRS.reset(); //gyro rest command
@@ -92,7 +93,7 @@ public class Drive implements Subsystem {
        ReYaw = false;
     }
     public void CallibrateGyro(){
-        AHRS.Callibrate();
+        AHRS.calibrate();
     }
 
     @Override
