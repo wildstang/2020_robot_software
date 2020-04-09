@@ -1,4 +1,4 @@
-package gyro;
+package year2020.subsystems.gyro;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
 
