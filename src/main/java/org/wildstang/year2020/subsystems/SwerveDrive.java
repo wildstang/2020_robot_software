@@ -25,7 +25,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import java.lang.Math; 
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
-import gyro;
+import year2020.subsystems.gyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
