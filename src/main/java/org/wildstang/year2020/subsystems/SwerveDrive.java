@@ -25,6 +25,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import java.lang.Math; 
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
+import year2020.robot.Gyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -57,7 +58,7 @@ public class SwerveDrive implements Subsystem {
     public double V = 20; //this is a multiplier representing max robot velocity
     @Override
     public void init() {
-        new Gyro G = (Gyro) Core.getSubsystemManager().getSubsystem(WSSubsystems.gyro.getName());
+        new Gyro G;
        ResetYaw = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
         ResetYaw.addInputListener(this);
         TurnRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
