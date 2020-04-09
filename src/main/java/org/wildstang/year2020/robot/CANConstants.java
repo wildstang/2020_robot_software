@@ -12,7 +12,13 @@ public final class CANConstants {
     //For normal drive (2 talons, 4 victors)
     public static final int[] LEFT_DRIVE_VICTORS = {3,4};
     public static final int[] RIGHT_DRIVE_VICTORS = {5,6};
-
+    //For Swerve drive- this one uses 6 talons, but could be changed
+    public static final int SwerveMotor = 132;
+    public static final int SwerveMotorSlave = 132;
+    public static final int RightDrive = 132;
+    public static final int RightDriveSlave = 132;
+    public static final int LeftDrive = 132;
+    public static final int LeftDriveSlave = 132;
     // TODO put in correct IDs
     public static final int BALLPATH_FEED = 9;
     public static final int BALLPATH_KICKER = 10;
