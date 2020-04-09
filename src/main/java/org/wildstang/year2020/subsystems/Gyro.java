@@ -3,16 +3,17 @@ import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
 
 public class Gyro{
-public void CallibrateGyro(){
-        AHRS.calibrate();
+        AHRS A = new AHRS();
+public static void CallibrateGyro(){
+        A.calibrate();
     }
-    public double Yaw(){
-        return AHRS.getAngle();
+    public static double Yaw(){
+        return A.getAngle();
     }
-    public void Zero(){
-        AHRS.zeroYaw();
+    public static void Zero(){
+        A.zeroYaw();
     }
-    public void Reset(){
-        AHRS.reset();
+    public static void Reset(){
+        A.reset();
     }
  }
