@@ -57,7 +57,7 @@ public class SwerveDrive implements Subsystem {
     public double V = 20; //this is a multiplier representing max robot velocity
     @Override
     public void init() {
-        G = (Gyro) Core.getSubsystemManager().getSubsystem(WSSubsystems.gyro.getName());
+        new Gyro G = (Gyro) Core.getSubsystemManager().getSubsystem(WSSubsystems.gyro.getName());
        ResetYaw = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
         ResetYaw.addInputListener(this);
         TurnRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
