@@ -147,15 +147,15 @@ public class Drive implements Subsystem {
         DriveMotorRightSlave.set(ControlMode.Velocity,-1*Quick*V);
         }
         //Banking
-        GotoAngle = (ControlHeading-(AHRS.getAngle()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
+        GotoAngle = ((ControlHeading-(AHRS.getAngle()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
         if (GotoAngle > 4096){   //to ensure GoToAngle ranges between 0 and 4096. adding or subrtacting 4096 does not change the angle because 4096 is a full rev.
             GotoAngle = GotoAngle - 4096;
         }
         if (RobotAngle < 0){
             GotoAngle = GotoAngle + 4096;
         }
-        SwerveMotor.set(ControlMode.Position,(GoToAngle); 
-        SwerveMotorSlave.set(ControlMode.Position,(GoToAngle); 
+        SwerveMotor.set(ControlMode.Position,GoToAngle); 
+        SwerveMotorSlave.set(ControlMode.Position,GoToAngle); 
         //Reset yaw
         if (ReYaw){
             ReYaw = false;
