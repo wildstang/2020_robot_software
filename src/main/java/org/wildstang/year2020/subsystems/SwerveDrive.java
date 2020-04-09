@@ -129,7 +129,11 @@ public class SwerveDrive implements Subsystem {
 
     @Override
     public void selfTest() {
-        
+       
+    }
+    @Override
+    public String getName() {
+       return "SwerveDrive";
     }
 
     @Override
