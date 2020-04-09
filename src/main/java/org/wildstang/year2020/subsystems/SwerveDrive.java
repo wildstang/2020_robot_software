@@ -57,6 +57,7 @@ public class SwerveDrive implements Subsystem {
     public double V = 20; //this is a multiplier representing max robot velocity
     @Override
     public void init() {
+        G = (Gyro) Core.getSubsystemManager().getSubsystem(WSSubsystems.gyro.getName());
        ResetYaw = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
         ResetYaw.addInputListener(this);
         TurnRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
@@ -78,7 +79,7 @@ public class SwerveDrive implements Subsystem {
          DriveMotorRightSlave = new TalonSRX(CANConstants.RightDriveSlave);
          SwerveMotor = new TalonSRX(CANConstants.SwerveMotor);
          SwerveMotorSlave = new TalonSRX(CANConstants.SwerveMotorSlave);
-       Reset(); //gyro rest command
+       G.Reset(); //gyro rest command
        ControlHeading = 0;
        Velocity = 0;
        Quick = 0;
@@ -87,24 +88,13 @@ public class SwerveDrive implements Subsystem {
 
     @Override
     public void resetState() {
-        Reset();
+        G.Reset();
     ControlHeading = 0;
        Velocity = 0;
        Quick = 0;
        ReYaw = false;
     }
-    public void CallibrateGyro(){
-        AHRS.calibrate();
-    }
-    public double Yaw(){
-        AHRS.getAngle();
-    }
-    public double Zero(){
-        AHRS.zeroYaw();
-    }
-    public double Reset(){
-        AHRS.reset();
-    }
+    
 
     @Override
     public void inputUpdate(Input source) {
@@ -162,19 +152,19 @@ public class SwerveDrive implements Subsystem {
         DriveMotorRightSlave.set(ControlMode.Velocity,-1*Quick*V);
         }
         //Banking
-        GotoAngle = ((ControlHeading-(AHRS.Yaw()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
-        if (GotoAngle > 4096){   //to ensure GoToAngle ranges between 0 and 4096. adding or subrtacting 4096 does not change the angle because 4096 is a full rev.
-            GotoAngle = GotoAngle - 4096;
+        GoToAngle = ((ControlHeading-(G.Yaw()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
+        if (GoToAngle > 4096){   //to ensure GoToAngle ranges between 0 and 4096. adding or subrtacting 4096 does not change the angle because 4096 is a full rev.
+            GoToAngle = GoToAngle - 4096;
         }
-        if (RobotAngle < 0){
-            GotoAngle = GotoAngle + 4096;
+        if (GoToAngle < 0){
+            GoToAngle = GoToAngle + 4096;
         }
         SwerveMotor.set(ControlMode.Position,GoToAngle); 
         SwerveMotorSlave.set(ControlMode.Position,GoToAngle); 
         //Reset yaw
         if (ReYaw){
             ReYaw = false;
-            Zero();
+            G.Zero();
         }
     }
 }
