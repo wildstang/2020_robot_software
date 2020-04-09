@@ -40,6 +40,7 @@ public class SwerveDrive implements Subsystem {
     public double Velocity;
     public double Throttle;
     public double Quick;
+    public int turnstate;
     public double GoToAngle;
     public boolean ReYaw; //reset yaw
     public double Offset; //the offset in degrees of gyro in relation to 90 degrees clockwise of robot direction
@@ -52,7 +53,7 @@ public class SwerveDrive implements Subsystem {
     private TalonSRX DriveMotorRightSlave;
     private TalonSRX DriveMotorLeftSlave;
     private TalonSRX SwerveMotorSlave;
-    
+ 
     public double V = 20; //this is a multiplier representing max robot velocity
     @Override
     public void init() {
@@ -77,7 +78,7 @@ public class SwerveDrive implements Subsystem {
          DriveMotorRightSlave = new TalonSRX(CANConstants.RightDriveSlave);
          SwerveMotor = new TalonSRX(CANConstants.SwerveMotor);
          SwerveMotorSlave = new TalonSRX(CANConstants.SwerveMotorSlave);
-       AHRS.reset(); //gyro rest command
+       Reset(); //gyro rest command
        ControlHeading = 0;
        Velocity = 0;
        Quick = 0;
@@ -86,7 +87,7 @@ public class SwerveDrive implements Subsystem {
 
     @Override
     public void resetState() {
-        AHRS.reset();
+        Reset();
     ControlHeading = 0;
        Velocity = 0;
        Quick = 0;
@@ -94,6 +95,15 @@ public class SwerveDrive implements Subsystem {
     }
     public void CallibrateGyro(){
         AHRS.calibrate();
+    }
+    public double Yaw(){
+        AHRS.getAngle();
+    }
+    public double Zero(){
+        AHRS.zeroYaw();
+    }
+    public double Reset(){
+        AHRS.reset();
     }
 
     @Override
@@ -104,7 +114,7 @@ public class SwerveDrive implements Subsystem {
         else{
              ControlHeading = 180+((3.14/180)*Math.atan(VerticalInput.getValue()/HorizontalInput.getValue()));
         }
-        Velocity = V*(Math.pow(Math.pow(Math.pow(HorizontalInput.getValue,2)+Math.pow(VerticalInput.getValue,2),0.5),TuningB));
+        Velocity = V*(Math.pow(Math.pow(Math.pow(HorizontalInput.getValue(),2)+Math.pow(VerticalInput.getValue(),2),0.5),TuningB));
         if (TurnRight.getValue()){
             turnstate = 1;
         }
@@ -152,7 +162,7 @@ public class SwerveDrive implements Subsystem {
         DriveMotorRightSlave.set(ControlMode.Velocity,-1*Quick*V);
         }
         //Banking
-        GotoAngle = ((ControlHeading-(AHRS.getAngle()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
+        GotoAngle = ((ControlHeading-(AHRS.Yaw()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
         if (GotoAngle > 4096){   //to ensure GoToAngle ranges between 0 and 4096. adding or subrtacting 4096 does not change the angle because 4096 is a full rev.
             GotoAngle = GotoAngle - 4096;
         }
@@ -164,7 +174,7 @@ public class SwerveDrive implements Subsystem {
         //Reset yaw
         if (ReYaw){
             ReYaw = false;
-            AHRS.zeroYaw();
+            Zero();
         }
     }
 }
