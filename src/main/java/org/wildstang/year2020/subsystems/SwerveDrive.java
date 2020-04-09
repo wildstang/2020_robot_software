@@ -26,7 +26,7 @@ import java.lang.Math;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
 
-import year2020.subsystems.gyro;
+import year2020.subsystems.Gyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
