@@ -1,5 +1,7 @@
 package org.wildstang.year2020.subsystems.drive;
 
+import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+
 public class DriveConstants {
     /** Distance from the centerline of left wheels to centerline of right wheels */
     public static final double WHEELBASE_WIDTH_INCHES = 30;
@@ -19,8 +21,10 @@ public class DriveConstants {
     public static final double TURBO_FACTOR = 0.0;
 
 
-    public static final boolean LEFT_DRIVE_INVERTED = true;
-    public static final boolean RIGHT_DRIVE_INVERTED = false;
+    //public static final boolean LEFT_DRIVE_INVERTED = true;
+    //public static final boolean RIGHT_DRIVE_INVERTED = false;
+    public static final TalonFXInvertType LEFT_DRIVE_DIRECTION = TalonFXInvertType.CounterClockwise;
+    public static final TalonFXInvertType RIGHT_DRIVE_DIRECTION = TalonFXInvertType.Clockwise;
 
     //public static final boolean LEFT_DRIVE_SENSOR_PHASE = false;
     //public static final boolean RIGHT_DRIVE_SENSOR_PHASE = true;

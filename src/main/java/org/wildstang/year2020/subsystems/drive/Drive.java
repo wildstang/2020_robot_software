@@ -397,10 +397,10 @@ public class Drive implements Subsystem {
         master.enableVoltageCompensation(true);
         master.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true,50,100,1.0));
         if (side == LEFT) {
-            master.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
+            master.setInverted(DriveConstants.LEFT_DRIVE_DIRECTION);
             //master.setSensorPhase(DriveConstants.LEFT_DRIVE_SENSOR_PHASE);
         } else {
-            master.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
+            master.setInverted(DriveConstants.RIGHT_DRIVE_DIRECTION);
             //master.setSensorPhase(DriveConstants.RIGHT_DRIVE_SENSOR_PHASE);
         }
         // Configure output to range from full-forward to full-reverse.
@@ -427,9 +427,9 @@ public class Drive implements Subsystem {
     private void initFollower(int side, TalonFX follower) {
         TalonFX master = masters[side];
         if (side == LEFT) {
-            follower.setInverted(DriveConstants.LEFT_DRIVE_INVERTED);
+            follower.setInverted(DriveConstants.LEFT_DRIVE_DIRECTION);
         } else {
-            follower.setInverted(DriveConstants.RIGHT_DRIVE_INVERTED);
+            follower.setInverted(DriveConstants.RIGHT_DRIVE_DIRECTION);
         }
         follower.follow(master);
         follower.setNeutralMode(NeutralMode.Coast);
