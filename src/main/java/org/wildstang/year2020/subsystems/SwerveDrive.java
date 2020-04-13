@@ -52,8 +52,8 @@ public class SwerveDrive implements Subsystem {
     private TalonSRX DriveMotorRight;
     private TalonSRX DriveMotorLeft;
     private TalonSRX SwerveMotor;
-    private TalonSRX DriveMotorRightSlave;
-    private TalonSRX DriveMotorLeftSlave;
+    private TalonSRX DriveMotorRightBack;
+    private TalonSRX DriveMotorLeftBack;
     private TalonSRX SwerveMotorSlave;
  
     public double V = 20; //this is a multiplier representing max robot velocity
@@ -76,9 +76,9 @@ public class SwerveDrive implements Subsystem {
         HorizontalInput.addInputListener(this);
 
          DriveMotorLeft = new TalonSRX(CANConstants.LeftDrive);
-         DriveMotorLeftSlave = new TalonSRX(CANConstants.LeftDriveSlave);
+         DriveMotorLeftBack = new TalonSRX(CANConstants.LeftDriveBack);
          DriveMotorRight = new TalonSRX(CANConstants.RightDrive);
-         DriveMotorRightSlave = new TalonSRX(CANConstants.RightDriveSlave);
+         DriveMotorRightBack = new TalonSRX(CANConstants.RightDriveBack);
          SwerveMotor = new TalonSRX(CANConstants.SwerveMotor);
          SwerveMotorSlave = new TalonSRX(CANConstants.SwerveMotorSlave);
        Gyro.Reset(); //gyro rest command
@@ -142,16 +142,11 @@ public class SwerveDrive implements Subsystem {
     public void update() {
         //Turning and moving
         if (Quick == 0){
-        DriveMotorLeft.set(ControlMode.Velocity, Velocity+(turnstate*Throttle*Velocity));// Ex: if is turn left, -1 = turn state, so it goes at velocity - throttle percent of velocity
-        DriveMotorLeftSlave.set(ControlMode.Velocity, Velocity+(turnstate*Throttle*Velocity));
-        DriveMotorRight.set(ControlMode.Velocity, Velocity-(turnstate*Throttle*Velocity)); //- instead of + because should change power oppisite way as left side
-        DriveMotorRightSlave.set(ControlMode.Velocity, Velocity-(turnstate*Throttle*Velocity));
+        leftdiff = turnstate*Throttle*Velocity; // fixing turning
+        rightdiff = -1*leftdiff;
         }
         else{
-        DriveMotorLeft.set(ControlMode.Velocity,Quick*V); 
-        DriveMotorLeftSlave.set(ControlMode.Velocity,Quick*V); 
-        DriveMotorRight.set(ControlMode.Velocity,-1*Quick*V); //right goes completely oppisite left in Quick porportion of max power when quick-turning
-        DriveMotorRightSlave.set(ControlMode.Velocity,-1*Quick*V);
+        
         }
         //Banking
         GoToAngle = ((ControlHeading-(Gyro.Yaw()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
