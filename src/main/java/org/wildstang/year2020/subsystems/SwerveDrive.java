@@ -43,6 +43,7 @@ public class SwerveDrive implements Subsystem {
     public double Throttle;
     public double Quick;
     public double turnstate;
+    public double TurningVar;
     public double GoToAngle;
     public boolean ReYaw; //reset yaw
     public double Offset; //the offset in degrees of gyro in relation to 90 degrees clockwise of robot direction
@@ -111,13 +112,7 @@ public class SwerveDrive implements Subsystem {
         if (ResetYaw.getValue()){
             ReYaw = true;
         }
-        
-         if ((QuickturnInput.getValue()>0.1) ||(QuickturnInput.getValue()<-0.1)){
-             Quick = QuickturnInput.getValue()*TuningC;
-         }
-         else{
-             Quick = 0;
-         }
+     
     }
 
     @Override
@@ -131,14 +126,7 @@ public class SwerveDrive implements Subsystem {
 
     @Override
     public void update() {
-        //Turning and moving
-        if (Quick == 0){
-        
-       
-        }
-        else{
-        
-        }
+      
         //Banking
         GoToAngle = ((ControlHeading-(Gyro.Yaw()+Offset))/360)*4096; //offset is for if gyro is not physically offset 90 degrees clockwise from the robot. 
         if (GoToAngle > 4096){   //to ensure GoToAngle ranges between 0 and 4096. adding or subrtacting 4096 does not change the angle because 4096 is a full rev.
@@ -154,5 +142,14 @@ public class SwerveDrive implements Subsystem {
             ReYaw = false;
             Gyro.Zero();
         }
+          //Turning and moving
+        TurningVar = turnstate/(Math.pow(Math.cos(GotoAngle+Convert(45)),2)+Math.pow(Math.cos(GotoAngle+Convert(135)),2)+Math.pow(Math.cos(GotoAngle+Convert(225)),2)+Math.pow(Math.cos(GotoAngle+Convert(-90)),2));
+        DriveMotorRight.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(45)))+Velocity);
+        DriveMotorLeft.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(135)))+Velocity);
+        DriveMotorRightBack.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(-45)))+Velocity);
+        DriveMotorLeftBack.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(-135)))+Velocity);
     }
+private double Convert(angle){
+    return (angle/360)*4096;
+}
 }
