@@ -32,17 +32,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveDrive implements Subsystem {
     private DigitalInput ResetYaw;
-    private AnalogInput TurnThrottle;
+    
     private AnalogInput VerticalInput;
     private AnalogInput HorizontalInput;
     private AnalogInput QuickturnInput;
-    private DigitalInput TurnRight;
-    private DigitalInput TurnLeft;
+    private AnalogInput TurnRight;
+    private AnalogInput TurnLeft;
     public double ControlHeading;
     public double Velocity;
     public double Throttle;
     public double Quick;
-    public int turnstate;
+    public double turnstate;
     public double GoToAngle;
     public boolean ReYaw; //reset yaw
     public double Offset; //the offset in degrees of gyro in relation to 90 degrees clockwise of robot direction
@@ -62,12 +62,12 @@ public class SwerveDrive implements Subsystem {
 
        ResetYaw = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_SHOULDER_LEFT.getName());
         ResetYaw.addInputListener(this);
-        TurnRight = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
+        TurnRight = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_RIGHT.getName());
         TurnRight.addInputListener(this);
-        TurnLeft = (DigitalInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
+        TurnLeft = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_TRIGGER_LEFT.getName());
         TurnLeft.addInputListener(this);
-        TurnThrottle = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_Y.getName());
-        TurnThrottle.addInputListener(this);
+     
+        
         VerticalInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y.getName());
         VerticalInput.addInputListener(this);
         QuickturnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_X.getName());
@@ -107,20 +107,11 @@ public class SwerveDrive implements Subsystem {
              ControlHeading = 180+((3.14/180)*Math.atan(VerticalInput.getValue()/HorizontalInput.getValue()));
         }
         Velocity = V*(Math.pow(Math.pow(Math.pow(HorizontalInput.getValue(),2)+Math.pow(VerticalInput.getValue(),2),0.5),TuningB));
-        if (TurnRight.getValue()){
-            turnstate = 1;
-        }
-        else {
-            turnstate = 0;
-            if (TurnLeft.getValue()){
-                turnstate = -1;
-            }
-        }
+       turnstate = (TurnRight.getValue() - TurnLeft.getValue()) * TuningA;
         if (ResetYaw.getValue()){
             ReYaw = true;
         }
         
-        Throttle = TurnThrottle.getValue()*TuningA;
          if ((QuickturnInput.getValue()>0.1) ||(QuickturnInput.getValue()<-0.1)){
              Quick = QuickturnInput.getValue()*TuningC;
          }
@@ -142,8 +133,8 @@ public class SwerveDrive implements Subsystem {
     public void update() {
         //Turning and moving
         if (Quick == 0){
-        leftdiff = turnstate*Throttle*Velocity; // fixing turning
-        rightdiff = -1*leftdiff;
+        
+       
         }
         else{
         
