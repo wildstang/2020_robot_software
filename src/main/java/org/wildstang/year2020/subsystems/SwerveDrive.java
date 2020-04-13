@@ -149,7 +149,7 @@ public class SwerveDrive implements Subsystem {
         DriveMotorRightBack.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(-45)))+Velocity);
         DriveMotorLeftBack.set(ControlMode.Velocity,(TurningVar*Math.cos(GotoAngle+Convert(-135)))+Velocity);
     }
-private double Convert(angle){
+private double Convert(double angle){
     return (angle/360)*4096;
 }
 }
