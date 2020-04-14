@@ -43,10 +43,10 @@ public class SwerveDrive implements Subsystem{
     public double movementDirection; //moves robot as a whole in a certain direction
     public double movementSpeed; //target speed
     
-   
+    private double rotationTolerance = 3;
     private String speedModifier = "Normal"; //keep this for now
     private Dictionary speedDivider = new HashTable(); //divide speed by amount
-    speedDivider.put("FineTune",5);
+    2speedDivider.put("FineTune",5);
     speedDivider.put("ReduceBy100",100);
     speedDivider.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
     private double firstDegreeSpeedModifier = 1;
@@ -232,10 +232,13 @@ public class SwerveDrive implements Subsystem{
         yaw = Gyro.Yaw();
         
         //finds difference between yaw and target yaw to create rotationDifference
-        if (targetRotation < 0){
-            rotationDifference = (360+targetRotation)-yaw;
+        if (targetRotation < 0 +rotationTolerance){
+            rotationDifference = ((360+targetRotation)-yaw);
+            if (rotationDifference > 180){
+                rotationDifference = rotationDifference-360
+            }
         }
-        if (targetRotation >= 0){
+        if (targetRotation >= 0 - rotationTolerance){
             rotationDifference = targetRotation-yaw;
         }
         
@@ -261,7 +264,7 @@ public class SwerveDrive implements Subsystem{
                     wheelSpeed[i] = movementSpeed;
                 }
                 else{
-                    if (rotationDifference >= 0){
+                    if (rotationDifference >= 0 - rotationTolerance){
                         if ((i == (rightWheels[1]))||(i == (rightWheels[2]))){
                             wheelSpeed[i] = movementSpeed * wheelRotMultiplier;
                         }
@@ -269,7 +272,7 @@ public class SwerveDrive implements Subsystem{
                             wheelSpeed[i] = movementSpeed;
                         }
                     }
-                    if (rotationDifference < 0){
+                    if (rotationDifference < 0 + rotationTolerance){
                         if ((i == (rightWheels[1]))|| (i == (rightWheels[2]))){
                             wheelSpeed[i] = movementSpeed;
                         }
@@ -284,19 +287,26 @@ public class SwerveDrive implements Subsystem{
 
 
         //rotates the robot
-        if (rotationDifference == 0 && movementSpeed = 0){
+        if ((rotationDifference < rotationTolerance) || (rotationDifference > -rotationTolerance) && movementSpeed = 0){
             for (a = 0; a < wheelRotSpeed.length;){
                 wheelRotSpeed[a] = 0;
                 wheelSpeed[a] = 0;
                 a++;
             }
         }
-        if (movementSpeed = 0 && (rotationDifference != 0)){
+        if (movementSpeed = 0 && (rotationDifference >= 0 - rotationTolerance)){
             targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[1] = -Math.arctan(robotY/robotX);
             targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[3] = -Math.arctan(robotY/robotX);
             wheelSpeed[] = {1,1,1,1};
+        }
+        if (movementSpeed = 0 && (rotationDifference < 0 + rotationTolerance)){
+            targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
+            targetWheelRotation[1] = -Math.arctan(robotY/robotX);
+            targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
+            targetWheelRotation[3] = -Math.arctan(robotY/robotX);
+            wheelSpeed[] = {-1,-1,-1,-1};
         }
         for (a = 0; a < wheelRotSpeed.length;){
             for (i = 0; i < targetWheelRotation.length;){
