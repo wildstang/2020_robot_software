@@ -45,8 +45,8 @@ public class SwerveDrive implements Subsystem{
     
     private double rotationTolerance = 3;
     private String speedModifier = "Normal"; //keep this for now
-    private Dictionary speedDivider = new HashTable(); //divide speed by amount
-    2speedDivider.put("FineTune",5);
+    private Dictionary speedDivider = new Hashtable(); //divide speed by amount
+    speedDivider.put("FineTune",5);
     speedDivider.put("ReduceBy100",100);
     speedDivider.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
     private double firstDegreeSpeedModifier = 1;
@@ -149,7 +149,7 @@ public class SwerveDrive implements Subsystem{
         doubleleftTrigger = leftTrigger.getValue();
 
         //does math to convert joy values into wanted translation direction and speed.
-        if (doubleleftJoyX == 0 && doubleleftJoyY !! 0){
+        if ((doubleleftJoyX == 0) && (doubleleftJoyY !! 0)){
             if (doubleftJoyY > 0){
                 movementDirection = 0;
             }
@@ -157,7 +157,7 @@ public class SwerveDrive implements Subsystem{
                 movementDirection = 180;
             }
         }
-        if (doubleleftJoyX == 0 && doubleleftJoyY == 0){
+        if ((doubleleftJoyX == 0) && (doubleleftJoyY == 0)){
             movementDirection = 0;
         }
         if (doubleleftJoyX < 0){
@@ -192,10 +192,10 @@ public class SwerveDrive implements Subsystem{
         c = Math.abs((speedMultiplier*Math.pow((Math.pow((Math.pow(doubleleftJoyY,2)+Math.pow(doubleleftJoyX,2)),.5),firstDegreeSpeedModifier)))/(speedDivider.get(speedModifier)));
         for (i = 0; i < speedEquation.length){
             if (i = 0){
-                y = speedEquation[0]
+                y = speedEquation[0];
             }
             if (i > 0){
-                y = y + (speedEquation[i])*(Math.pow(c),i))
+                y = y + (speedEquation[i])*(Math.pow(c,i));
             }
             i++;
         }
@@ -203,7 +203,7 @@ public class SwerveDrive implements Subsystem{
 
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
-        //Relative to field
+        //Relative to field2
         if (doublerightTrigger && (!doubleleftTrigger)){
             if (targetRotation < 180){
                 targetRotation = targetRotation + (doublerightTrigger*rotationMultiplier);
@@ -212,7 +212,7 @@ public class SwerveDrive implements Subsystem{
                 targetRotation = (doublerightTrigger*rotationMultiplier)-(180-(targetRotation-180)); //could be simplified but easier to understand in this form
             }
         }
-        if (doubleleftTrigger && (!doublerightTrigger){
+        if (doubleleftTrigger && (!doublerightTrigger)){
             if (targetRotation > -180){
                 targetRotation = targetRotation - (doubleleftTrigger*rotationMultiplier);
             }
@@ -235,7 +235,7 @@ public class SwerveDrive implements Subsystem{
         if (targetRotation < 0 +rotationTolerance){
             rotationDifference = ((360+targetRotation)-yaw);
             if (rotationDifference > 180){
-                rotationDifference = rotationDifference-360
+                rotationDifference = rotationDifference-360;
             }
         }
         if (targetRotation >= 0 - rotationTolerance){
@@ -259,7 +259,7 @@ public class SwerveDrive implements Subsystem{
         //moves the robot
         if (movementSpeed > 0){
             for(i = 0; i< targetWheelRotation.length;){
-                targetWheelRotation[i] = movementDirection
+                targetWheelRotation[i] = movementDirection;
                 if (rotationDifference == 0){
                     wheelSpeed[i] = movementSpeed;
                 }
