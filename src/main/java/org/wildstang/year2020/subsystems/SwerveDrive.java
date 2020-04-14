@@ -35,13 +35,11 @@ public class SwerveDrive implements Subsystem {
     
     private AnalogInput VerticalInput;
     private AnalogInput HorizontalInput;
-    private AnalogInput QuickturnInput;
     private AnalogInput TurnRight;
     private AnalogInput TurnLeft;
     public double ControlHeading;
     public double Velocity;
     public double Throttle;
-    public double Quick;
     public double turnstate;
     public double TurningVar;
     public double GoToAngle;
@@ -71,8 +69,6 @@ public class SwerveDrive implements Subsystem {
         
         VerticalInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_Y.getName());
         VerticalInput.addInputListener(this);
-        QuickturnInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_RIGHT_JOYSTICK_X.getName());
-        QuickturnInput.addInputListener(this);
         HorizontalInput = (AnalogInput) Core.getInputManager().getInput(WSInputs.DRIVER_LEFT_JOYSTICK_X.getName());
         HorizontalInput.addInputListener(this);
 
