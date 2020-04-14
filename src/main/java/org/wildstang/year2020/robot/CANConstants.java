@@ -25,5 +25,15 @@ public final class CANConstants {
     public static final int HOOD_MOTOR = 13;
     public static final int BALLPATH_HOPPER = 14;
     public static final int CPDEPLOY_TALON = 15;
+
+    public static final int LeftWheel_Spin_Top = 1;
+    public static final int RightWheel_Spin_Top = 2;
+    public static final int LeftWheel_Spin_Bottom = 3;
+    public static final int RightWheel_Spin_Bottom = 4;
+    public static final int LeftWheel_Rotate_Top = 5;
+    public static final int RightWheel_Rotate_Top = 21;
+    public static final int LeftWheel_Rotate_Bottom = 7;
+    public static final int RightWheel_Rotate_Bottom = 17;
+    
     
 }
