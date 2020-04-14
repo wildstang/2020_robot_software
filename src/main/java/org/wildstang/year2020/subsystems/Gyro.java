@@ -2,30 +2,18 @@ package year2020.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
 
-public class Gyro extends Subsystem{
-    public String getName(){
-        return "Gyro"
+public class Gyro{
+        AHRS A = new AHRS();
+public static void CallibrateGyro(){
+        A.calibrate();
     }
-    public AHRS ahrs;
-    public static void SetUpGyro(){
-        ahrs = new AHRS (SPI.Port.kMPX)
-    }
-    public static void CallibrateGyro(){
-            ahrs.calibrate();
-        }
     public static double Yaw(){
-        return ahrs.getYaw();
-    }
-    public static double Pitch(){
-        return ahrs.getPitch();
-    }
-    public static double Roll(){
-        return ahrs.getRoll();
+        return A.getAngle();
     }
     public static void Zero(){
-        return ahrs.zeroYaw();
+        A.zeroYaw();
     }
     public static void Reset(){
-        ahrs.reset();
+        A.reset();
     }
-}
+ }
