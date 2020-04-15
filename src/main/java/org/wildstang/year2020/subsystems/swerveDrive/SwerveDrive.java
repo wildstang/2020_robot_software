@@ -1,3 +1,9 @@
+/*Last successful build 8:11, 4/15/2020, 371 lines
+Current Build Successful? Yes, Current Build Stable? No
+
+Things to fix/do:
+Line 205) "z = (speedModify.get(speedModifier));"
+*/
 package org.wildstang.year2032.subsystems.drive;
 
 import java.io.BufferedWriter;
@@ -49,12 +55,13 @@ public abstract class SwerveDrive implements Subsystem{
     
     private double rotationTolerance = 3;
     private String speedModifier = "Normal"; //keep this for now
+    private Dictionary speedModify = new Hashtable<String,Double>(); //divide speed by amount
     
     private double firstDegreeSpeedModifier = 1;
     private double speedMultiplier = 1;
     private int rotationMultiplier = 15;
     private double wheelRotMultiplier = .7;
-
+    
     private double rotationEquation[] = {0,1,.5};
     //position in above list represents power of x 
     //where in this case its x^2 + x + 0
@@ -66,7 +73,7 @@ public abstract class SwerveDrive implements Subsystem{
 
     //similiar equation but for movement speed
     private double speedEquation[] = {0,5,1};
-    private double speedDivider = 50;
+    private double speedDivider= 50;
 
     //initialize gyro
     private AHRS ahrs = Gyro.ahrs;
@@ -112,14 +119,14 @@ public abstract class SwerveDrive implements Subsystem{
     public double robotY = 40; //robot length (long side) in inches, measure from center of wheels
 
     //setting up variables for math
-    private double i, x, y, z, a, c;
+    private double x, y, z, c;
+    private int i,a;
 
     //basically sets up the motors (outputs) and controller (inputs) for the rest of the code
     public void init(){
-        Dictionary speedDivider = new Hashtable(); //divide speed by amount
-        speedDivider.put("FineTune",5);
-        speedDivider.put("ReduceBy100",100);
-        speedDivider.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
+        speedModify.put("FineTune",5);
+        speedModify.put("ReduceBy100",100);
+        speedModify.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
         //sets up the motors that spin the wheels (use this format for CANSparkMax)
         wheelLeftTop = new CANSparkMax(CANConstants.LeftWheel_Spin_Top, MotorType.kBrushless);
         wheelRightTop = new CANSparkMax(CANConstants.RightWheel_Spin_Top, MotorType.kBrushless);
@@ -194,7 +201,9 @@ public abstract class SwerveDrive implements Subsystem{
         //pythagoreans theorem to find length of a line from the center of the joystick to the
         //location of the joystick and then the line is
         //put into a speed equation that makes the acceleration easier on the driver
-        z = speedDivider.get(speedModifier);
+        
+        //z = (speedModify.get(speedModifier));  //doesn't work ATM returns, "Object cannot be converted to double"
+        z = 1;
         c = Math.abs((speedMultiplier*Math.pow((Math.pow((Math.pow(doubleLeftJoyY,2)+Math.pow(doubleLeftJoyX,2)),.5)),(firstDegreeSpeedModifier))/z));
         for (i = 0; i < speedEquation.length;){
             if (i == 0){
@@ -210,7 +219,7 @@ public abstract class SwerveDrive implements Subsystem{
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
         //Relative to field2
-        if (doublerightTrigger && (doubleleftTrigger == 0)){
+        if ((doublerightTrigger != 0) && (doubleleftTrigger == 0)){
             if (targetRotation < 180){
                 targetRotation = targetRotation + (doublerightTrigger*rotationMultiplier);
             }
@@ -218,7 +227,7 @@ public abstract class SwerveDrive implements Subsystem{
                 targetRotation = (doublerightTrigger*rotationMultiplier)-(180-(targetRotation-180)); //could be simplified but easier to understand in this form
             }
         }
-        if (doubleleftTrigger && (doublerightTrigger == 0)){
+        if ((doubleleftTrigger != 0) && (doublerightTrigger == 0)){
             if (targetRotation > -180){
                 targetRotation = targetRotation - (doubleleftTrigger*rotationMultiplier);
             }
@@ -293,7 +302,7 @@ public abstract class SwerveDrive implements Subsystem{
 
 
         //rotates the robot
-        if ((rotationDifference < rotationTolerance) || (rotationDifference > -rotationTolerance) && movementSpeed = 0){
+        if (((rotationDifference < rotationTolerance) || (rotationDifference > -rotationTolerance)) && movementSpeed == 0){
             for (a = 0; a < wheelRotSpeed.length;){
                 wheelRotSpeed[a] = 0;
                 wheelSpeed[a] = 0;
@@ -301,17 +310,17 @@ public abstract class SwerveDrive implements Subsystem{
             }
         }
         if (movementSpeed == 0 && (rotationDifference >= 0 - rotationTolerance)){
-            targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
-            targetWheelRotation[1] = -Math.arctan(robotY/robotX);
-            targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
-            targetWheelRotation[3] = -Math.arctan(robotY/robotX);
+            targetWheelRotation[0] = 180+Math.atan(robotY/robotX);
+            targetWheelRotation[1] = -Math.atan(robotY/robotX);
+            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);
+            targetWheelRotation[3] = -Math.atan(robotY/robotX);
             wheelSpeed = new double[]{1,1,1,1};
         }
         if (movementSpeed == 0 && (rotationDifference < 0 + rotationTolerance)){
-            targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
-            targetWheelRotation[1] = -Math.arctan(robotY/robotX);
-            targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
-            targetWheelRotation[3] = -Math.arctan(robotY/robotX);
+            targetWheelRotation[0] = 180+Math.atan(robotY/robotX);
+            targetWheelRotation[1] = -Math.atan(robotY/robotX);
+            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);
+            targetWheelRotation[3] = -Math.atan(robotY/robotX);
             wheelSpeed = new double[]{-1,-1,-1,-1};
         }
         for (a = 0; a < wheelRotSpeed.length;){
@@ -320,7 +329,7 @@ public abstract class SwerveDrive implements Subsystem{
                 i++;
             }
             for (i = 0; i < rotationEquation.length;){
-                if (i = 0){
+                if (i == 0){
                     x = rotationEquation[0];
                 }
                 if (i >= 1){
@@ -352,7 +361,7 @@ public abstract class SwerveDrive implements Subsystem{
         movementDirection = 0;
         targetRotation = 0;
         Gyro.ahrs.reset();
-        yaw = Gyro.yaw();
+        yaw = Gyro.Yaw();
         speedModifier = "Normal";
         rightWheels = new int[]{2,4};
         targetWheelRotation = new double[]{0,0,0,0};
