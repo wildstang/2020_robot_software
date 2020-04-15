@@ -78,6 +78,7 @@ public class SwerveDrive implements Subsystem{
     //    c
     // 22   33
     // 22   33
+    // in a list declaration, the "[]" goes in the type. Ex: public double[] list = {.....
     public double targetWheelRotation[] = {0,0,0,0}; //target rotation for LeftTop,RightTop,LeftBottom,RightBottom wheels
     private double currentWheelRotation[] = {0,0,0,0};
     private double wheelRotDifference[] = {0,0,0,0};
@@ -149,7 +150,7 @@ public class SwerveDrive implements Subsystem{
         doubleleftTrigger = leftTrigger.getValue();
 
         //does math to convert joy values into wanted translation direction and speed.
-        if ((doubleleftJoyX == 0) && (doubleleftJoyY !! 0)){
+        if ((doubleleftJoyX == 0) && (doubleleftJoyY !! 0)){ //the "!!" could be right, but since it is throwing an error, try using "!=", "=!"
             if (doubleftJoyY > 0){
                 movementDirection = 0;
             }
@@ -162,7 +163,7 @@ public class SwerveDrive implements Subsystem{
         }
         if (doubleleftJoyX < 0){
             if (doubleleftJoyY != 0){
-                if (doubleleftJoyY > 0){
+                if (doubleleftJoyY > 0){ //the arctangent function outputs values between -2pi and 2pi, so you only need to test wether X is pos. or neg. also, to convert radians to degrees, multiply by (180/3.14), or use Math.toDegrees(). 
                     movementDirection = 90+(-180*(Math.atan(doubleleftJoyY/doubleleftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
                 }
                 else{
