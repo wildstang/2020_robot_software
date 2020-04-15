@@ -1,8 +1,9 @@
-/*Last successful build 8:11, 4/15/2020, 371 lines
+/*Last successful build 8:22, 4/15/2020, 372 lines
 Current Build Successful? Yes, Current Build Stable? No
-
+Changes: Changed the method to find right wheels.
+    Changed from using yaw to using movementDirection
 Things to fix/do:
-Line 205) "z = (speedModify.get(speedModifier));"
+    Line 206) "z = (speedModify.get(speedModifier));"
 */
 package org.wildstang.year2032.subsystems.drive;
 
@@ -257,17 +258,17 @@ public abstract class SwerveDrive implements Subsystem{
             rotationDifference = targetRotation-yaw;
         }
         
-        //code to find which wheel is right from field view
-        if ((yaw >= -45)&&(yaw<45)){
+        //code to find which wheel is right from movement direction
+        if ((movementDirection >= 315)&&(movementDirection<45)){
             rightWheels = new int[]{2,4};
         }
-        if ((yaw >= 45)&&(yaw<135)){
+        if ((movementDirection >= 45)&&(movementDirection<135)){
             rightWheels = new int[]{1,2};
         }
-        if ((yaw >= 135)||(yaw < -135)){
+        if ((movementDirection >= 135)||(movementDirection < 225)){
             rightWheels = new int[]{1,3};
         }
-        if ((yaw >= -135)&& (yaw < -45)){
+        if ((movementDirection >= 225)&& (movementDirection < 315)){
             rightWheels = new int[]{3,4};
         }
 
