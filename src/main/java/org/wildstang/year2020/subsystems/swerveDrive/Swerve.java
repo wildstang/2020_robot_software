@@ -205,7 +205,7 @@ public class SwerveDrive implements Subsystem{
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
         //Relative to field2
-        if (doublerightTrigger && (!doubleleftTrigger)){
+        if (doublerightTrigger && (!doubleleftTrigger)){ //this works, but can lead to the robot to continue moving even after the triggers have been released. Also, if the robot gets stuck on something (ex. another robot), it will keep trying to turn until the oppisite trigger has been pressed, or it becomes unstuck.
             if (targetRotation < 180){
                 targetRotation = targetRotation + (doublerightTrigger*rotationMultiplier);
             }
@@ -233,7 +233,7 @@ public class SwerveDrive implements Subsystem{
         yaw = Gyro.Yaw();
         
         //finds difference between yaw and target yaw to create rotationDifference
-        if (targetRotation < 0 +rotationTolerance){
+        if (targetRotation < 0 +rotationTolerance){ //0 + rotation tolerance will always be rotation tolerance.
             rotationDifference = ((360+targetRotation)-yaw);
             if (rotationDifference > 180){
                 rotationDifference = rotationDifference-360;
@@ -258,8 +258,8 @@ public class SwerveDrive implements Subsystem{
         }
 
         //moves the robot
-        if (movementSpeed > 0){
-            for(i = 0; i< targetWheelRotation.length;){
+        if (movementSpeed > 0){ //"targetWheelRotation.length()", not ".length;". length is a function
+            for(i = 0; i< targetWheelRotation.length;){ //I got lost somewhere. Up to this point, I knew what stuff did. Now I am confused.
                 targetWheelRotation[i] = movementDirection;
                 if (rotationDifference == 0){
                     wheelSpeed[i] = movementSpeed;
