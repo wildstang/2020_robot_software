@@ -47,7 +47,6 @@ public class SwerveDrive implements Subsystem {
     public double Offset; //the offset in degrees of gyro in relation to 90 degrees clockwise of robot direction
     public double TuningA = 0.9; //  turn throttle multiplier
     public double TuningB = 1; //    banking throttle exponent
-    public double TuningC = 0.9;//   Quickturn throttle multiplier
     private TalonSRX DriveMotorRight;
     private TalonSRX DriveMotorLeft;
     private TalonSRX SwerveMotor;
