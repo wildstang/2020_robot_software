@@ -29,7 +29,11 @@ import year2020.subsystems.Gyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SwerveDrive implements Subsystem{
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+
+
+public abstract class SwerveDrive implements Subsystem{
     //returns the name for other subsystems to use
     public String getName(){
         return "SwerveDrive";
@@ -45,10 +49,7 @@ public class SwerveDrive implements Subsystem{
     
     private double rotationTolerance = 3;
     private String speedModifier = "Normal"; //keep this for now
-    private Dictionary speedDivider = new Hashtable(); //divide speed by amount
-    speedDivider.put("FineTune",5);
-    speedDivider.put("ReduceBy100",100);
-    speedDivider.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
+    
     private double firstDegreeSpeedModifier = 1;
     private double speedMultiplier = 1;
     private int rotationMultiplier = 15;
@@ -69,7 +70,7 @@ public class SwerveDrive implements Subsystem{
 
     //initialize gyro
     private AHRS ahrs = Gyro.ahrs;
-    private int yaw = Gyro.Yaw();
+    private double yaw = Gyro.Yaw();
     private double rotationDifference;
 
     //initialize outputs (motors)
@@ -97,7 +98,7 @@ public class SwerveDrive implements Subsystem{
 
     //initialize inputs (on the controller)
     private AnalogInput leftJoyX;
-    private double doubleleftJoyX; //double value from analog input
+    private double doubleLeftJoyX; //double value from analog input
     private AnalogInput leftJoyY;
     private double doubleLeftJoyY;
 
@@ -111,10 +112,14 @@ public class SwerveDrive implements Subsystem{
     public double robotY = 40; //robot length (long side) in inches, measure from center of wheels
 
     //setting up variables for math
-    private int i, x, y, z, a, c;
+    private double i, x, y, z, a, c;
 
     //basically sets up the motors (outputs) and controller (inputs) for the rest of the code
     public void init(){
+        Dictionary speedDivider = new Hashtable(); //divide speed by amount
+        speedDivider.put("FineTune",5);
+        speedDivider.put("ReduceBy100",100);
+        speedDivider.put("Normal",1);  //Example: Reduces speed by 100 in all wheels
         //sets up the motors that spin the wheels (use this format for CANSparkMax)
         wheelLeftTop = new CANSparkMax(CANConstants.LeftWheel_Spin_Top, MotorType.kBrushless);
         wheelRightTop = new CANSparkMax(CANConstants.RightWheel_Spin_Top, MotorType.kBrushless);
@@ -143,43 +148,43 @@ public class SwerveDrive implements Subsystem{
     //runs when the input updates (something is pressed or moved)
     public void inputUpdate(Input source){
         //gets the values from inputs
-        doubleleftJoyX = leftJoyX.getValue();
-        doubleleftJoyY = leftJoyY.getValue();
+        doubleLeftJoyX = leftJoyX.getValue();
+        doubleLeftJoyY = leftJoyY.getValue();
         doublerightTrigger = rightTrigger.getValue();
         doubleleftTrigger = leftTrigger.getValue();
 
         //does math to convert joy values into wanted translation direction and speed.
-        if ((doubleleftJoyX == 0) && (doubleleftJoyY !! 0)){
-            if (doubleftJoyY > 0){
+        if ((doubleLeftJoyX == 0) && (doubleLeftJoyY != 0)){
+            if (doubleLeftJoyY > 0){
                 movementDirection = 0;
             }
             else {
                 movementDirection = 180;
             }
         }
-        if ((doubleleftJoyX == 0) && (doubleleftJoyY == 0)){
+        if ((doubleLeftJoyX == 0) && (doubleLeftJoyY == 0)){
             movementDirection = 0;
         }
-        if (doubleleftJoyX < 0){
-            if (doubleleftJoyY != 0){
-                if (doubleleftJoyY > 0){
-                    movementDirection = 90+(-180*(Math.atan(doubleleftJoyY/doubleleftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
+        if (doubleLeftJoyX < 0){
+            if (doubleLeftJoyY != 0){
+                if (doubleLeftJoyY > 0){
+                    movementDirection = 90+(-180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
                 }
                 else{
-                    movementDirection = 180+(180*(Math.atan(doubleleftJoyY/doubleleftJoyX)));
+                    movementDirection = 180+(180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX)));
                 }
             }
             else{
                 movementDirection = 270;
             }
         }
-        if (doubleleftJoyX > 0){
-            if (doubleleftJoyY != 0){
-                if (doubleleftJoyY > 0){
-                    movementDirection = 180*Math.atan(doubleleftJoyY/doubleleftJoyX);
+        if (doubleLeftJoyX > 0){
+            if (doubleLeftJoyY != 0){
+                if (doubleLeftJoyY > 0){
+                    movementDirection = 180*Math.atan(doubleLeftJoyY/doubleLeftJoyX);
                 }
                 else{
-                    movementDirection = 180*((Math.atan(doubleleftJoyY/doubleleftJoyX))+2);
+                    movementDirection = 180*((Math.atan(doubleLeftJoyY/doubleLeftJoyX))+2);
                 }
             }
             else{
@@ -189,9 +194,10 @@ public class SwerveDrive implements Subsystem{
         //pythagoreans theorem to find length of a line from the center of the joystick to the
         //location of the joystick and then the line is
         //put into a speed equation that makes the acceleration easier on the driver
-        c = Math.abs((speedMultiplier*Math.pow((Math.pow((Math.pow(doubleleftJoyY,2)+Math.pow(doubleleftJoyX,2)),.5),firstDegreeSpeedModifier)))/(speedDivider.get(speedModifier)));
-        for (i = 0; i < speedEquation.length){
-            if (i = 0){
+        z = speedDivider.get(speedModifier);
+        c = Math.abs((speedMultiplier*Math.pow((Math.pow((Math.pow(doubleLeftJoyY,2)+Math.pow(doubleLeftJoyX,2)),.5)),(firstDegreeSpeedModifier))/z));
+        for (i = 0; i < speedEquation.length;){
+            if (i == 0){
                 y = speedEquation[0];
             }
             if (i > 0){
@@ -199,12 +205,12 @@ public class SwerveDrive implements Subsystem{
             }
             i++;
         }
-        movementSpeed = z/speedDivider;
+        movementSpeed = y/speedDivider;
 
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
         //Relative to field2
-        if (doublerightTrigger && (!doubleleftTrigger)){
+        if (doublerightTrigger && (doubleleftTrigger == 0)){
             if (targetRotation < 180){
                 targetRotation = targetRotation + (doublerightTrigger*rotationMultiplier);
             }
@@ -212,7 +218,7 @@ public class SwerveDrive implements Subsystem{
                 targetRotation = (doublerightTrigger*rotationMultiplier)-(180-(targetRotation-180)); //could be simplified but easier to understand in this form
             }
         }
-        if (doubleleftTrigger && (!doublerightTrigger)){
+        if (doubleleftTrigger && (doublerightTrigger == 0)){
             if (targetRotation > -180){
                 targetRotation = targetRotation - (doubleleftTrigger*rotationMultiplier);
             }
@@ -222,7 +228,7 @@ public class SwerveDrive implements Subsystem{
         }
         //slowly turns robot towards the movement direction
         //when neither triggers are being pressed and the speed is positive
-        if ((!doubleleftTrigger && !doublerightTrigger)&& (movementSpeed > .05)){
+        if (((doubleleftTrigger == 0) && (doublerightTrigger == 0))&& (movementSpeed > .05)){
             //doesn't exist now but will be added if it is wanted
         }
     }
@@ -244,16 +250,16 @@ public class SwerveDrive implements Subsystem{
         
         //code to find which wheel is right from field view
         if ((yaw >= -45)&&(yaw<45)){
-            rightWheels[] = {2,4};
+            rightWheels = new int[]{2,4};
         }
         if ((yaw >= 45)&&(yaw<135)){
-            rightWheels[] = {1,2};
+            rightWheels = new int[]{1,2};
         }
         if ((yaw >= 135)||(yaw < -135)){
-            rightWheels[] = {1,3};
+            rightWheels = new int[]{1,3};
         }
         if ((yaw >= -135)&& (yaw < -45)){
-            rightWheels[] = {3,4};
+            rightWheels = new int[]{3,4};
         }
 
         //moves the robot
@@ -294,19 +300,19 @@ public class SwerveDrive implements Subsystem{
                 a++;
             }
         }
-        if (movementSpeed = 0 && (rotationDifference >= 0 - rotationTolerance)){
+        if (movementSpeed == 0 && (rotationDifference >= 0 - rotationTolerance)){
             targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[1] = -Math.arctan(robotY/robotX);
             targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[3] = -Math.arctan(robotY/robotX);
-            wheelSpeed[] = {1,1,1,1};
+            wheelSpeed = new double[]{1,1,1,1};
         }
-        if (movementSpeed = 0 && (rotationDifference < 0 + rotationTolerance)){
+        if (movementSpeed == 0 && (rotationDifference < 0 + rotationTolerance)){
             targetWheelRotation[0] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[1] = -Math.arctan(robotY/robotX);
             targetWheelRotation[2] = 180+Math.arctan(robotY/robotX);
             targetWheelRotation[3] = -Math.arctan(robotY/robotX);
-            wheelSpeed[] = {-1,-1,-1,-1};
+            wheelSpeed = new double[]{-1,-1,-1,-1};
         }
         for (a = 0; a < wheelRotSpeed.length;){
             for (i = 0; i < targetWheelRotation.length;){
@@ -348,9 +354,9 @@ public class SwerveDrive implements Subsystem{
         Gyro.ahrs.reset();
         yaw = Gyro.yaw();
         speedModifier = "Normal";
-        rightWheels[] = {2,4};
-        targetWheelRotation[] = {0,0,0,0};
-        wheelSpeed[] = {0,0,0,0};
-        currentWheelRotation[] = {0,0,0,0};
+        rightWheels = new int[]{2,4};
+        targetWheelRotation = new double[]{0,0,0,0};
+        wheelSpeed = new double[]{0,0,0,0};
+        currentWheelRotation = new double[]{0,0,0,0};
     }
 }
