@@ -3,9 +3,10 @@ Current Build Successful? Yes, Current Build Stable? No
 Changes: Changed the method to find right wheels.
     Changed from using yaw to using movementDirection
 Things to fix/do:
-    Line 206) "z = (speedModify.get(speedModifier));"
+    Line 216 "z = (speedModify.get(speedModifier));"
+        -fixed 4/15 @mccro
 */
-package org.wildstang.year2032.subsystems.drive;
+package org.wildstang.year2020.subsystems.swerveDrive;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -32,7 +33,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.kauailabs.navx.frc.AHRS;
 import com.kauailabs.navx.frc.Quaternion;
 
-import year2020.subsystems.Gyro;
+import org.wildstang.year2020.subsystems.swerveDrive.Gyro;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -77,9 +78,12 @@ public abstract class SwerveDrive implements Subsystem{
     private double speedDivider= 50;
 
     //initialize gyro
-    private AHRS ahrs = Gyro.ahrs;
+    private AHRS ahrs = Gyro.ahrs;//@mccro: you never use the ahrs because of the gyro class, so i'd get rid of this line
     private double yaw = Gyro.Yaw();
     private double rotationDifference;
+    //@mccro: question on how you want to use the gyro. currently, this doesn't call SetUpGyro(), which is required
+    //@mccro: you could call it here, or call it in WsOutputs, or make sure it gets called in robotInit() in the robot class
+    //@mccro: you could also have the gyro have a constructor that does what setupgyro does, and creating the subsystem in WsSubsystems would call it for you
 
     //initialize outputs (motors)
     // 00   11
@@ -178,9 +182,12 @@ public abstract class SwerveDrive implements Subsystem{
             if (doubleLeftJoyY != 0){
                 if (doubleLeftJoyY > 0){
                     movementDirection = 90+(-180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
+                    //@mccro: conversion rad->deg is 180/Math.PI, you're missing the pi
+                    //@mccro: this gives you the cartesian angle, but not bearing angle (i.e. north is 0, east is 90, south 180 and west 270)
+                    //@mccro: the standard translation is bearing = 90-cartesian, so that makes 90 - (180/Math.PI)Math.atan(y/x) + 180 or 270-(blah)
                 }
                 else{
-                    movementDirection = 180+(180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX)));
+                    movementDirection = 180+(180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX)));//@mccro: see ln181->183
                 }
             }
             else{
@@ -189,11 +196,13 @@ public abstract class SwerveDrive implements Subsystem{
         }
         if (doubleLeftJoyX > 0){
             if (doubleLeftJoyY != 0){
-                if (doubleLeftJoyY > 0){
-                    movementDirection = 180*Math.atan(doubleLeftJoyY/doubleLeftJoyX);
+                if (doubleLeftJoyY > 0){//@mccro: shouldn't need to check this, one equation can satisfy both conditions
+                    movementDirection = 180*Math.atan(doubleLeftJoyY/doubleLeftJoyX);//@mccro: see ln181
+                    //@mccro: this gives you the cartesian angle, but not bearing angle (i.e. north is 0, east is 90, south 180 and west 270)
+                    //@mccro: the standard translation is bearing = 90-cartesian, so that makes 90 - (180/Math.PI)Math.atan(y/x)
                 }
                 else{
-                    movementDirection = 180*((Math.atan(doubleLeftJoyY/doubleLeftJoyX))+2);
+                    movementDirection = 180*((Math.atan(doubleLeftJoyY/doubleLeftJoyX))+2);//@mccro: see ln181&197->198
                 }
             }
             else{
@@ -204,7 +213,9 @@ public abstract class SwerveDrive implements Subsystem{
         //location of the joystick and then the line is
         //put into a speed equation that makes the acceleration easier on the driver
         
-        //z = (speedModify.get(speedModifier));  //doesn't work ATM returns, "Object cannot be converted to double"
+        z = ((double)speedModify.get(speedModifier));  //doesn't work ATM returns, "Object cannot be converted to double"
+        //@mccro: (double) added above. A dictionary returns generic objects because it doesn't know if you're storing ints or doubles or booleans or whatnot
+        //@mccro: so you have to define what variable you are trying to get from it, done with the (double) casting
         z = 1;
         c = Math.abs((speedMultiplier*Math.pow((Math.pow((Math.pow(doubleLeftJoyY,2)+Math.pow(doubleLeftJoyX,2)),.5)),(firstDegreeSpeedModifier))/z));
         for (i = 0; i < speedEquation.length;){
@@ -217,6 +228,10 @@ public abstract class SwerveDrive implements Subsystem{
             i++;
         }
         movementSpeed = y/speedDivider;
+        //@mccro: what's the significance of 50 for the speed divider? shouldn't a c value of 1 return a movementSpeed of 1? 
+        //@mccro: right now it gives 6/50
+
+        //@mccro: you could technically pack ln170->230 into two methods, one to return movementDirection and another to return movementSpeed. discussed more ln255
 
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
@@ -227,6 +242,8 @@ public abstract class SwerveDrive implements Subsystem{
             }
             if (targetRotation >= 180){
                 targetRotation = (doublerightTrigger*rotationMultiplier)-(180-(targetRotation-180)); //could be simplified but easier to understand in this form
+                //@mccro: above you have movement rotation 0->360, and ow this -180->180. Neither is wrong, but it might help to be consistent
+                //@mccro: you could also use the modulus operator to make this a bit cleaner if going from 0 to 360
             }
         }
         if ((doubleleftTrigger != 0) && (doublerightTrigger == 0)){
@@ -235,12 +252,17 @@ public abstract class SwerveDrive implements Subsystem{
             }
             if (targetRotation <= -180){
                 targetRotation = ((-doubleleftTrigger)*rotationMultiplier)-(180+(targetRotation+180));
+                //@mccro: i believe you want a plus instead of a minus    ^  there. A good test is to plug in -180 for targetrotation and see what you get
+                //@mccro: before the change i got -180-trigger, after the change i got 180-trigger, which i believe is what you want
             }
         }
+        //@mccro: you could put all of the above into a method to make inputUpdate easier to read, i.e. targetRotation = getTargetRot(doubleleftTrigger, doublerightTrigger);
+        //@mccro: and getTargetRot does all of the above (ln233->252) and returns targetRotation. Not required, but helps keep the code packed into easier-to-read segments
         //slowly turns robot towards the movement direction
         //when neither triggers are being pressed and the speed is positive
         if (((doubleleftTrigger == 0) && (doublerightTrigger == 0))&& (movementSpeed > .05)){
             //doesn't exist now but will be added if it is wanted
+            //@mccro: i doubt we will want this, we likely don't want to change the rotation without a button being pressed
         }
     }
 
@@ -249,14 +271,14 @@ public abstract class SwerveDrive implements Subsystem{
         yaw = Gyro.Yaw();
         
         //finds difference between yaw and target yaw to create rotationDifference
-        if (targetRotation < 0 +rotationTolerance){ //0 + rotation tolerance will always be rotation tolerance.
+        if (targetRotation < 0 +rotationTolerance){ //@mccro: not sure what rotation tolerance does here. ln273 or 281 still apply regardless
             rotationDifference = ((360+targetRotation)-yaw);
             if (rotationDifference > 180){
                 rotationDifference = rotationDifference-360;
             }
         }
         if (targetRotation >= 0 - rotationTolerance){
-            rotationDifference = targetRotation-yaw;
+            rotationDifference = targetRotation-yaw;//@mccro: check this for rotationdifference < -180?
         }
         
         //code to find which wheel is right from movement direction
@@ -275,8 +297,9 @@ public abstract class SwerveDrive implements Subsystem{
 
         //moves the robot
         if (movementSpeed > 0){ //"targetWheelRotation.length()", not ".length;". length is a function
+                                //@mccro: length is a field for an array, not a function; array.length is correct
             for(i = 0; i< targetWheelRotation.length;){ //I got lost somewhere. Up to this point, I knew what stuff did. Now I am confused.
-                targetWheelRotation[i] = movementDirection;
+                targetWheelRotation[i] = movementDirection;//@mccro: this is true only for the translation, you need to also account for rotation while the robot is moving (maybe, see ln325)
                 if (rotationDifference == 0){
                     wheelSpeed[i] = movementSpeed;
                 }
@@ -300,31 +323,44 @@ public abstract class SwerveDrive implements Subsystem{
                 }
                 i++;
             }
+            //@mccro: I might be wrong, but it looks like you're trying to rotate while moving by slowing down two of the wheels.
+            //@mccro: this is a pretty novel solution, but we're going to want to do this by having the wheel rotation change for each wheel
+            //@mccro: in order to avoid "wheel scrub" (where one wheel is moving in a direction it isn't pointing) and to maximize the driving
+            //@mccro: speed we can get out of the robot. 
         }
 
 
         //rotates the robot
-        if (((rotationDifference < rotationTolerance) || (rotationDifference > -rotationTolerance)) && movementSpeed == 0){
+        if (((rotationDifference < rotationTolerance) || (rotationDifference > -rotationTolerance)) && movementSpeed == 0){//@mccro: the || should be an &&
+            //@mccro: otherwise you have num<3 or num>-3, so the first makes [-inf->3] true while the second makes [-3->inf] true, so combined they make all real numbers true
             for (a = 0; a < wheelRotSpeed.length;){
                 wheelRotSpeed[a] = 0;
                 wheelSpeed[a] = 0;
                 a++;
             }
         }
-        if (movementSpeed == 0 && (rotationDifference >= 0 - rotationTolerance)){
-            targetWheelRotation[0] = 180+Math.atan(robotY/robotX);
-            targetWheelRotation[1] = -Math.atan(robotY/robotX);
-            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);
-            targetWheelRotation[3] = -Math.atan(robotY/robotX);
+        if (movementSpeed == 0 && (rotationDifference >= 0 - rotationTolerance)){//@mccro: same thing in this whole section with needing to divide by pi to convert to deg
+            targetWheelRotation[0] = 180+Math.atan(robotY/robotX);//@mccro: given that robotY and robotX are constants, you can just create another constant equal to 
+                                                                    //@mccro: Math.atan(robotY/robotX) to simplify what's seen here
+            targetWheelRotation[1] = -Math.atan(robotY/robotX);//@mccro: it's kinda odd that one value is above 180, and the other below 0. the two typical ranges are [-180,180]
+                                                                //@mccro: and [0,360], so we should try to keep both values in one of those two ranges, and keep the expected
+                                                                //@mccro: ranges for the whole code in one or the other, i.e. nothing under 0 or nothing over 180 (like ln244)
+            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);//@mccro: i think you want the values for [2] and [3] switched - in pure rotation, opposite corner wheels should
+            targetWheelRotation[3] = -Math.atan(robotY/robotX);//@mccro: be facing in the same direction, like a diamond
+            //@mccro: /  \  is what the wheels should look like(but perpendicular to a line drawn between them and the center of the robot)
+            //@mccro: \  /
             wheelSpeed = new double[]{1,1,1,1};
         }
         if (movementSpeed == 0 && (rotationDifference < 0 + rotationTolerance)){
             targetWheelRotation[0] = 180+Math.atan(robotY/robotX);
             targetWheelRotation[1] = -Math.atan(robotY/robotX);
-            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);
+            targetWheelRotation[2] = 180+Math.atan(robotY/robotX);//@mccro: see ln342->351
             targetWheelRotation[3] = -Math.atan(robotY/robotX);
             wheelSpeed = new double[]{-1,-1,-1,-1};
         }
+        //@mccro: i'd recommend looking at using the ControlMode.position for the rotation motors. you're already finding the ideal target angle,
+        //@mccro: so you could just convert that into encoder ticks and go rotLeftTop.set(ControlMode.Position, degreesToTicks(targetWheelRotation[0])))
+        //@mccro: where degreesToTicks would take a number in degrees and return it in ticks. this year's turret code has a similar layout using this method
         for (a = 0; a < wheelRotSpeed.length;){
             for (i = 0; i < targetWheelRotation.length;){
                 wheelRotDifference[i] = targetWheelRotation[i]-currentWheelRotation[i];
@@ -355,6 +391,9 @@ public abstract class SwerveDrive implements Subsystem{
         wheelLeftBottom.set(wheelSpeed[1]);
         wheelRightTop.set(wheelSpeed[2]);
         wheelRightBottom.set(wheelSpeed[3]);
+        //@mccro: just want to say, the overall organization and layout of this is awesome. almost every number has a variable or logical reason,
+        //@mccro: the arrays really help tidy everything up between the four wheels, and the overall approach is correct and implemented well.
+        //@mccro: this is a fantastic start, keep up the good work
     }
 
     //resets the subsystem for whatever reason
