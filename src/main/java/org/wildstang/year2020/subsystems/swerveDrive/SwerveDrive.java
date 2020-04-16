@@ -87,6 +87,7 @@ public abstract class SwerveDrive implements Subsystem{
     //    c
     // 22   33
     // 22   33
+    // in a list declaration, the "[]" goes in the type. Ex: public double[] list = {.....
     public double targetWheelRotation[] = {0,0,0,0}; //target rotation for LeftTop,RightTop,LeftBottom,RightBottom wheels
     private double currentWheelRotation[] = {0,0,0,0};
     private double wheelRotDifference[] = {0,0,0,0};
@@ -162,8 +163,13 @@ public abstract class SwerveDrive implements Subsystem{
         doubleleftTrigger = leftTrigger.getValue();
 
         //does math to convert joy values into wanted translation direction and speed.
+<<<<<<< HEAD:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/SwerveDrive.java
         if ((doubleLeftJoyX == 0) && (doubleLeftJoyY != 0)){
             if (doubleLeftJoyY > 0){
+=======
+        if ((doubleleftJoyX == 0) && (doubleleftJoyY !! 0)){ //the "!!" could be right, but since it is throwing an error, try using "!=", "=!"
+            if (doubleftJoyY > 0){
+>>>>>>> de955bcea97df515663cd2c6409a04d3a823c053:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/Swerve.java
                 movementDirection = 0;
             }
             else {
@@ -173,10 +179,17 @@ public abstract class SwerveDrive implements Subsystem{
         if ((doubleLeftJoyX == 0) && (doubleLeftJoyY == 0)){
             movementDirection = 0;
         }
+<<<<<<< HEAD:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/SwerveDrive.java
         if (doubleLeftJoyX < 0){
             if (doubleLeftJoyY != 0){
                 if (doubleLeftJoyY > 0){
                     movementDirection = 90+(-180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
+=======
+        if (doubleleftJoyX < 0){
+            if (doubleleftJoyY != 0){
+                if (doubleleftJoyY > 0){ //the arctangent function outputs values between -2pi and 2pi, so you only need to test wether X is pos. or neg. also, to convert radians to degrees, multiply by (180/3.14), or use Math.toDegrees(). 
+                    movementDirection = 90+(-180*(Math.atan(doubleleftJoyY/doubleleftJoyX))); //Math.atan is arctangent(x) or (tan^-1)(x), turns sine/cos into degrees
+>>>>>>> de955bcea97df515663cd2c6409a04d3a823c053:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/Swerve.java
                 }
                 else{
                     movementDirection = 180+(180*(Math.atan(doubleLeftJoyY/doubleLeftJoyX)));
@@ -220,7 +233,11 @@ public abstract class SwerveDrive implements Subsystem{
         //Staight is 0 degrees (towards the other side), backwards is -180 or 180 degrees.
         //Left is negative, Right is positive.
         //Relative to field2
+<<<<<<< HEAD:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/SwerveDrive.java
         if ((doublerightTrigger != 0) && (doubleleftTrigger == 0)){
+=======
+        if (doublerightTrigger && (!doubleleftTrigger)){ //this works, but can lead to the robot to continue moving even after the triggers have been released. Also, if the robot gets stuck on something (ex. another robot), it will keep trying to turn until the oppisite trigger has been pressed, or it becomes unstuck.
+>>>>>>> de955bcea97df515663cd2c6409a04d3a823c053:src/main/java/org/wildstang/year2020/subsystems/swerveDrive/Swerve.java
             if (targetRotation < 180){
                 targetRotation = targetRotation + (doublerightTrigger*rotationMultiplier);
             }
@@ -248,7 +265,7 @@ public abstract class SwerveDrive implements Subsystem{
         yaw = Gyro.Yaw();
         
         //finds difference between yaw and target yaw to create rotationDifference
-        if (targetRotation < 0 +rotationTolerance){
+        if (targetRotation < 0 +rotationTolerance){ //0 + rotation tolerance will always be rotation tolerance.
             rotationDifference = ((360+targetRotation)-yaw);
             if (rotationDifference > 180){
                 rotationDifference = rotationDifference-360;
@@ -273,8 +290,8 @@ public abstract class SwerveDrive implements Subsystem{
         }
 
         //moves the robot
-        if (movementSpeed > 0){
-            for(i = 0; i< targetWheelRotation.length;){
+        if (movementSpeed > 0){ //"targetWheelRotation.length()", not ".length;". length is a function
+            for(i = 0; i< targetWheelRotation.length;){ //I got lost somewhere. Up to this point, I knew what stuff did. Now I am confused.
                 targetWheelRotation[i] = movementDirection;
                 if (rotationDifference == 0){
                     wheelSpeed[i] = movementSpeed;
