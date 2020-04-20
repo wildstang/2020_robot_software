@@ -16,9 +16,9 @@ public final class CANConstants {
     public static final int SwerveMotor = 132;
     public static final int SwerveMotorSlave = 132;
     public static final int RightDrive = 132;
-    public static final int RightDriveSlave = 132;
+    public static final int RightDriveBack = 132;
     public static final int LeftDrive = 132;
-    public static final int LeftDriveSlave = 132;
+    public static final int LeftDriveBack = 132;
     // TODO put in correct IDs
     public static final int BALLPATH_FEED = 9;
     public static final int BALLPATH_KICKER = 10;
