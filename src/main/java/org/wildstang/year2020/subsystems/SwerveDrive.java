@@ -80,7 +80,7 @@ public class SwerveDrive implements Subsystem {
        Gyro.Reset(); //gyro rest command
        ControlHeading = 0;
        Velocity = 0;
-       Quick = 0;
+
        ReYaw = false;
     }
 
@@ -89,7 +89,7 @@ public class SwerveDrive implements Subsystem {
         Gyro.Reset();
     ControlHeading = 0;
        Velocity = 0;
-       Quick = 0;
+       
        ReYaw = false;
     }
     
@@ -138,11 +138,11 @@ public class SwerveDrive implements Subsystem {
             Gyro.Zero();
         }
           //Turning and moving
-        TurningVar = turnstate/(Math.pow(Math.cos(GotoAngle+Convert(45)),2)+Math.pow(Math.cos(GotoAngle+Convert(135)),2)+Math.pow(Math.cos(GotoAngle+Convert(225)),2)+Math.pow(Math.cos(GotoAngle+Convert(-90)),2));
-        DriveMotorRight.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GotoAngle)+(3.14/2))))+Velocity);
-        DriveMotorLeft.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GotoAngle)+(3.14*(3/2)))))+Velocity);
-        DriveMotorRightBack.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GotoAngle)-(3.14/2))))+Velocity);
-        DriveMotorLeftBack.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GotoAngle)-(3.14*(3/2)))))+Velocity);
+        TurningVar = turnstate/(Math.pow(Math.cos(GoToAngle+Convert(45)),2)+Math.pow(Math.cos(GoToAngle+Convert(135)),2)+Math.pow(Math.cos(GoToAngle+Convert(225)),2)+Math.pow(Math.cos(GoToAngle+Convert(-90)),2));
+        DriveMotorRight.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GoToAngle)+(3.14/2))))+Velocity);
+        DriveMotorLeft.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GoToAngle)+(3.14*(3/2)))))+Velocity);
+        DriveMotorRightBack.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GoToAngle)-(3.14/2))))+Velocity);
+        DriveMotorLeftBack.set(ControlMode.Velocity,(TurningVar*Math.cos(Math.toRadians(Convert(GoToAngle)-(3.14*(3/2)))))+Velocity);
     }
 private double Convert(double angle){
     return (angle/4096)*360;
