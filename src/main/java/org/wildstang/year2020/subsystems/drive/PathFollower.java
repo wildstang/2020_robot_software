@@ -6,6 +6,7 @@ import com.ctre.phoenix.motion.MotionProfileStatus;
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -16,8 +17,8 @@ public class PathFollower {
     private boolean m_running = false;
 
     private Path m_path;
-    private TalonSRX m_left;
-    private TalonSRX m_right;
+    private TalonFX m_left;
+    private TalonFX m_right;
 
     private boolean isForwards;
 
@@ -27,7 +28,7 @@ public class PathFollower {
 
     private Notifier m_notifer = new Notifier(new PeriodicRunnable());
 
-    public PathFollower(Path p_path, boolean isForwards, TalonSRX p_left, TalonSRX p_right) {
+    public PathFollower(Path p_path, boolean isForwards, TalonFX p_left, TalonFX p_right) {
         m_path = p_path;
         m_left = p_right;
         m_right = p_left;
