@@ -1,1 +1,0 @@
-/* Placeholder --- no vision code yet */

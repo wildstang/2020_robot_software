@@ -39,17 +39,3 @@ To debug the code, open the command palette, search and select "WPILib: Debug ro
 ### Next Steps
 You'll want to have a look below and at the detailed docs in the
 [`design_docs`](design_docs/) folder for more information on where to go next.
-
-## Robots
-This combined codebase has logic for multiple robots in it. 
-
-Each robot has a package under `org.wildstang` e.g. `org.wildstang.year2016`, `org.wildstang.year2017`.
-
-| Robot              | Package                                     |
-| ------------------ | ------------------------------------------- |
-| 2016 Robot Code    | year2016                                    |
-| 2017 Robot Code    | year2017                                    |
-| 2018 Robot Code    | *Robot code was developed in C++ this year* |
-| 2019 Robot Code    | year2019                                    |
-| 2020 Robot Code    | year2020                                    |
-| Practice Drivebase | devbase1                                    |
